@@ -1,0 +1,8 @@
+""" TODO List"""
+
+1) Verify thoroughly transtyping between int, PFElement, FFElement and Polynomial for operators add, mul, eq
+2) Tidy up the code of PrimeField to get rid of low level functions _pf_*
+3) Answer the first item by subclassing PFElement from int and FFElement from Polynomial (branch out the code)
+4) Get rid of IntegralDomain class, of Z class to make this module only suitable for finite fields
+5) If 1) has been solved, change the signature of gcd and power to remove argument zero and one
+6) Measure performance of the code : finite field instantiation and polynomial factorization
