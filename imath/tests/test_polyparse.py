@@ -4,7 +4,7 @@ from unittest import main as run_tests
 
 from imath.polyparse import symbolic_polynomial
 from imath import PrimeField, FiniteField
-from imath.integer import Z
+from imath.integer import IntegerRing
 from imath import Polynomial
 
 
@@ -28,7 +28,7 @@ class TestParserAdvanced(TestCase):
         self.f4 = FiniteField(2, 2, p_gen)
 
     def test1(self):
-        p = Polynomial([0, 1, 1], Z())
+        p = Polynomial([0, 1, 1], IntegerRing())
         self.assertTrue(str(p) == 'X + X^2')
 
         f5 = PrimeField(5)
@@ -79,8 +79,8 @@ class TestParserComplete(TestCase):
 
     def test2(self):
         expr = '-1'
-        p = symbolic_polynomial(expr, Z())
-        self.assertTrue(p == Z().polynomial(-1))
+        p = symbolic_polynomial(expr, IntegerRing())
+        self.assertTrue(p == IntegerRing().polynomial(-1))
 
     def test3(self):
         expr = '-1 - X'
@@ -98,18 +98,18 @@ class TestParserComplete(TestCase):
 
     def test5(self):
         expr = '1 + X - X^2 + X^6'
-        p = symbolic_polynomial(expr, Z())
-        self.assertTrue(p == Z().polynomial(1, 1, -1, 0, 0, 0, 1))
+        p = symbolic_polynomial(expr, IntegerRing())
+        self.assertTrue(p == IntegerRing().polynomial(1, 1, -1, 0, 0, 0, 1))
 
     def test6(self):
         expr = '-'
         with self.assertRaises(SyntaxError):
-            symbolic_polynomial(expr, Z())
+            symbolic_polynomial(expr, IntegerRing())
 
     def test7(self):
         expr = '++X'
         with self.assertRaises(SyntaxError):
-            symbolic_polynomial(expr, Z())
+            symbolic_polynomial(expr, IntegerRing())
 
     def test8(self):
         expr = '(j+)X'
@@ -124,22 +124,22 @@ class TestParserComplete(TestCase):
     def test9(self):
         expr = 'X^'
         with self.assertRaises(SyntaxError):
-            symbolic_polynomial(expr, Z())
+            symbolic_polynomial(expr, IntegerRing())
 
     def test10(self):
         expr = 'X^ + 1'
         with self.assertRaises(SyntaxError):
-            symbolic_polynomial(expr, Z())
+            symbolic_polynomial(expr, IntegerRing())
 
     def test11(self):
         expr = '-X + X^2 X^3'
         with self.assertRaises(SyntaxError):
-            symbolic_polynomial(expr, Z())
+            symbolic_polynomial(expr, IntegerRing())
 
     def test12(self):
         expr = ''
-        p = symbolic_polynomial(expr, Z())
-        self.assertTrue(p == Z().polynomial(Z().zero))
+        p = symbolic_polynomial(expr, IntegerRing())
+        self.assertTrue(p == IntegerRing().polynomial(IntegerRing().zero))
 
 
 if __name__ == '__main__':

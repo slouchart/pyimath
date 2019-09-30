@@ -4,21 +4,20 @@ import random
 
 import operator
 from imath.functions import maybe_prime, power
-from imath.base import IntegralDomain
 from imath.polynomial import Polynomial
 
 AdditiveGroup = List[int]
 MultiplicativeGroup = Dict[Tuple[int, int], Union[int, List[int]]]
 
 
-class PrimeField(IntegralDomain):
+class PrimeField:
     """Prime field definition of characteristic P
        The representation of the field elements are not integer modulo P
        but rather relative integers in the range -(P-1)/2..(P-1)/2"""
     def __init__(self, prime: int):
-        super().__init__(prime)
-        self.additive_group = additive_group_representation(prime)
-        self.multiplicative_group = multiplicative_group_representation(self.additive_group)
+        self.characteristic = prime
+        self.additive_group = self.additive_group_representation(prime)
+        self.multiplicative_group = self.multiplicative_group_representation(self.additive_group)
 
     def element(self, n):
         """Casts an integer into an element of the field"""
@@ -46,23 +45,23 @@ class PrimeField(IntegralDomain):
 
     def add(self, a, b):
         """Addition in the field"""
-        return self(_pf_add(a.value, b.value, self.additive_group))
+        return self(self._pf_add(a.value, b.value, self.additive_group))
 
     def additive_inverse(self, a):
         """Returns -a """
-        return self(_pf_additive_inverse(a.value, self.additive_group))
+        return self(self._pf_additive_inverse(a.value, self.additive_group))
 
     def mul(self, a, b):
         """Multiplication in the field"""
-        return self(_pf_mul(a.value, b.value, self.multiplicative_group))
+        return self(self._pf_mul(a.value, b.value, self.multiplicative_group))
 
     def ext_mul(self, n: int, a):
         """Multiplication of a by integer n <=> a+...+a n times"""
-        return self(_pf_ext_mul(n, a.value, self.additive_group))
+        return self(self._pf_ext_mul(n, a.value, self.additive_group))
 
     def multiplicative_inverse(self, a):
         """Returns 1/a"""
-        return self(_pf_multiplicative_inverse(a.value, self.multiplicative_group))
+        return self(self._pf_multiplicative_inverse(a.value, self.multiplicative_group))
 
     def floor_div(self, a, b):
         return self.div(a, b)
@@ -75,11 +74,15 @@ class PrimeField(IntegralDomain):
 
     def div(self, a, b):
         """Exact division in the field"""
-        return self(_pf_div(a.value, b.value, self.multiplicative_group))
+        return self(self._pf_div(a.value, b.value, self.multiplicative_group))
 
     def pow(self, a, e: int):
         """Returns a**e using rapid exponentiation"""
-        return power(a, e, self.zero, self.one)
+        res = power(a, e)
+        if not isinstance(res, PFElement):
+            return self(res)
+        else:
+            return res
 
     def __eq__(self, other):
         assert isinstance(other, self.__class__)
@@ -150,6 +153,232 @@ class PrimeField(IntegralDomain):
            b^(p-1) = 1 => b^p = b thus a = b"""
         assert a in self
         return a
+
+    """LOW LEVEL FIELD OPERATIONS"""
+
+    """Note on the principles of operations
+
+    Usually addition and multiplication over Z/pZ
+    are defined from the addition and multiplication over Z modulo p
+    thus the classes of integers are 0, 1 ... p-1
+    Because we want to ease the arithmetic, we require our elements
+    to be in the range -(P-1)/2..(P+1)/2 for any P>2
+    For P=2, there is no change the operations are trivial anyway
+
+    So, how we do that?
+
+    For the addition, we use the group axioms and its cyclicity
+    i.e for a in the group 1+...+1 (p times) = 0
+    e.g for P=7, we map the elements 4, 5 and 6
+    respectively to -3, -2 and -1 because
+    1 + 1 + 1 + 1 = 4 and 1 + 1 + 1 = 3 
+    => 1 + ... + 1 (7 times) = 0 => 4 = -3
+
+    For the multiplication, we need a table (a,b) = a*b
+    we construct this table using the following axioms
+        a * 1 = 1 * a (note: this is enough for P = 2)
+        a * -1 = -1 * a = -a
+        This is enough for P = 3
+
+    when P > 3, we compute the squares of 2..(p-1)/2
+    using the distributivity of + over *
+    e.g 2 * 2 (F5) = (1 + 1)(1 + 1) = 1 + 1 + 1 + 1 = -1
+    then, the abelian group axioms gives the value of -a * -a
+    and -a * a
+    -a * -a = -1 * a * -1 * a  = a * a
+    -a * a = -1 * a * a = - a*a
+
+    while we are at it, once a*a has been computed
+    we can compute the products of a and all elements > a
+    a(a+1) = a*a + a
+    a(a+1+1) = a*a + a + a
+    and so on
+
+    The other products are computed using the commutativity
+    and the associativity of an abelian group
+
+    There is certainly a way to optimize this but it does not
+    seem to be trivial.
+
+    For instance, the only product we need to know for F5
+    is 2 * 2 = -2 * -2 = -(-2 * 2)
+
+    For F7, there are 2*2, 2*3 and 3*3
+    For F11, there are 2*2, 2*3, 2*4, 2*5, 3*3, 3*4, 3*5,
+    4*4, 4*5 and 5*5
+
+    The gain is the following:
+    the table takes O(p^2) space because its a (p-1) * (p-1)
+    matrix.
+    We note k = (p-1)/2 - 1 = (p-3)/2
+    The minimal number of products is then k(k+1)/2
+    The order is the same: O(p^2)
+    The only difference is a reduction of the overall size by 4
+    as p grows
+    """
+    @staticmethod
+    def additive_group_representation(p: int) -> AdditiveGroup:
+        assert p >= 2  # indeed, p must be a prime
+        assert maybe_prime(p, 3)
+        res = [0, 1]
+        if p == 2:
+            return res
+
+        res = [-1] + res
+        for elt in range(2, (p + 1) // 2):
+            res.append(elt)
+            res.insert(0, -elt)
+        return res
+
+    @staticmethod
+    def _pf_add(a: int, b: int, gr: AdditiveGroup) -> int:
+        assert a in gr and b in gr
+
+        if a == 0:
+            return b
+
+        if b == 0:
+            return a
+
+        if a == -b:
+            return 0
+
+        p = len(gr)
+        # special cas for F2, this field isn't symmetric
+        if p == 2:
+            if a == 1 and b == 1:
+                return 0
+
+        bound = p - 1
+        pos = gr.index(a)
+        offset = b
+        if offset > 0:
+            if pos + offset > bound:
+                return gr[(pos + offset) - bound - 1]
+            else:
+                return gr[pos + offset]
+        else:
+            if pos + offset < 0:
+                return gr[bound + (pos + offset) + 1]
+            else:
+                return gr[pos - abs(offset)]
+
+    @staticmethod
+    def _pf_additive_inverse(n: int, gr: AdditiveGroup) -> int:
+        p = len(gr)
+        if p == 2:
+            return n
+        else:
+            return -n
+
+    @staticmethod
+    def multiplicative_group_representation(gr: AdditiveGroup) -> MultiplicativeGroup:
+        def uni_deg_one_poly(elt):
+            return [elt - 1]
+
+        def mul_uni_deg_one_poly(p1, p2, gr_add, gr_mul):
+            return [PrimeField._pf_mul(p1[0], p2[0], gr_mul), PrimeField._pf_add(p1[0], p2[0], gr_add)]
+
+        def eval_uni_poly_at_1(p0, gr_add):
+            s = 1
+            for elt in p0:
+                s = PrimeField._pf_add(s, elt, gr_add)
+            return s
+
+        p = len(gr)  # characteristic of the field
+        res = {(1, 1): 1}
+        reciprocals = {k: None for k in gr if k != 0}
+        reciprocals[1] = 1
+
+        if p > 2:
+            # step 0, initialize the matrix through the action of group {-1, 1} over the field
+            for e in gr:
+                if e != 0:
+                    res[(1, e)] = res[(e, 1)] = e
+                    res[(e, -1)] = res[(-1, e)] = -e
+                    res[(1, -e)] = res[(-e, 1)] = -e
+                    res[(-e, -1)] = res[(-1, -e)] = e
+            res[(-1, -1)] = 1
+            reciprocals[-1] = -1
+
+            if p > 3:
+
+                for e in range(2, (p + 1) // 2):
+                    # step 1, compute squares
+                    pn = uni_deg_one_poly(e)
+                    v = eval_uni_poly_at_1(mul_uni_deg_one_poly(pn, pn, gr, res), gr)
+                    res[(e, e)] = res[(-e, -e)] = v
+                    res[(-e, e)] = res[(e, -e)] = -v
+                    if v == 1:
+                        reciprocals[e] = e
+                    if -v == 1:
+                        reciprocals[e] = -e
+                        reciprocals[-e] = e
+
+                    # step 2, compute lateral products
+                    for f in range(e + 1, (p + 1) // 2):
+                        pn2 = uni_deg_one_poly(f)
+                        v = eval_uni_poly_at_1(mul_uni_deg_one_poly(pn2, pn, gr, res), gr)
+                        res[(e, f)] = res[(f, e)] = v
+                        res[(-e, f)] = res[(f, -e)] = -v
+                        res[(e, -f)] = res[(-f, e)] = -v
+                        res[(-e, -f)] = res[(-f, -e)] = v
+                        if v == 1:
+                            reciprocals[e] = f
+                            reciprocals[f] = e
+                            reciprocals[-e] = -f
+                        if -v == 1:
+                            reciprocals[-e] = f
+                            reciprocals[f] = -e
+                            reciprocals[-f] = e
+                            reciprocals[e] = -f
+
+        assert len(res) == (p - 1) ** 2
+
+        res[(0, 0)] = reciprocals
+        return res
+
+    @staticmethod
+    def _pf_mul(a: int, b: int, gr: MultiplicativeGroup) -> int:
+        if a == 0 or b == 0:
+            return 0
+
+        assert (a, b) in gr, f'{(a, b)} not in {gr}'
+
+        if a == 1:
+            return b
+
+        if b == 1:
+            return a
+
+        if a == -1:
+            return -b
+
+        if b == -1:
+            return -a
+
+        return gr[(a, b)]
+
+    @staticmethod
+    def _pf_ext_mul(n: int, a: int, gr: AdditiveGroup) -> int:
+        if a == 0:
+            return 0
+        res = a
+        for i in range(1, n):
+            res = PrimeField._pf_add(res, a, gr)
+        return res
+
+    @staticmethod
+    def _pf_multiplicative_inverse(a: int, gr: MultiplicativeGroup) -> int:
+        if a == 0:
+            raise ZeroDivisionError
+
+        return gr[(0, 0)][a]
+
+    @staticmethod
+    def _pf_div(a: int, b: int, gr: MultiplicativeGroup) -> int:
+        _1_b = PrimeField._pf_multiplicative_inverse(b, gr)
+        return PrimeField._pf_mul(a, _1_b, gr)
 
 
 class PFElement:
@@ -287,235 +516,3 @@ class PFElement:
     @property
     def is_one(self):
         return self.field.one == self
-
-
-"""LOW LEVEL FIELD OPERATIONS"""
-
-"""Note on the principles of operations
-
-Usually addition and multiplication over Z/pZ
-are defined from the addition and multiplication over Z modulo p
-thus the classes of integers are 0, 1 ... p-1
-Because we want to ease the arithmetic, we require our elements
-to be in the range -(P-1)/2..(P+1)/2 for any P>2
-For P=2, there is no change the operations are trivial anyway
-
-So, how we do that?
-
-For the addition, we use the group axioms and its cyclicity
-i.e for a in the group 1+...+1 (p times) = 0
-e.g for P=7, we map the elements 4, 5 and 6
-respectively to -3, -2 and -1 because
-1 + 1 + 1 + 1 = 4 and 1 + 1 + 1 = 3 
-=> 1 + ... + 1 (7 times) = 0 => 4 = -3
-
-For the multiplication, we need a table (a,b) = a*b
-we construct this table using the following axioms
-    a * 1 = 1 * a (note: this is enough for P = 2)
-    a * -1 = -1 * a = -a
-    This is enough for P = 3
-
-when P > 3, we compute the squares of 2..(p-1)/2
-using the distributivity of + over *
-e.g 2 * 2 (F5) = (1 + 1)(1 + 1) = 1 + 1 + 1 + 1 = -1
-then, the abelian group axioms gives the value of -a * -a
-and -a * a
--a * -a = -1 * a * -1 * a  = a * a
--a * a = -1 * a * a = - a*a
-
-while we are at it, once a*a has been computed
-we can compute the products of a and all elements > a
-a(a+1) = a*a + a
-a(a+1+1) = a*a + a + a
-and so on
-
-The other products are computed using the commutativity
-and the associativity of an abelian group
-
-There is certainly a way to optimize this but it does not
-seem to be trivial.
-
-For instance, the only product we need to know for F5
-is 2 * 2 = -2 * -2 = -(-2 * 2)
-
-For F7, there are 2*2, 2*3 and 3*3
-For F11, there are 2*2, 2*3, 2*4, 2*5, 3*3, 3*4, 3*5,
-4*4, 4*5 and 5*5
-
-The gain is the following:
-the table takes O(p^2) space because its a (p-1) * (p-1)
-matrix.
-We note k = (p-1)/2 - 1 = (p-3)/2
-The minimal number of products is then k(k+1)/2
-The order is the same: O(p^2)
-The only difference is a reduction of the overall size by 4
-as p grows
-"""
-
-
-def additive_group_representation(p: int) -> AdditiveGroup:
-    assert p >= 2  # indeed, p must be a prime
-    assert maybe_prime(p, 3)
-    res = [0, 1]
-    if p == 2:
-        return res
-
-    res = [-1] + res
-    for elt in range(2, (p + 1) // 2):
-        res.append(elt)
-        res.insert(0, -elt)
-    return res
-
-
-def _pf_add(a: int, b: int, gr: AdditiveGroup) -> int:
-    assert a in gr and b in gr
-
-    if a == 0:
-        return b
-
-    if b == 0:
-        return a
-
-    if a == -b:
-        return 0
-
-    p = len(gr)
-    # special cas for F2, this field isn't symmetric
-    if p == 2:
-        if a == 1 and b == 1:
-            return 0
-
-    bound = p - 1
-    pos = gr.index(a)
-    offset = b
-    if offset > 0:
-        if pos + offset > bound:
-            return gr[(pos + offset) - bound - 1]
-        else:
-            return gr[pos + offset]
-    else:
-        if pos + offset < 0:
-            return gr[bound + (pos + offset) + 1]
-        else:
-            return gr[pos - abs(offset)]
-
-
-def _pf_additive_inverse(n: int, gr: AdditiveGroup) -> int:
-    p = len(gr)
-    if p == 2:
-        return n
-    else:
-        return -n
-
-
-def multiplicative_group_representation(gr: AdditiveGroup) -> MultiplicativeGroup:
-    def uni_deg_one_poly(elt):
-        return [elt - 1]
-
-    def mul_uni_deg_one_poly(p1, p2, gr_add, gr_mul):
-        return [_pf_mul(p1[0], p2[0], gr_mul), _pf_add(p1[0], p2[0], gr_add)]
-
-    def eval_uni_poly_at_1(p0, gr_add):
-        s = 1
-        for elt in p0:
-            s = _pf_add(s, elt, gr_add)
-        return s
-
-    p = len(gr)  # characteristic of the field
-    res = {(1, 1): 1}
-    reciprocals = {k: None for k in gr if k != 0}
-    reciprocals[1] = 1
-
-    if p > 2:
-        # step 0, initialize the matrix through the action of group {-1, 1} over the field
-        for e in gr:
-            if e != 0:
-                res[(1, e)] = res[(e, 1)] = e
-                res[(e, -1)] = res[(-1, e)] = -e
-                res[(1, -e)] = res[(-e, 1)] = -e
-                res[(-e, -1)] = res[(-1, -e)] = e
-        res[(-1, -1)] = 1
-        reciprocals[-1] = -1
-
-        if p > 3:
-
-            for e in range(2, (p + 1) // 2):
-                # step 1, compute squares
-                pn = uni_deg_one_poly(e)
-                v = eval_uni_poly_at_1(mul_uni_deg_one_poly(pn, pn, gr, res), gr)
-                res[(e, e)] = res[(-e, -e)] = v
-                res[(-e, e)] = res[(e, -e)] = -v
-                if v == 1:
-                    reciprocals[e] = e
-                if -v == 1:
-                    reciprocals[e] = -e
-                    reciprocals[-e] = e
-
-                # step 2, compute lateral products
-                for f in range(e + 1, (p + 1) // 2):
-                    pn2 = uni_deg_one_poly(f)
-                    v = eval_uni_poly_at_1(mul_uni_deg_one_poly(pn2, pn, gr, res), gr)
-                    res[(e, f)] = res[(f, e)] = v
-                    res[(-e, f)] = res[(f, -e)] = -v
-                    res[(e, -f)] = res[(-f, e)] = -v
-                    res[(-e, -f)] = res[(-f, -e)] = v
-                    if v == 1:
-                        reciprocals[e] = f
-                        reciprocals[f] = e
-                        reciprocals[-e] = -f
-                    if -v == 1:
-                        reciprocals[-e] = f
-                        reciprocals[f] = -e
-                        reciprocals[-f] = e
-                        reciprocals[e] = -f
-
-    assert len(res) == (p - 1) ** 2
-
-    res[(0, 0)] = reciprocals
-    return res
-
-
-def _pf_mul(a: int, b: int, gr: MultiplicativeGroup) -> int:
-    if a == 0 or b == 0:
-        return 0
-
-    assert (a, b) in gr, f'{(a, b)} not in {gr}'
-
-    if a == 1:
-        return b
-
-    if b == 1:
-        return a
-
-    if a == -1:
-        return -b
-
-    if b == -1:
-        return -a
-
-    return gr[(a, b)]
-
-
-def _pf_ext_mul(n: int, a: int, gr: AdditiveGroup) -> int:
-    if a == 0:
-        return 0
-    res = a
-    for i in range(1, n):
-        res = _pf_add(res, a, gr)
-    return res
-
-
-def _pf_multiplicative_inverse(a: int, gr: MultiplicativeGroup) -> int:
-    if a == 0:
-        raise ZeroDivisionError
-
-    return gr[(0, 0)][a]
-
-
-def _pf_div(a: int, b: int, gr: MultiplicativeGroup) -> int:
-    _1_b = _pf_multiplicative_inverse(b, gr)
-    return _pf_mul(a, _1_b, gr)
-
-
-def _pf_pow(*_) -> int:
-    raise DeprecationWarning

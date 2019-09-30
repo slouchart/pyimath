@@ -1,15 +1,18 @@
 from imath.polynomial import Polynomial, PolynomialParser
-from imath.base import IntegralDomain
-from imath.integer import Z
+from imath.integer import IntegerRing
 
 
-class GaussianIntegerRing(IntegralDomain):
+class GaussianIntegerRing:
     def __init__(self):
         self.root_symbol = 'i'
-        self.base_polynomial = Polynomial([1, 0, 1], Z())  # X2 + 1 irreducible over Z
-        super().__init__(0)
+        self.base_polynomial = Polynomial([1, 0, 1], IntegerRing())  # X2 + 1 irreducible over Z
 
-    def element(self, *args):
+    @property
+    def characteristic(self):
+        return 0
+
+    @staticmethod
+    def element(*args):
         return GaussInt(*args)
 
     @property
@@ -19,6 +22,14 @@ class GaussianIntegerRing(IntegralDomain):
     @property
     def one(self):
         return GaussInt(1, 0)
+
+    @property
+    def null(self):
+        return self.zero
+
+    @property
+    def neutral(self):
+        return self.one
 
     def add(self, a, b):
         return self(a.x + b.x, a.y + b.y)
@@ -33,8 +44,8 @@ class GaussianIntegerRing(IntegralDomain):
         return self.mul(self(n, 0), a)
 
     def divmod(self, a, b):
-        p_a = Polynomial([a.x, a.y], Z())
-        p_b = Polynomial([b.x, b.y], Z())
+        p_a = Polynomial([a.x, a.y], IntegerRing())
+        p_b = Polynomial([b.x, b.y], IntegerRing())
         q, r = p_a.long_division_reversed(p_b)
         base = self.base_polynomial
         q %= base
@@ -78,10 +89,10 @@ class GaussianIntegerRing(IntegralDomain):
         return self.polynomial([e, self.one])
 
     def polynomial_from_element(self, e) -> Polynomial:
-        return Polynomial([e.x, e.y], Z(), indeterminate=self.root_symbol)
+        return Polynomial([e.x, e.y], IntegerRing(), indeterminate=self.root_symbol)
 
     def element_from_polynomial(self, p: Polynomial):
-        assert p.base_field == Z()
+        assert p.base_field == IntegerRing()
         assert p.degree < 2
         if p.degree == 0:
             return self(p.coefficients[0], 0)
@@ -89,7 +100,7 @@ class GaussianIntegerRing(IntegralDomain):
             return self(*tuple(p.coefficients))
 
     def parse(self, expr):
-        p = PolynomialParser.parse(expr, Z(), indeterminate=self.root_symbol)
+        p = PolynomialParser.parse(expr, IntegerRing(), indeterminate=self.root_symbol)
         if p.degree > 1:
             raise ValueError(f'{expr} is not a valid gaussian integer')
         return self(p[0], p[1])

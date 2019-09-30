@@ -1,14 +1,14 @@
 from itertools import product as cartesian_product
 import operator
 
-from imath.base import IntegralDomain
+
 from imath.functions import maybe_prime
 from imath.functions import power
 from imath.polynomial import Polynomial
 from imath.primefield import PrimeField, PFElement
 
 
-class FiniteField(IntegralDomain):
+class FiniteField:
     def __init__(self, prime: int, dimension: int, poly: Polynomial, generator=None, root_symbol='j'):
         """
         :param prime: the order of the prime field Fprime
@@ -17,7 +17,6 @@ class FiniteField(IntegralDomain):
         :param generator: an element of the field that generates the multiplicative group (tuple of int)
         :param root_symbol: for formatting elements
         """
-        super().__init__(prime)
         self._prime_field = PrimeField(prime)
         self.dimension = dimension
         self.base_polynomial = poly
@@ -155,6 +154,18 @@ class FiniteField(IntegralDomain):
     def one(self):
         return self.element([self.prime_field.one] + [self.prime_field.zero] * (self.dimension - 1))
 
+    @property
+    def characteristic(self):
+        return self._prime_field.characteristic
+
+    @property
+    def null(self):
+        return self.zero
+
+    @property
+    def neutral(self):
+        return self.one
+
     def __call__(self, *args):
         return self.element([self.prime_field(c) for c in args])
 
@@ -220,7 +231,11 @@ class FiniteField(IntegralDomain):
     def pow(self, a, e: int):
         assert a.field == self
         assert e >= 0
-        return power(a, e, self.zero, self.one)
+        res = power(a, e)
+        if not isinstance(res, FFElement):
+            return self(res)
+        else:
+            return res
 
     def multiplicative_inverse(self, a):
 

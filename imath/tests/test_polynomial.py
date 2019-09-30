@@ -6,11 +6,11 @@ from unittest import skip
 from imath import Polynomial
 
 
-from imath.integer import Z
+from imath.integer import IntegerRing
 
 
 def polynomial(*coeffs, indeterminate='X'):
-    return Z().polynomial(*coeffs, indeterminate=indeterminate)
+    return IntegerRing().polynomial(*coeffs, indeterminate=indeterminate)
 
 
 class TestPolynomialProperties(TestCase):

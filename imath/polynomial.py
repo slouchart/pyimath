@@ -1,4 +1,3 @@
-from imath.base import IntegralDomain
 from imath.functions import gcd, power
 from imath.polyparse import PolynomialParser
 
@@ -12,15 +11,24 @@ class Polynomial:
     The usual definition of a polynomial as a sequence of numbers
     that are all zeroes from a certain index is used to initialize the polynomial
     on instantiation and can be retrieved through the coefficients property
-    Moreover this class implements all the operations over a ring of polynomials"""
+    Moreover this class implements all the operations over a ring of polynomials
 
-    def __init__(self, coeffs, base_field: IntegralDomain, indeterminate='X'):
+    base_field must represent an integral domain that is:
+       a set which is an abelian group for + and a semi-group
+       for * and where GCD are computable.
+       A ring of polynomials is at least defined over an integral domain
+       examples: Z, Z(i)
+    """
+
+    def __init__(self, coeffs, base_field, indeterminate='X'):
         """
         :param coeffs: an iterable of elements from the base field
         :param base_field: a NumberSet instance generally a finite field
         :param indeterminate: a single digit string used to format the polynomial
         """
         self.base_field = base_field
+        assert hasattr(base_field, 'element') and hasattr(base_field, '__call__')
+
         self._coefficients = self._safe_convert_coefficients(self._remove_trailing_zeros(coeffs))
         self.indeterminate = indeterminate
 
@@ -435,7 +443,7 @@ class Polynomial:
         return res
 
     def gcd(self, p):
-        return gcd(self, p, self.null)
+        return gcd(self, p)
 
     def check_irreducibility(self) -> bool:
         """Inspired by https://jeremykun.com/2014/03/13/programming-with-finite-fields/"""

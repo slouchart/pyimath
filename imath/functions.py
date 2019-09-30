@@ -114,13 +114,13 @@ def maybe_prime(n, k=3):
     return True
 
 
-def gcd(a, b, zero=0):
+def gcd(a, b):
     """Computes the GCD of two operands recursively"""
-    if a == zero or b == zero:
+    if a == 0 or b == 0:
         raise ValueError('gcd(a, b) is only defined for a and b non zero operands')
 
     def _gcd(g, r):
-        if r == zero:
+        if r == 0:
             return g
         else:
             return _gcd(r, g % r)
@@ -128,22 +128,22 @@ def gcd(a, b, zero=0):
     return _gcd(a, b)
 
 
-def power(a, e: int, zero=0, one=1):
+def power(a, e: int):
     """Exponentiation by squaring i.e square and multiply"""
     """Shortcuts are evaluated here to avoid code duplication
     zero and one of the correct type must be provided when this function
     is called from prime field or finite field"""
-    if a == zero:
+    if a == 0:
         if e > 0:
-            return zero
+            return 0
 
     if e == 0:
-        return one
+        return 1
 
     if e == 1:
         return a
 
-    if a == one:
+    if a == 1:
         return a
 
     def sqr_mul(x, n):

@@ -26,6 +26,13 @@ class TestTranstyping(TestCase):
         self.assertTrue(3 * f9(-1, 0) == f9(-1, 0) * 3)
         self.assertTrue(f3(1) * f9(1, 1) == f3(1) + f9(0, 1))
 
+    def testPrimeAndPolynomial(self):
+        f2 = PrimeField(2)
+        p = f2.polynomial(1, 1, 1)
+        self.assertTrue(p + 1 == f2.polynomial(0, 1, 1))
+
+        self.assertTrue(p.monic(0) + 1 == 0)
+
 
 if __name__ == '__main__':
     run_tests()
