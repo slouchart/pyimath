@@ -1,6 +1,10 @@
-from imath.polynomial import Polynomial, PolynomialParser
+from imath.polynomial import Polynomial
+from imath.polyparse import symbolic_polynomial
 from imath.integer import IntegerRing
 from imath.functions import power
+
+
+__all__ = ['GaussianIntegerRing']
 
 
 class GaussianIntegerRing:
@@ -99,7 +103,7 @@ class GaussianIntegerRing:
             return self(*tuple(p.coefficients))
 
     def parse(self, expr):
-        p = PolynomialParser.parse(expr, IntegerRing(), indeterminate=self.root_symbol)
+        p = symbolic_polynomial(expr, IntegerRing(), indeterminate=self.root_symbol)
         if p.degree > 1:
             raise ValueError(f'{expr} is not a valid gaussian integer')
         return self(p[0], p[1])

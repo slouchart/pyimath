@@ -53,7 +53,7 @@ class Factorization:
 
         if not g.is_abs_unit:
             # step 2: g is the product of all factors of multiplicity divisible by q
-            g = g.p_th_root()
+            g = ~g  # frobenius reciprocal
 
             # we try another sqf
             sqf, fct = factorize(g).square_free()

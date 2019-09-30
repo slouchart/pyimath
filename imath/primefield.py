@@ -5,9 +5,13 @@ import random
 import operator
 from imath.functions import maybe_prime, power
 from imath.polynomial import Polynomial
+from imath.polyparse import symbolic_polynomial
 
 AdditiveGroup = List[int]
 MultiplicativeGroup = Dict[Tuple[int, int], Union[int, List[int]]]
+
+
+__all__ = ['PrimeField', 'Polynomial']
 
 
 class PrimeField:
@@ -147,12 +151,15 @@ class PrimeField:
         err_msg = f'Could not find an irreducible polynomial of degree {degree} over {self} in {tries*retries} attempts'
         raise RuntimeError(err_msg)
 
-    def p_th_root(self, a):
+    def frobenius_reciprocal(self, a):
         """Taking the p-th root for a is finding an element b as b^p = a where p is the field characteristic
            Because the multiplicative group of the field is cyclic of order p-1 if such an element b exists
            b^(p-1) = 1 => b^p = b thus a = b"""
         assert a in self
         return a
+
+    def parse_poly(self, expr):
+        return symbolic_polynomial(expr, self)
 
     """LOW LEVEL FIELD OPERATIONS"""
 
@@ -516,3 +523,6 @@ class PFElement:
     @property
     def is_one(self):
         return self.field.one == self
+
+    def __invert__(self):
+        return self.field.frobenius_reciprocal(self)

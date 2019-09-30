@@ -1,5 +1,8 @@
 from imath.functions import gcd, power
-from imath.polyparse import PolynomialParser
+from imath.polyparse import symbolic_polynomial
+
+
+__all__ = ['Polynomial']
 
 
 class Polynomial:
@@ -465,7 +468,10 @@ class Polynomial:
 
         return True
 
-    def p_th_root(self):
+    def __invert__(self):
+        return self.frobenius_reciprocal()
+
+    def frobenius_reciprocal(self):
         """If this polynomial can be written as R^(p*m)
         where R is  polynomial, p the field characteristic and m an integer
         then taking the p-th root <=> returning R^m"""
@@ -474,8 +480,8 @@ class Polynomial:
             """if p is a power of a multiple of the field characteristic
             the function returns the base polynomial that is:
             if p == x^q where q % self.c == 0 it returns x^(q/self.c)"""
-            assert hasattr(self.base_field, 'p_th_root')
-            p_th_root_func = self.base_field.p_th_root
+            assert hasattr(self.base_field, 'frobenius_reciprocal')
+            p_th_root_func = self.base_field.frobenius_reciprocal
 
             if not self.formal_derivative().is_null:
                 raise ValueError(f'The polynomial p is not a {self.base_field.characteristic} power')
@@ -499,4 +505,4 @@ class Polynomial:
 
     @staticmethod
     def parse(expr, base_field, indeterminate='X'):
-        return PolynomialParser.parse(expr, base_field, indeterminate=indeterminate)
+        return symbolic_polynomial(expr, base_field, indeterminate=indeterminate)

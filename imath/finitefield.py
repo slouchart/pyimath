@@ -7,6 +7,8 @@ from imath.functions import power
 from imath.polynomial import Polynomial
 from imath.primefield import PrimeField, PFElement
 
+__all__ = ['Polynomial', 'FiniteField', 'PrimeField']
+
 
 class FiniteField:
     def __init__(self, prime: int, dimension: int, poly: Polynomial, generator=None, root_symbol='j'):
@@ -321,7 +323,7 @@ class FiniteField:
     def check_irreducible_polynomial(self, p: Polynomial) -> bool:
         raise NotImplementedError
 
-    def p_th_root(self, a):
+    def frobenius_reciprocal(self, a):
         """Taking the p-th root of an element a of a finite field of order p^d is is
         finding an element b such as b^p = a. Contrary to the case of prime fields the answer
         is not that straightforward.
@@ -477,3 +479,6 @@ class FFElement:
 
     def __len__(self):
         return len(self.vector)
+
+    def __invert__(self):
+        return self.field.frobenius_reciprocal(self)

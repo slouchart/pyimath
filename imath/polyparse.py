@@ -10,6 +10,9 @@ def symbolic_polynomial(expression, base_field, indeterminate='X'):
     return PolynomialParser.parse(expression, base_field, indeterminate=indeterminate)
 
 
+__all__ = ['symbolic_polynomial']
+
+
 """Lexer et Parser code follows, should not be exported"""
 
 
