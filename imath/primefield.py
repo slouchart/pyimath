@@ -152,9 +152,6 @@ class PrimeField:
         raise RuntimeError(err_msg)
 
     def frobenius_reciprocal(self, a):
-        """Taking the p-th root for a is finding an element b as b^p = a where p is the field characteristic
-           Because the multiplicative group of the field is cyclic of order p-1 if such an element b exists
-           b^(p-1) = 1 => b^p = b thus a = b"""
         assert a in self
         return a
 
@@ -163,66 +160,6 @@ class PrimeField:
 
     """LOW LEVEL FIELD OPERATIONS"""
 
-    """Note on the principles of operations
-
-    Usually addition and multiplication over Z/pZ
-    are defined from the addition and multiplication over Z modulo p
-    thus the classes of integers are 0, 1 ... p-1
-    Because we want to ease the arithmetic, we require our elements
-    to be in the range -(P-1)/2..(P+1)/2 for any P>2
-    For P=2, there is no change the operations are trivial anyway
-
-    So, how we do that?
-
-    For the addition, we use the group axioms and its cyclicity
-    i.e for a in the group 1+...+1 (p times) = 0
-    e.g for P=7, we map the elements 4, 5 and 6
-    respectively to -3, -2 and -1 because
-    1 + 1 + 1 + 1 = 4 and 1 + 1 + 1 = 3 
-    => 1 + ... + 1 (7 times) = 0 => 4 = -3
-
-    For the multiplication, we need a table (a,b) = a*b
-    we construct this table using the following axioms
-        a * 1 = 1 * a (note: this is enough for P = 2)
-        a * -1 = -1 * a = -a
-        This is enough for P = 3
-
-    when P > 3, we compute the squares of 2..(p-1)/2
-    using the distributivity of + over *
-    e.g 2 * 2 (F5) = (1 + 1)(1 + 1) = 1 + 1 + 1 + 1 = -1
-    then, the abelian group axioms gives the value of -a * -a
-    and -a * a
-    -a * -a = -1 * a * -1 * a  = a * a
-    -a * a = -1 * a * a = - a*a
-
-    while we are at it, once a*a has been computed
-    we can compute the products of a and all elements > a
-    a(a+1) = a*a + a
-    a(a+1+1) = a*a + a + a
-    and so on
-
-    The other products are computed using the commutativity
-    and the associativity of an abelian group
-
-    There is certainly a way to optimize this but it does not
-    seem to be trivial.
-
-    For instance, the only product we need to know for F5
-    is 2 * 2 = -2 * -2 = -(-2 * 2)
-
-    For F7, there are 2*2, 2*3 and 3*3
-    For F11, there are 2*2, 2*3, 2*4, 2*5, 3*3, 3*4, 3*5,
-    4*4, 4*5 and 5*5
-
-    The gain is the following:
-    the table takes O(p^2) space because its a (p-1) * (p-1)
-    matrix.
-    We note k = (p-1)/2 - 1 = (p-3)/2
-    The minimal number of products is then k(k+1)/2
-    The order is the same: O(p^2)
-    The only difference is a reduction of the overall size by 4
-    as p grows
-    """
     @staticmethod
     def additive_group_representation(p: int) -> AdditiveGroup:
         assert p >= 2  # indeed, p must be a prime

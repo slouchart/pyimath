@@ -324,20 +324,7 @@ class FiniteField:
         raise NotImplementedError
 
     def frobenius_reciprocal(self, a):
-        """Taking the p-th root of an element a of a finite field of order p^d is is
-        finding an element b such as b^p = a. Contrary to the case of prime fields the answer
-        is not that straightforward.
-        First recall the Freshman's Dream identity in finite fields of characteristic p:
-        (x + y)^p = x^p + y^p => p_th_root((x + y)^p) = (x + y) = p_th_root(x^p + y^p)
-        => p_th_root(x^p + y^p) = p_th_root(x^p) + p_th_root(y^p) = x + y
-        Then, as any element of the field is a vector, let's write it a_0 + a_1j + ...
-        where the a_i are elements of the prime field and the basis is {1, j, ... j^d-1}
-        where j is the root of the polynomial that defines the field as a quotient
-        Thus, p_th_root(a) = p_th_root(a_0 + a_1j + ... a_d-1 j^d-1)
-        = p_th_root(a_0) + p_th_root(a_1j) + ... p_th_root(a_d-1 j^d-1)
-        = a_0 + a_1p_th_root(j) + ... a_d-1p_th_root(j^d-1)
-        implies that we only need to pre-compute the p_th root of the basis elements
-        """
+
         assert isinstance(a, FFElement)
         assert a in self
         r = self.zero
