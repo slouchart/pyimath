@@ -1,3 +1,5 @@
+from collections import namedtuple
+
 from imath.polynomial import Polynomial
 
 
@@ -171,14 +173,8 @@ class Factorization:
         return irreducible_factors, constant_term
 
 
-class Factor:
-    def __init__(self, f: Polynomial, multiplicity: int, degree=0):
-        self.value = f
-        self.multiplicity = multiplicity
-
-        # meaning of 'degree' here:
-        # f is the product of monic irreducible factors of degree d.
-        self.max_degree = degree
+class Factor(namedtuple('Factor', 'value, multiplicity, max_degree', defaults=(0,))):
+    __slots__ = ()
 
     @property
     def is_irreducible(self) -> bool:
