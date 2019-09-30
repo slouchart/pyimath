@@ -77,6 +77,14 @@ class TestGaussInt(TestCase):
         with self.assertRaises(TypeError):
             _ = n / d
 
+    def testPow(self):
+        fg = self.fg
+        n = fg(3, 0)
+        assert n**2 == fg(9, 0)
+
+        n = fg(1, 1)
+        assert n**2 == fg(0, 2)
+
 
 if __name__ == '__main__':
     run_tests()

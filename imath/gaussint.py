@@ -1,5 +1,6 @@
 from imath.polynomial import Polynomial, PolynomialParser
 from imath.integer import IntegerRing
+from imath.functions import power
 
 
 class GaussianIntegerRing:
@@ -61,11 +62,9 @@ class GaussianIntegerRing:
         _, r = self.divmod(a, b)
         return r
 
-    def pow(self, a, e: int):
-        raise NotImplementedError
-
-    def __eq__(self, other) -> bool:
-        raise NotImplementedError
+    @staticmethod
+    def pow(a, e: int):
+        return power(a, e)
 
     def __call__(self, *args):
         return self.element(*args)
@@ -167,6 +166,9 @@ class GaussInt:
     def __rmul__(self, other):
         return self.__mul__(other)
 
+    def __pow__(self, power, modulo=None):
+        return self.ring.pow(self, power)
+
     def __floordiv__(self, other):
         if isinstance(other, tuple):
             return self.ring.floor_div(self, self.ring(*other))
@@ -199,6 +201,11 @@ class GaussInt:
             return self.x == other.x and self.y == other.y
         elif isinstance(other, tuple):
             return self.__eq__(self.ring(*other))
+        elif isinstance(other, int):
+            if self.y != 0:
+                return False
+            else:
+                return other == self.x
         else:
             raise TypeError
 
