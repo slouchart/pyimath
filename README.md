@@ -26,14 +26,17 @@ Fields support :
 
 ## Usage
 
+
 ###Prime field creation
-    
+
+
     from imath.primefield import PrimeField
     f2 = PrimeField(2)
     
 The integer passed as a parameter must be prime and represents the characteristic of the field.
 
 ###Elements of a prime field
+
 In a prime field of characteristic p, the elements are mapped onto the integers in the range [-(p-1)/2.. (p-1)/2]
 For instance, the prime field F7 contains -3, -2, -1, 0, 1, 2 and 3
 
