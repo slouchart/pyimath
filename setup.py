@@ -1,13 +1,6 @@
 import os
 import re
 from setuptools import setup
-import unittest
-
-
-def get_test_suite():
-    import tests
-    loader = unittest.TestLoader()
-    return loader.loadTestsFromModule(tests)
 
 
 # parse version from package/module without importing or evaluating the code
@@ -35,5 +28,5 @@ setup(
                    'Programming Language :: Python :: 3.7',
                   ],
     packages=['imath'],
-    test_suite='get_test_suite'
+    test_suite='tests.test_all'
 )
