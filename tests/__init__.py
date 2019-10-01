@@ -19,7 +19,7 @@ NB_TESTS = 10
 def test_all():
     suite = TestSuite()
     loader = defaultTestLoader
-    for i in range (1, NB_TESTS+1):
+    for i in range(1, NB_TESTS+1):
         alias = f't{i}'
         module = globals()[alias]
         suite.addTest(loader.loadTestsFromModule(module))
