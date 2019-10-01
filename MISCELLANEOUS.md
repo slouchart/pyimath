@@ -90,4 +90,38 @@ Thus,
     = frobenius(a_0) + frobenius(a_1j) + ... frobenius(a_d-1 j^d-1)
     = a_0 + a_1 frobenius(j) + ... a_d-1 frobenius(j^d-1)
     
-This implies that we only need to pre-compute the p_th root of the basis elements which is the purpose of the function FiniteField._compute_frobenius_map
+This implies that we only need to pre-compute the p-th root of the basis elements which is the purpose of the function FiniteField._compute_frobenius_map
+
+# Factorization algorithms
+
+The imath module provides a full factorization algorithm for polynomials over finite fields. Although it is possible to define polynomials over Z or any extension of Z (gaussian integers for instance), factorization is only possible over finite fields.
+The Factorization class embeds 3 methods of factorization: square free, distinct degree and equal degree. The full factorization is performed by the cantor_zassenhaus method.
+
+## Square free factorization
+
+This method accepts a monic polynomial (make it monic beforehand) and returns the square free part (that can be 1) and a list of all factors with multiplicity > 1.
+The algorithm is based on 2 principles:
+
+1) A polynomial with factors of multiplicity > 1 and its formal derivative share at least one common factor. We identify this factor by computing the GCD repeatedly.
+2) If a polynomial over Fq has a factor of multiplicity r | q then its formal derivative is zero, we use the inverse Frobenius map to compute this factor.
+
+## Distinct degree factorization
+
+This method accepts a monic square free polynomial and returns a list of distinct degree factors. Each factor is also tagged with the degree of any equal degree factor. For instance, if a factor of degree 4 is the product of two distinct factors of degree 2, this factor will have its max_degree property set to 2. This value is then used by the equal degree factorization algorithm that completes the full factorization.
+The algorithm exploits the following property:
+
+    The polynomial X^q - X over Fq is the product of all irreducible polynomials of degree 1.
+    
+For instance, over F2 there are only 2 distinct irreducible polynomials of degree 1 : X and X+1 whose product is X^2 + X.
+The same stand for F3. Its irreducible polynomials of degree 1 are : X, X+1, X-1 whose product is X^3-X.
+Moreover, the property above can be extended to any arbitrary degree:
+
+    The polynomial X^(q^n) - X over Fq is the product of all irreducible polynomials of degree <= n.
+    
+The algorithme computes repeatedly the GCD of the polynomial to factorize with the polynomial X^i - X to find the relevant factors.
+
+## Equal degree factorization
+
+This is the Cantor-Zassenhaus algorithm (see https://en.wikipedia.org/wiki/Cantor%E2%80%93Zassenhaus_algorithm for a thorough mathematical description of the algorithm).
+The input is a monic, square free polynomial known to have k factors of equal degree d. It outputs a list of the factors. Be aware that this algorithm is non-deterministic and may not always provide an answer after several retries. In this case a runtime exception is raised. 
+    

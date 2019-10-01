@@ -1,4 +1,4 @@
-from imath.functions import gcd, power
+from imath.functions import gcd, rgcd, power
 from imath.polyparse import symbolic_polynomial
 
 
@@ -151,8 +151,21 @@ class Polynomial:
         return min(self._coefficients.keys())
 
     def make_monic(self):
+        """
+        Attempts to divide the polynomial by its leading coefficient (for a field) or by the gcd of its
+        coefficients (for a ring)
+        :return: a monic polynomial or raises an error if the polynomial cannot be made monic
+        """
         if not self.is_monic:
-            return self // self.leading
+            if self.base_field.characteristic != 0:
+                return self / self.leading
+            else:
+                g = rgcd(self.coefficients)
+                if self.leading // g == self.base_field.one:
+                    return self // self.leading
+                else:
+                    raise ValueError(f'Polynomial {self} over {self.base_field} cannot be made monic')
+
         else:
             return self.copy
 

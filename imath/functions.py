@@ -117,7 +117,8 @@ def maybe_prime(n, k=3):
 
 
 def gcd(a, b):
-    """Computes the GCD of two operands recursively"""
+    """ Computes the GCD of two operands recursively
+    a and b shall be of the same type or of compatible types"""
     if a == 0 or b == 0:
         raise ValueError('gcd(a, b) is only defined for a and b non zero operands')
 
@@ -130,11 +131,29 @@ def gcd(a, b):
     return _gcd(a, b)
 
 
+def rgcd(it):
+    """ Computes the GCD of all the items from an iterable
+    :param it: an iterable containing elements of GCD-able type
+    :return: their GCD
+    """
+    itor = iter(it)
+    a = next(itor)
+    while True:
+        try:
+            a = gcd(a, next(itor))
+        except StopIteration:
+            break
+    return a
+
+
 def power(a, e: int):
-    """Exponentiation by squaring i.e square and multiply"""
-    """Shortcuts are evaluated here to avoid code duplication
-    zero and one of the correct type must be provided when this function
-    is called from prime field or finite field"""
+    """ Exponentiation by squaring i.e square and multiply
+    :param a: a number to exponentiate (can be a polynomial)
+    :param e: the exponent
+    :return: the result of a^e
+    """
+    # Shortcuts are evaluated here to avoid code duplication
+
     if a == 0:
         if e > 0:
             return 0

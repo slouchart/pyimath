@@ -4,16 +4,31 @@ from imath.polynomial import Polynomial
 
 
 def factorize(p: Polynomial):
+    """
+    Main entry point of the module, provide an instance of the Factorization class as a place holder
+    to call any factorization algorithms : square_free, distinct_degree, equal_degree or cantor_zassenhaus
+    :param p: a Polynomial
+    :return: a instance of Factorization
+    """
     return Factorization(p.base_field, p)
 
 
 class Factorization:
+    """
+    Service provider for polynomial factorization
+    The main service is the full factorization by the Cantor-Zassenhaus algorithm
+    """
+
     def __init__(self, base_field, poly):
         self.base_field = base_field
         self.poly = poly
 
     def factors_product(self, factors) -> Polynomial:
-
+        """
+        Converts a list of factors into a polynomial
+        :param factors: an iterable of Factors
+        :return: a Polynomial that is the product of Factors.value along with their multiplicity
+        """
         bf = self.base_field
         if len(factors) == 0:
             res = bf.polynomial(bf.zero)
@@ -25,8 +40,8 @@ class Factorization:
         return res
 
     def square_free(self):
-        """Square free factorization of a monic polynomial over a finite field of prime characteristic
-           returns the square free part and a partial (or complete factorization)"""
+        """Square free factorization of a monic polynomial over a finite field of prime characteristic.
+           Returns the square free part and a partial (or complete factorization)"""
 
         f = self.poly.copy.make_monic()
         q = f.base_field.characteristic
@@ -42,7 +57,7 @@ class Factorization:
                     y = w.gcd(g)
                     factor = w / y
                     if factor.degree > 0:
-                        factors.append(Factor(factor.make_monic(), i))
+                        factors.append(Factor(factor.make_monic(), i, 0))
 
                     w, g = y, g / y
                     i += 1
@@ -57,8 +72,8 @@ class Factorization:
 
             # we try another sqf
             sqf, fct = factorize(g).square_free()
-            factors += [Factor(sf.value.make_monic(), sf.multiplicity * q) for sf in fct]
-            factors += [Factor(sqf.make_monic(), q)]
+            factors += [Factor(sf.value.make_monic(), sf.multiplicity * q, 0) for sf in fct]
+            factors += [Factor(sqf.make_monic(), q, 0)]
 
         # step 3: compute square free part
         sqf = f.copy
@@ -71,7 +86,8 @@ class Factorization:
         return sqf, factors
 
     def distinct_degree(self):
-
+        """Distinct degree factorisation of a square free monic polynomial.
+        Returns a list of Factors with a multiplicity of 1 and the maximum degree of any irreducible factor"""
         f = self.poly.copy.make_monic()
         factors = []
 
@@ -131,7 +147,7 @@ class Factorization:
             if nb_retries >= max_retries:
                 raise RuntimeError(f'unable to find {r} degree {d} factors for {str(f)}')
 
-        return [Factor(g, 1) for g in factors]
+        return [Factor(g, 1, 0) for g in factors]
 
     def cantor_zassenhaus(self):
         """Full factorisation of {poly}
@@ -153,10 +169,10 @@ class Factorization:
         # sqf may be irreducible or not
         # each factors may be irreducible or not
         if not sqf.is_unit:
-            factors_to_consider.append(Factor(sqf, 1))
+            factors_to_consider.append(Factor(sqf, 1, 0))
         factors_to_consider += multiple_factors
 
-        while len(factors_to_consider) > 0:
+        while len(factors_to_consider) > 0:  # we keep on factorizing while some reducible factors remain
             mfct = factors_to_consider.pop()
             if mfct.is_irreducible:
                 irreducible_factors.append(mfct)

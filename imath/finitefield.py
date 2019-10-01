@@ -11,11 +11,12 @@ __all__ = ['Polynomial', 'FiniteField', 'PrimeField']
 
 
 class FiniteField:
+    """Represents a non-prime finite field"""
     def __init__(self, prime: int, dimension: int, poly: Polynomial, generator=None, root_symbol='j'):
         """
         :param prime: the order of the prime field Fprime
         :param dimension: the dimension of the finite field seen as a vector space over its prime field
-        :param poly: the minimal polynomial of the adjunct root j must be irreducible over Fprime
+        :param poly: the minimal polynomial of the adjunct root j, must be irreducible over Fprime
         :param generator: an element of the field that generates the multiplicative group (tuple of int)
         :param root_symbol: for formatting elements
         """
@@ -43,6 +44,8 @@ class FiniteField:
         self._frobenius_map = self._compute_frobenius_map()
 
     def _compute_frobenius_map(self):
+        """The Frobenius automorphisme is defined by a -> a^p where p is the prime field characteristic
+        This methods computes the inverse map of the automorphisme"""
         p_th_roots = []
         for b in self.basis:
             for e in self:
@@ -51,6 +54,7 @@ class FiniteField:
         return p_th_roots
 
     def element_order(self, e):
+        """Returns the order of an element, that is the minimal integer k such as e^k = 1"""
         if self.has_valid_generator:
             return self.generator_powers[e]
         else:
@@ -64,6 +68,7 @@ class FiniteField:
 
     @property
     def frobenius_map(self):
+        """It's actually the linear map of the inverse function of Frobenius automorphism (see MISCELLANEOUS.md)"""
         return self._frobenius_map[:]
 
     def _check_generator_order(self):
@@ -143,6 +148,9 @@ class FiniteField:
 
     @property
     def order(self) -> int:
+        """
+        :return: The order of the field
+        """
         return self.prime_field.characteristic ** self.dimension
 
     def element(self, v):
@@ -176,6 +184,10 @@ class FiniteField:
         return other.prime_field == self.prime_field and other.dimension == self.dimension
 
     def __iter__(self):
+        """
+        Iterates over all the elements
+        :return: an iterator
+        """
         iterables = [self.prime_field] * self.dimension
         return iter((self.element(list(v)) for v in cartesian_product(*iterables)))
 
@@ -277,7 +289,7 @@ class FiniteField:
     def floor_div(self, a, b):
         return self.div(a, b)
 
-    def mod(self, a, b):
+    def mod(self, _, b):
         if b.null:
             raise ZeroDivisionError
 
@@ -321,7 +333,8 @@ class FiniteField:
         return p
 
     def check_irreducible_polynomial(self, p: Polynomial) -> bool:
-        raise NotImplementedError
+        assert p.base_field == self
+        return p.is_irreducible
 
     def frobenius_reciprocal(self, a):
 

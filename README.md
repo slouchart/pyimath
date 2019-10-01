@@ -98,3 +98,9 @@ Given a polynomial over a finite field can be factorized into irreducible factor
     factors, constant_term = factorize(p).cantor_zassenhaus()
     for factor in factors:
         print(factor)
+        
+## A final note
+
+This module is intended for educational purposes, mainly mine. If you need to deal with finite fields and polynomial factorization as a real applied mathematician, you may want to use FLINT and its Python binding.
+- FLINT (Fast Library for Number Theory) home page: http://flintlib.org/
+- Python-FLINT repository: https://github.com/python-flint/python-flint

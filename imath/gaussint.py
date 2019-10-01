@@ -108,9 +108,6 @@ class GaussianIntegerRing:
             raise ValueError(f'{expr} is not a valid gaussian integer')
         return self(p[0], p[1])
 
-    def p_th_root(self, a):
-        raise NotImplementedError
-
 
 class GaussInt:
     def __init__(self, x: int = 0, y: int = 0):
