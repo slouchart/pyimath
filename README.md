@@ -82,7 +82,7 @@ This finite field is a vector space of dimension q over the field Fp
     f4 = FiniteField(2, 2, f2.poly_parse('X^2 + X + 1'))
     
 ### Elements of a finite field
-Elements are defined as coefficients in a vector basis. If w is a root of the irreducible polynomial used in the definition (see above), {1, j, ..., j^(q-1)} is such a vector basis
+Elements are defined as coefficients in a vector basis. If w is a root of the irreducible polynomial used in the definition (see above), {1, w, ..., w^(q-1)} is such a vector basis
 Therefore, elements of such a field are isomorphic to polynomials over the base prime field up to degree q-1
 
     e = f4(0, 1)  # the element w
