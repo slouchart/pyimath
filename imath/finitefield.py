@@ -383,6 +383,10 @@ class FiniteField:
             self._check_generator_order()
         return g
 
+    def parse_poly(self, expr):
+        """Returns a polynomial from its symbolic expression"""
+        return symbolic_polynomial(expr, self)
+
 
 class FFElement:
     def __init__(self, field, v):

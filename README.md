@@ -16,13 +16,24 @@ The following operations are supported for numbers and polynomials:
 - exponentiation by a positive integer
 
 Rings (Gaussian integers, Polynomials) support:
-- euclidean division a.k.a divmod (// and %)
+- euclidean division a.k.a `divmod` (// and %)
 - GCD
 
 Fields support:
 - true division
 - Frobenius reciprocal
 - floor division (//) and modulo (%) are supported but default respectively to true division(/) and zero
+
+## Installation
+Download the sources, unzip them, change your current directory and execute:
+
+    python setup.py install
+    
+You may wish to run the test suite before:
+
+    python setup.py test
+
+This `imath` has not been registered with the Python Package Index yet and `pip install imath` installs something completely different. 
 
 ## Usage
 
@@ -100,7 +111,7 @@ a = f4(1, 0)  # the element 1
 In the rest of this document, we use the term 'finite field' to cover both prime fields and finite fields 
     
 ### Polynomial Factorization
-Given a polynomial over a finite field can be factorized into irreducible factors using the Cantor-Zassenhaus algorithm
+A polynomial over a finite field can be factorized into irreducible factors using the Cantor-Zassenhaus algorithm
 
 ```python
 from imath.finitefield import finite_field
@@ -111,6 +122,16 @@ p = symbolic_polynomial('-X^4 + X - 1', f3)
 factors, constant_term = factorize(p).cantor_zassenhaus()
 for factor in factors:
     print(factor)
+```
+
+## Instantiation of finite fields for busy/lazy people
+If finding irreducible polynomials over prime fields to create finite fields bothers you, you may get any finite field up to order 27 with the factory function `finite_field`:
+
+```python
+from imath.finitefield import finite_field
+f3 = finite_field(3)
+f25 = finite_field(25)
+...
 ```
 
 ## A final note

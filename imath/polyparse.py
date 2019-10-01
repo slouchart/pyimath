@@ -7,6 +7,11 @@ from re import finditer
 
 
 def symbolic_polynomial(expression, base_field, indeterminate='X'):
+    """Returns a polynomial from its algebraic expression
+    :param expression: an algebraic expression in the indeterminate
+    :param base_field: the field (or the ring) that coefficients are to be drawn from
+    :param indeterminate: a single digit string in the range [a-zA-Z]
+    :return: a polynomial"""
     return PolynomialParser.parse(expression, base_field, indeterminate=indeterminate)
 
 

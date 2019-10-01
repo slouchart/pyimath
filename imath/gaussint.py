@@ -74,7 +74,7 @@ class GaussianIntegerRing:
         return self.element(*args)
 
     def __iter__(self):
-        raise ValueError('Infinite fields are not iterable')
+        raise ValueError('Infinite sets are not iterable')
 
     def __str__(self) -> str:
         return "Field of Gauss's integers"

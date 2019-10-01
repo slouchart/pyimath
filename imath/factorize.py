@@ -17,6 +17,8 @@ class Factorization:
     """
     Service provider for polynomial factorization
     The main service is the full factorization by the Cantor-Zassenhaus algorithm
+    Never use it directly, subclass it if you want but in any case, please use:
+        factorize(poly).<method>
     """
 
     def __init__(self, base_field, poly):

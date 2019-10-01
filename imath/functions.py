@@ -156,16 +156,16 @@ def power(a, e: int):
 
     if a == 0:
         if e > 0:
-            return 0
+            return 0  # 0^n = 0 for n > 0
 
     if e == 0:
-        return 1
+        return 1  # a^0 = 1 (0^0 = 1 is a convention in number theory)
 
     if e == 1:
-        return a
+        return a  # a^1 = a
 
     if a == 1:
-        return a
+        return a  # 1^n = 1, n integer
 
     def sqr_mul(x, n):
         if n == 1:

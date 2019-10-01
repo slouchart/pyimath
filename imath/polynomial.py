@@ -26,7 +26,7 @@ class Polynomial:
     def __init__(self, coeffs, base_field, indeterminate='X'):
         """
         :param coeffs: an iterable of elements from the base field
-        :param base_field: a NumberSet instance generally a finite field
+        :param base_field: an instance generally a finite field
         :param indeterminate: a single digit string used to format the polynomial
         """
         self.base_field = base_field
@@ -59,6 +59,7 @@ class Polynomial:
 
     @property
     def coefficients(self):
+        """Returns the coefficients as a list"""
         deg = 0
         res = []
         while deg <= self.degree:
@@ -68,10 +69,13 @@ class Polynomial:
 
     @property
     def internal(self):
+        """Returns the coefficients as a dict indexed by their degree
+        Eschews null terms"""
         return dict({deg: c for deg, c in self._coefficients.items()})
 
     @property
     def copy(self):
+        """Returns a copy of itself"""
         res = self.null
         for deg, c in self.internal.items():
             res.set_term(deg, c)
@@ -79,43 +83,53 @@ class Polynomial:
 
     @property
     def null(self):
+        """Returns the null polynomial"""
         return Polynomial([], base_field=self.base_field, indeterminate=self.indeterminate)
 
     def monic(self, degree: int = 1):
+        """Returns a monic polynomial with a single term of a given degree"""
         res = self.null
         res.set_term(degree, self.base_field.one)
         return res
 
     @property
     def unit(self):
+        """Return 1 as a polynomial of degree 0"""
         return self.monic(0)
 
     @property
     def is_constant(self) -> bool:
+        """Returns True if the polynomial is of degree zero and is not null"""
         return self.degree == 0 and not self.is_null
 
     @property
     def is_monic(self) -> bool:
+        """Returns True if the leading coefficient is one"""
         return self._coefficients[self.degree] == self.base_field.one
 
     @property
     def is_null(self) -> bool:
+        """Returns True if all coefficients are zero"""
         return len(self._coefficients.keys()) == 0
 
     @property
     def is_unit(self) -> bool:
-        return self == self.monic(0)
+        """Returns True if the polynomial is constant of constant term 1"""
+        return self == self.unit
 
     @property
     def is_abs_unit(self) -> bool:
+        """Returns True if the polynomial is contant of constant term 1 or -1"""
         return self in (self.monic(0), -self.monic(0))
 
     @property
     def is_irreducible(self) -> bool:
+        """Returns True if the polynomial is irreducible"""
         return self.check_irreducibility()
 
     @property
     def degree(self) -> int:
+        """Returns the degree of the polynomial"""
         if self.is_null:
             return 0  # rigorously, it should be -infinity
         else:
@@ -123,6 +137,7 @@ class Polynomial:
 
     @property
     def constant(self):
+        """Returns the value of the coefficient of the term of degree 0"""
         if not self.is_null:
             return self[0]
         else:
@@ -130,6 +145,7 @@ class Polynomial:
 
     @property
     def leading(self):
+        """Returns the value of the coefficient of the term of highest degree"""
         if not self.is_null:
             return self._coefficients[self.degree]
         else:
@@ -137,6 +153,7 @@ class Polynomial:
 
     @property
     def trailing(self):
+        """Returns the value of the coefficient of the term of lowest degree"""
         if self.is_null:
             return self.base_field.zero
         else:
@@ -144,7 +161,7 @@ class Polynomial:
 
     @property
     def valuation(self) -> int:
-
+        """Returns the degree of the term of lowest degree"""
         if self.is_null:
             raise ValueError('The valuation of the null polynomial is undefined')
 
@@ -170,15 +187,18 @@ class Polynomial:
             return self.copy
 
     def __len__(self) -> int:
+        """Returns the number of non zero terms"""
         return len([c for c in self._coefficients.values() if c != 0])
 
-    def __getitem__(self, item):
-        if item in self._coefficients.keys():
-            return self._coefficients[item]
+    def __getitem__(self, degree):
+        """Returns the coefficient of the term of a given degree"""
+        if degree in self._coefficients.keys():
+            return self._coefficients[degree]
         else:
             return self.base_field.zero
 
     def __eq__(self, other) -> bool:
+        """Term-wise comparison of two polynomials"""
         if isinstance(other, Polynomial):
             if self.degree == other.degree:
 
@@ -197,7 +217,7 @@ class Polynomial:
             return self == other
 
     def add(self, poly):
-
+        """Addition in a ring of polynomials"""
         a = self._coefficients
         s = poly.copy
         for deg_a, c_a in a.items():
@@ -209,6 +229,7 @@ class Polynomial:
         return s
 
     def add_constant(self, k):
+        """External addition of a polynomial"""
         a = self._coefficients
         s = self.null
 
@@ -235,6 +256,7 @@ class Polynomial:
         return self.__add__(other)
 
     def __neg__(self):
+        """Returns the inverse of a polynomial with respect to addition"""
         a = self._coefficients
         s = self.null
         for deg, c in a.items():
@@ -242,6 +264,7 @@ class Polynomial:
         return s
 
     def mul(self, poly):
+        """Multiplication in a ring of polynomials"""
         if poly.is_null or self.is_null:
             return self.null
 
@@ -258,6 +281,7 @@ class Polynomial:
         return res
 
     def mul_constant(self, k):
+        """External multiplication (vector space external product)"""
         s = self.null
         if k != self.base_field.zero:
             for deg, c in self._coefficients.items():
@@ -276,6 +300,7 @@ class Polynomial:
         return self.__mul__(other)
 
     def sub(self, poly):
+        """Subtraction is indeed just an addition of an inverse"""
         assert isinstance(poly, Polynomial)
         return self.add(-poly)
 
@@ -290,8 +315,8 @@ class Polynomial:
     def __pow__(self, n, modulo=None):
         return self.pow(n)
 
-    def pow(self, n):
-
+    def pow(self, n: int):
+        """Exponentiation of a polynomial"""
         assert n >= 0
         if self.is_unit:
             return self.unit
@@ -308,6 +333,7 @@ class Polynomial:
         return power(self.copy, n)
 
     def __hash__(self):
+        """Allows a polynomial to become a dictionary key"""
         return hash(tuple(self._coefficients.items()))
 
     def long_division(self, divisor):
@@ -443,6 +469,7 @@ class Polynomial:
         return Polynomial(list(args), base_field=self.base_field, indeterminate=self.indeterminate)
 
     def evaluate(self, value):
+        """Evaluate the polynomial for some value"""
         value = self.base_field.element(value)
         # f(k) = f(x) % (x-k)
         # f(x) = q(x)(x - k) + r (deg(r) < d(x-k) = 1 => deg(r)=0
@@ -452,6 +479,7 @@ class Polynomial:
         return r.trailing
 
     def formal_derivative(self):
+        """Computes and returns the formal derivative of a polynomial"""
         res = self.null
         for deg, c in self.internal.items():
             if deg > 0:
@@ -459,10 +487,12 @@ class Polynomial:
         return res
 
     def gcd(self, p):
+        """Returns the GCD of two polynomials"""
         return gcd(self, p)
 
     def check_irreducibility(self) -> bool:
-        """Inspired by https://jeremykun.com/2014/03/13/programming-with-finite-fields/"""
+        """Returns True if the polynomial is irreducible
+        Inspired by https://jeremykun.com/2014/03/13/programming-with-finite-fields/"""
         p = self.copy
         q = p.base_field.characteristic
         if q == 0:
@@ -482,11 +512,12 @@ class Polynomial:
         return True
 
     def __invert__(self):
+        """Return the Frobenius reciprocal with the operator ~"""
         return self.frobenius_reciprocal()
 
     def frobenius_reciprocal(self):
         """If this polynomial can be written as R^(p*m)
-        where R is  polynomial, p the field characteristic and m an integer
+        where R is a polynomial, p the field characteristic and m an integer
         then taking the p-th root <=> returning R^m"""
         assert self.base_field.characteristic > 0
         if self.base_field.characteristic > 0:
@@ -518,4 +549,9 @@ class Polynomial:
 
     @staticmethod
     def parse(expr, base_field, indeterminate='X'):
+        """Returns a polynomial from its algebraic expression
+        :param expr: an algebraic expression in the indeterminate
+        :param base_field: the field (or the ring) that coefficients are to be drawn from
+        :param indeterminate: a single digit string in the range [a-zA-Z]
+        :return: a polynomial"""
         return symbolic_polynomial(expr, base_field, indeterminate=indeterminate)

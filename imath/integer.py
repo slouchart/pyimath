@@ -5,7 +5,10 @@ __all__ = ['IntegerRing']
 
 
 class IntegerRing:
-
+    """
+    Mimic a Field as defined in primefield or finitefield modules
+    used to define polynomials from Z[X]
+    """
     def __init__(self):
         ...
 

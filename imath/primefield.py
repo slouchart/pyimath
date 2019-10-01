@@ -36,6 +36,7 @@ class PrimeField:
 
     @property
     def null(self):
+        """Same as self.zero"""
         return self.zero
 
     @property
@@ -45,6 +46,7 @@ class PrimeField:
 
     @property
     def neutral(self):
+        """Same as self.one"""
         return self.one
 
     def add(self, a, b):
@@ -70,7 +72,7 @@ class PrimeField:
     def floor_div(self, a, b):
         return self.div(a, b)
 
-    def mod(self, a, b):
+    def mod(self, *_):
         return self.zero
 
     def divmod(self, a, b):
@@ -116,6 +118,7 @@ class PrimeField:
         return f'{self.__class__.__name__}({self.characteristic})'
 
     def rand_element(self):
+        """Returns an element of the field at random"""
         return random.choice(list(iter(self)))
 
     def polynomial(self, *args, indeterminate='X') -> Polynomial:
@@ -123,6 +126,7 @@ class PrimeField:
         return Polynomial([self.element(c) for c in args], base_field=self, indeterminate=indeterminate)
 
     def random_polynomial(self, degree):
+        """Returns a random polynomial of a given degree"""
         p = self.polynomial(*[self.rand_element() for _ in range(0, degree)])
         p += p.monic(degree)
         return p
@@ -134,7 +138,13 @@ class PrimeField:
         return poly
 
     def generate_irreducible_polynomial(self, degree, max_retries=15):
-        """"""
+        """
+        Returns an irreducible polynomial over the base field.
+        This algorithm is not deterministic and may raise exceptions
+        :param degree: the degree of the irreducible polynomial
+        :param max_retries: the maximum number of attempts
+        :return: an irreducible polynomial of a given degree
+        """
         max_retries = max(degree // 2, max_retries)
         tries = 0
         retries = 0
@@ -152,10 +162,13 @@ class PrimeField:
         raise RuntimeError(err_msg)
 
     def frobenius_reciprocal(self, a):
+        """Returns the Frobenius reciprocal of a. As a remainder, the Frobenius automorphism is:
+        a -> a^q where q is the characteristic of the field. In prime fields, it is the identity"""
         assert a in self
         return a
 
     def parse_poly(self, expr):
+        """Returns a polynomial from its symbolic expression"""
         return symbolic_polynomial(expr, self)
 
     """LOW LEVEL FIELD OPERATIONS"""
