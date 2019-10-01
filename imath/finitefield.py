@@ -5,9 +5,10 @@ import operator
 from imath.functions import maybe_prime
 from imath.functions import power
 from imath.polynomial import Polynomial
+from imath.polyparse import symbolic_polynomial
 from imath.primefield import PrimeField, PFElement
 
-__all__ = ['Polynomial', 'FiniteField', 'PrimeField']
+__all__ = ['Polynomial', 'FiniteField', 'PrimeField', 'finite_field']
 
 
 class FiniteField:
@@ -38,7 +39,7 @@ class FiniteField:
         self.generator_powers = dict()
         self.element_as_powers = dict()
         if self.generator is not None:
-            self.generator = self(self.generator)
+            self.generator = self.element(self.generator)
             self._check_generator_order()
 
         self._frobenius_map = self._compute_frobenius_map()
@@ -482,3 +483,30 @@ class FFElement:
 
     def __invert__(self):
         return self.field.frobenius_reciprocal(self)
+
+
+# Pre-computed finite fields
+FINITE_FIELD = {
+    'F2': PrimeField(2),
+    'F3': PrimeField(3),
+    'F4': FiniteField(2, 2, symbolic_polynomial('X^2+X+1', PrimeField(2)), generator=(0, 1)),
+    'F5': PrimeField(5),
+    'F7': PrimeField(7),
+    'F8': FiniteField(2, 3, symbolic_polynomial('X^3+X+1', PrimeField(2)), generator=(0, 1, 0)),
+    'F9': FiniteField(3, 2, symbolic_polynomial('X^2+1', PrimeField(3)), generator=(1, -1)),
+    'F11': PrimeField(11),
+    'F13': PrimeField(13),
+    'F16': FiniteField(2, 4, symbolic_polynomial('X^4+X+1', PrimeField(2)), generator=(0, 1, 0, 0)),
+    'F17': PrimeField(17),
+    'F19': PrimeField(19),
+    'F23': PrimeField(23),
+    'F25': FiniteField(5, 2, symbolic_polynomial('X^2+2', PrimeField(5)), generator=(1, 1)),
+    'F27': FiniteField(3, 3, symbolic_polynomial('X^3 - X - 1', PrimeField(3)), generator=(-1, -1, -1)),
+}
+
+
+def finite_field(order):
+    if f'F{order}' in FINITE_FIELD.keys:
+        return FINITE_FIELD[f'F{order}']
+    else:
+        raise ValueError(f'No pre-instantiated finite field of order {order}')
