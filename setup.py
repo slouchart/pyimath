@@ -39,6 +39,8 @@ setup(
                    'Operating System :: OS Independent',
                    'Topic :: Scientific/Engineering :: Mathematics',
                   ],
-    packages=[PACKAGE_NAME],
-    test_suite='tests.test_all'
+    packages=[PACKAGE_NAME, 'tests'],
+    platforms=['any', 'all'],
+    test_suite='tests.test_all',
+    python_requires='>=3',
 )
