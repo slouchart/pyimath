@@ -2,11 +2,11 @@ from itertools import product as cartesian_product
 import operator
 
 
-from imath.functions import maybe_prime
-from imath.functions import power
-from imath.polynomial import Polynomial
-from imath.polyparse import symbolic_polynomial
-from imath.primefield import PrimeField, PFElement
+from pyimath.functions import maybe_prime
+from pyimath.functions import power
+from pyimath.polynomial import Polynomial
+from pyimath.polyparse import symbolic_polynomial
+from pyimath.primefield import PrimeField, PFElement
 
 __all__ = ['Polynomial', 'FiniteField', 'PrimeField', 'finite_field']
 

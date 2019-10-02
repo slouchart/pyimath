@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest import main as run_tests
 
-from imath.primefield import PrimeField, Polynomial
+from pyimath.primefield import PrimeField, Polynomial
 
 
 class TestPFPolynomial(TestCase):

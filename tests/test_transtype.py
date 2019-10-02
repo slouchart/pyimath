@@ -1,8 +1,8 @@
 from unittest import TestCase
 from unittest import main as run_tests
 
-from imath.primefield import PrimeField
-from imath.finitefield import FiniteField
+from pyimath.primefield import PrimeField
+from pyimath.finitefield import FiniteField
 
 
 class TestTranstyping(TestCase):

@@ -2,7 +2,7 @@ import os
 import re
 from setuptools import setup
 
-PACKAGE_NAME = 'imath'
+PACKAGE_NAME = 'pyimath'
 
 # parse version, author and contact from package/module without importing or evaluating the code
 version = ''
@@ -25,15 +25,19 @@ setup(
     version=version,
     license='MIT',
     description='Pure Python library for finite field arithmetic and polynomial manipulation',
+    long_description_content_type='text/markdown',
     long_description=open(os.path.join(os.path.dirname(__file__),
                                          'README.md')).read(),
     keywords='python math arithmetic algebra polynomials number_theory integers',
-    url='https://github.com/slouchart/imath',
+    url='https://github.com/slouchart/pyimath',
     author='Sébastien Louchart',
     author_email='sebastien.louchart@gmail.com',
     classifiers=['License :: OSI Approved :: MIT License',
                    'Development Status :: 4 - Beta',
-                   'Programming Language :: Python :: 3.7',
+                   'Programming Language :: Python :: 3 :: Only',
+                   'Intended Audience :: Education',
+                   'Operating System :: OS Independent',
+                   'Topic :: Scientific/Engineering :: Mathematics',
                   ],
     packages=[PACKAGE_NAME],
     test_suite='tests.test_all'

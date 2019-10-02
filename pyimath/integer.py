@@ -1,5 +1,5 @@
 from typing import Tuple
-from imath.polynomial import Polynomial
+from pyimath.polynomial import Polynomial
 
 __all__ = ['IntegerRing']
 

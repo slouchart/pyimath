@@ -3,9 +3,9 @@ import random
 
 
 import operator
-from imath.functions import maybe_prime, power
-from imath.polynomial import Polynomial
-from imath.polyparse import symbolic_polynomial
+from pyimath.functions import maybe_prime, power
+from pyimath.polynomial import Polynomial
+from pyimath.polyparse import symbolic_polynomial
 
 AdditiveGroup = List[int]
 MultiplicativeGroup = Dict[Tuple[int, int], Union[int, List[int]]]

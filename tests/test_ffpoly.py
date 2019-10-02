@@ -1,10 +1,10 @@
 from unittest import TestCase
 from unittest import main as run_tests
 
-from imath.finitefield import FiniteField, PrimeField
-from imath.functions import gcd
-from imath.polyparse import symbolic_polynomial
-from imath.finitefield import FFElement  # needed to test eval(repr())
+from pyimath.finitefield import FiniteField, PrimeField
+from pyimath.functions import gcd
+from pyimath.polyparse import symbolic_polynomial
+from pyimath.finitefield import FFElement  # needed to test eval(repr())
 
 
 class TestStr(TestCase):

@@ -3,10 +3,10 @@ from unittest import main as run_tests
 
 from unittest import skip
 
-from imath.polynomial import Polynomial
+from pyimath.polynomial import Polynomial
 
 
-from imath.integer import IntegerRing
+from pyimath.integer import IntegerRing
 
 
 def polynomial(*coeffs, indeterminate='X'):

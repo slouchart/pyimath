@@ -1,9 +1,9 @@
 from unittest import TestCase, skip
 from unittest import main as run_tests
 
-from imath.factorize import factorize
-from imath.finitefield import PrimeField, FiniteField
-from imath.polyparse import symbolic_polynomial
+from pyimath.factorize import factorize
+from pyimath.finitefield import PrimeField, FiniteField
+from pyimath.polyparse import symbolic_polynomial
 
 
 class TestSquareFreeFactorization(TestCase):

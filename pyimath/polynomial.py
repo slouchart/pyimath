@@ -1,5 +1,5 @@
-from imath.functions import gcd, rgcd, power
-from imath.polyparse import symbolic_polynomial
+from pyimath.functions import gcd, rgcd, power
+from pyimath.polyparse import symbolic_polynomial
 
 
 __all__ = ['Polynomial']

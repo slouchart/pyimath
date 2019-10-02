@@ -2,7 +2,7 @@
 A pure Python library for finite field arithmetic and polynomial manipulation
 
 ## Introduction
-```imath``` allows number manipulation from the following sets:
+```pyimath``` allows number manipulation from the following sets:
 - Gaussian integers
 - Prime fields
 - Finite fields of dimension 2 and higher
@@ -40,7 +40,7 @@ This `imath` has not been registered with the Python Package Index yet and `pip 
 ### Prime field creation
 
 ```python
-from imath.primefield import PrimeField
+from pyimath.primefield import PrimeField
 f2 = PrimeField(2)
 ```
 
@@ -54,7 +54,7 @@ For instance, the prime field F7 contains -3, -2, -1, 0, 1, 2 and 3
 You can instantiate any element in two ways:
 
 ```python
-from imath.primefield import PrimeField
+from pyimath.primefield import PrimeField
 f7 = PrimeField(7)
 e = f7(-3)
 g = f7.element(2)
@@ -65,8 +65,8 @@ At this point, all operations are supported using the common operators `+ - * / 
 ### Defining a polynomial over a prime field
 
 ```python
-from imath.polynomial import Polynomial
-from imath.primefield import PrimeField
+from pyimath.polynomial import Polynomial
+from pyimath.primefield import PrimeField
 
 p0 = Polynomial((-1, 0, 1, 1), PrimeField(3))
 
@@ -77,8 +77,8 @@ p1 = PrimeField(3).polynomial(-1, 0, 1, 1)
 ### Symbolic polynomials
 
 ```python
-from imath.primefield import PrimeField
-from imath.polyparse import symbolic_polynomial
+from pyimath.primefield import PrimeField
+from pyimath.polyparse import symbolic_polynomial
 p0 = symbolic_polynomial('X^3 + X^2 - 1', PrimeField(3))
 
 # or, alternatively:
@@ -91,7 +91,7 @@ However, the creation of a finite field involves polynomials. Given an irreducib
 This finite field is a vector space of dimension q over the field Fp
 
 ```python
-from imath.finitefield import FiniteField, PrimeField
+from pyimath.finitefield import FiniteField, PrimeField
 
 f2 = PrimeField(2)
 f4 = FiniteField(2, 2, f2.parse_poly('X^2 + X + 1'))
@@ -102,7 +102,7 @@ Elements are defined as coefficients in a vector basis. If w is a root of the ir
 Therefore, elements of such a field are isomorphic to polynomials over the base prime field up to degree q-1
 
 ```python
-from imath.finitefield import finite_field
+from pyimath.finitefield import finite_field
 f4 = finite_field(4)
 e = f4(0, 1)  # the element w
 a = f4(1, 0)  # the element 1
@@ -114,9 +114,9 @@ In the rest of this document, we use the term 'finite field' to cover both prime
 A polynomial over a finite field can be factorized into irreducible factors using the Cantor-Zassenhaus algorithm
 
 ```python
-from imath.finitefield import finite_field
-from imath.polyparse import symbolic_polynomial
-from imath.factorize import factorize
+from pyimath.finitefield import finite_field
+from pyimath.polyparse import symbolic_polynomial
+from pyimath.factorize import factorize
 f3 = finite_field(3)
 p = symbolic_polynomial('-X^4 + X - 1', f3)
 factors, constant_term = factorize(p).cantor_zassenhaus()
@@ -128,7 +128,7 @@ for factor in factors:
 If finding irreducible polynomials over prime fields to create finite fields bothers you, you may get any finite field up to order 27 with the factory function `finite_field`:
 
 ```python
-from imath.finitefield import finite_field
+from pyimath.finitefield import finite_field
 f3 = finite_field(3)
 f25 = finite_field(25)
 ...

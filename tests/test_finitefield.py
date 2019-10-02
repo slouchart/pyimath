@@ -2,9 +2,9 @@ from unittest import TestCase
 from unittest import skip
 from unittest import main as run_tests
 
-from imath.finitefield import FiniteField, FFElement
-from imath.polynomial import Polynomial
-from imath.primefield import PrimeField, PFElement
+from pyimath.finitefield import FiniteField, FFElement
+from pyimath.polynomial import Polynomial
+from pyimath.primefield import PrimeField, PFElement
 
 
 class TestF4(TestCase):

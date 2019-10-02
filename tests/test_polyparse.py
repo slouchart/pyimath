@@ -2,10 +2,10 @@ from unittest import TestCase
 from unittest import main as run_tests
 
 
-from imath.polyparse import symbolic_polynomial
-from imath.finitefield import PrimeField, FiniteField
-from imath.integer import IntegerRing
-from imath.polynomial import Polynomial
+from pyimath.polyparse import symbolic_polynomial
+from pyimath.finitefield import PrimeField, FiniteField
+from pyimath.integer import IntegerRing
+from pyimath.polynomial import Polynomial
 
 
 class TestParserBasic(TestCase):

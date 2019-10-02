@@ -2,7 +2,7 @@ from unittest import TestCase
 from unittest import main as run_tests
 
 
-from imath.gaussint import GaussianIntegerRing
+from pyimath.gaussint import GaussianIntegerRing
 
 
 class TestGaussInt(TestCase):

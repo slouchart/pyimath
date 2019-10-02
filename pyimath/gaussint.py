@@ -1,7 +1,7 @@
-from imath.polynomial import Polynomial
-from imath.polyparse import symbolic_polynomial
-from imath.integer import IntegerRing
-from imath.functions import power
+from pyimath.polynomial import Polynomial
+from pyimath.polyparse import symbolic_polynomial
+from pyimath.integer import IntegerRing
+from pyimath.functions import power
 
 
 __all__ = ['GaussianIntegerRing']

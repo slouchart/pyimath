@@ -1,6 +1,6 @@
 from collections import namedtuple
 
-from imath.polynomial import Polynomial
+from pyimath.polynomial import Polynomial
 
 
 def factorize(p: Polynomial):
