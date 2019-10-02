@@ -1,4 +1,4 @@
-# imath
+# pyimath
 A pure Python library for finite field arithmetic and polynomial manipulation
 
 ## Introduction
