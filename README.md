@@ -33,8 +33,10 @@ You may wish to run the test suite before:
 
     python setup.py test
 
-This `imath` has not been registered with the Python Package Index yet and `pip install imath` installs something completely different. 
+Registration with PyPI is pending, once it is done, you can install ``pyimath`` using:
 
+    pip install pyimath
+    
 ## Usage
 
 ### Prime field creation
