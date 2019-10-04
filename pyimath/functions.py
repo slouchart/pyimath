@@ -1,7 +1,7 @@
 from random import randrange
 from typing import Union, List, Tuple
 
-__all__ = ['comb', 'bincoeff', 'primes', 'factor', 'gcd', 'power']
+__all__ = ['comb', 'bincoeff', 'primes', 'factor', 'gcd', 'rgcd', 'power', 'maybe_prime']
 
 
 def comb(n: int, k: int) -> int:
@@ -10,9 +10,9 @@ def comb(n: int, k: int) -> int:
         raise ValueError
 
     result = 1
-    for i in range(n-k+1, n+1):
+    for i in range(n - k + 1, n + 1):
         result *= i
-    for i in range(2, k+1):
+    for i in range(2, k + 1):
         result /= i
 
     return int(result)
@@ -24,7 +24,7 @@ def bincoeff(n: int, k: int = None) -> Union[int, List[int]]:
         return comb(n, k)
     else:
         result = []
-        for i in range(0, n+1):
+        for i in range(0, n + 1):
             result.append(comb(n, i))
         return result
 
@@ -34,7 +34,7 @@ def primes(n_max: int = 100) -> List[int]:
     if n_max < 2:
         raise ValueError
 
-    t = list(range(2, n_max+1))
+    t = list(range(2, n_max + 1))
     for i in t:
         for j in (k for k in t if k > i):
             if j % i == 0:
@@ -59,7 +59,7 @@ def factor(n: int) -> List[Tuple[int, int]]:
         factors.append((p, ml,))
 
     p = 3
-    while p**2 <= n:
+    while p ** 2 <= n:
         ml = 0
         while n % p == 0:
             n //= p
@@ -78,7 +78,7 @@ def mul_factor(factors: List[Tuple[int, int]]) -> int:
     """Computes an integer whose prime factorization is given"""
     n = 1
     for f in factors:
-        n *= f[0]**f[1]
+        n *= f[0] ** f[1]
     return n
 
 
@@ -171,10 +171,8 @@ def power(a, e: int):
         if n == 1:
             return x
         elif n % 2 == 0:
-            return sqr_mul(x*x, n//2)
+            return sqr_mul(x * x, n // 2)
         elif n % 2 != 0 and n > 2:
-            return x*sqr_mul(x*x, (n-1)//2)
+            return x * sqr_mul(x * x, (n - 1) // 2)
 
     return sqr_mul(a, e)
-
-

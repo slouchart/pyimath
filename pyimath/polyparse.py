@@ -2,11 +2,13 @@ import operator
 from collections import namedtuple
 from enum import Enum
 from re import finditer
+from typing import Optional, Iterator, TypeVar
 
-"""Use symbolic_polynomial or Polynomial.parse"""
+
+Polynomial = TypeVar('Polynomial')
 
 
-def symbolic_polynomial(expression, base_field, indeterminate='X'):
+def symbolic_polynomial(expression: str, base_field, indeterminate: Optional[str] = 'X'):
     """Returns a polynomial from its algebraic expression
     :param expression: an algebraic expression in the indeterminate
     :param base_field: the field (or the ring) that coefficients are to be drawn from
@@ -34,7 +36,7 @@ class Lexer:
     class Token(namedtuple('Token', 'type, value, position')):
         __slots__ = ()
 
-    def __init__(self, indeterminate='X', root_symbol='j'):
+    def __init__(self, indeterminate: Optional[str] = 'X', root_symbol: Optional[str] = 'j'):
         self.indeterminate = indeterminate
         self.root_symbol = root_symbol
 
@@ -50,7 +52,7 @@ class Lexer:
         ]
         self.tokens_re = '|'.join([f'(?P<{tok}>{re})' for tok, re in self.symbols])
 
-    def lex(self, expression):
+    def lex(self, expression: str) -> Iterator['Lexer.Token']:
 
         for tok in finditer(self.tokens_re, expression):
             token = Lexer.Token(tok.lastgroup, tok.group(), tok.start())
@@ -76,7 +78,7 @@ class Lexer:
 
 
 class ParsingContext:
-    def __init__(self, base_field, indeterminate):
+    def __init__(self, base_field, indeterminate: str):
         self.base_field = base_field
         self.indeterminate = indeterminate
 
@@ -109,14 +111,14 @@ class ParsingContext:
         except BaseException as e:
             raise RuntimeError(e)
 
-    def get_result(self):
+    def get_result(self) -> 'Polynomial':
         return self._stack.pop()
 
 
 class PolynomialParser:
 
     @staticmethod
-    def parse(expression, base_field, indeterminate='X'):
+    def parse(expression: str, base_field, indeterminate: Optional[str] = 'X'):
         """Main parsing utility"""
         if hasattr(base_field, 'root_symbol'):
             lexer = Lexer(indeterminate=indeterminate, root_symbol=base_field.root_symbol)
@@ -127,7 +129,7 @@ class PolynomialParser:
         return PolynomialParser.start(lexer.lex(expression), ctx)
 
     @staticmethod
-    def start(lexer, context):
+    def start(lexer: Iterator, context: ParsingContext) -> Polynomial:
 
         def format_syntax_error(s, t):
             return f'Syntax error at {t.position}: unexpected {t} in state {s}'

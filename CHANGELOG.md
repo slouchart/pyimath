@@ -3,6 +3,11 @@
 This document lists the changes (and individuals who contributed to those
 changes) for each release of python-vagrant.
 
+## 0.0.4
+
+- Adding type hints
+- Generating documentation with `pdoc`
+
 ## 0.0.3
 
 - Adding the Change Log

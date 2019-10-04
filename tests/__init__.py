@@ -25,3 +25,4 @@ def test_all():
         suite.addTest(loader.loadTestsFromModule(module))
 
     return suite
+

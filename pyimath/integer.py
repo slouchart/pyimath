@@ -1,4 +1,5 @@
-from typing import Tuple
+from typing import Tuple, Iterator
+
 from pyimath.polynomial import Polynomial
 
 __all__ = ['IntegerRing']
@@ -9,6 +10,7 @@ class IntegerRing:
     Mimic a Field as defined in primefield or finitefield modules
     used to define polynomials from Z[X]
     """
+
     def __init__(self):
         ...
 
@@ -48,7 +50,8 @@ class IntegerRing:
     def mul(a: int, b: int) -> int:
         return a * b
 
-    def ext_mul(self, n: int, a: int) -> int:
+    @staticmethod
+    def ext_mul(n: int, a: int) -> int:
         return n * a
 
     @staticmethod
@@ -67,13 +70,13 @@ class IntegerRing:
     def pow(a: int, e: int) -> int:
         return a ** e
 
-    def __eq__(self, other):
+    def __eq__(self, other: 'IntegerRing') -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(self, n: int) -> int:
         return self.element(n)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator:
         raise NotImplementedError("Iteration over infinite number sets is undefined")
 
     def __str__(self) -> str:
@@ -88,4 +91,3 @@ class IntegerRing:
 
     def linear_polynomial(self, e: int):
         return self.polynomial(-e, 1)
-

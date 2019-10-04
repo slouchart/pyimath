@@ -1,34 +1,51 @@
 from collections import namedtuple
+from typing import Collection, Tuple
 
 from pyimath.polynomial import Polynomial
 
 
-def factorize(p: Polynomial):
+def factorize(p: Polynomial) -> 'Factorization':
     """
     Main entry point of the module, provide an instance of the Factorization class as a place holder
-    to call any factorization algorithms : square_free, distinct_degree, equal_degree or cantor_zassenhaus
+    to call any factorization algorithms : `square_free`, `distinct_degree`, `equal_degree` or `cantor_zassenhaus`
     :param p: a Polynomial
-    :return: a instance of Factorization
+    :return: a instance of `Factorization`
     """
     return Factorization(p.base_field, p)
+
+
+class Factor(namedtuple('Factor', 'value, multiplicity, max_degree', defaults=(0,))):
+    __slots__ = ()
+
+    @property
+    def is_irreducible(self) -> bool:
+        return self.value.is_irreducible
+
+    def __str__(self) -> str:
+        if self.multiplicity > 1:
+            s = f'({self.value})**{self.multiplicity}'
+        else:
+            s = f'({self.value})'
+        if self.is_irreducible:
+            s += ' IRREDUCIBLE'
+        return s
 
 
 class Factorization:
     """
     Service provider for polynomial factorization
     The main service is the full factorization by the Cantor-Zassenhaus algorithm
-    Never use it directly, subclass it if you want but in any case, please use:
-        factorize(poly).<method>
+    Never use it directly, subclass it if you want but in any case, please use `factorize(poly).<method>()`
     """
 
-    def __init__(self, base_field, poly):
+    def __init__(self, base_field, poly: Polynomial):
         self.base_field = base_field
         self.poly = poly
 
-    def factors_product(self, factors) -> Polynomial:
+    def factors_product(self, factors: Collection[Factor]) -> Polynomial:
         """
         Converts a list of factors into a polynomial
-        :param factors: an iterable of Factors
+        :param factors: an iterable of `Factor`
         :return: a Polynomial that is the product of Factors.value along with their multiplicity
         """
         bf = self.base_field
@@ -41,7 +58,7 @@ class Factorization:
 
         return res
 
-    def square_free(self):
+    def square_free(self) -> Tuple[Polynomial, Collection[Factor]]:
         """Square free factorization of a monic polynomial over a finite field of prime characteristic.
            Returns the square free part and a partial (or complete factorization)"""
 
@@ -87,7 +104,7 @@ class Factorization:
 
         return sqf, factors
 
-    def distinct_degree(self):
+    def distinct_degree(self) -> Collection[Factor]:
         """Distinct degree factorisation of a square free monic polynomial.
         Returns a list of Factors with a multiplicity of 1 and the maximum degree of any irreducible factor"""
         f = self.poly.copy.make_monic()
@@ -110,7 +127,7 @@ class Factorization:
 
         return factors
 
-    def equal_degree(self, nb_factors, max_degree):
+    def equal_degree(self, nb_factors: int, max_degree: int) -> Collection[Factor]:
         """Cantor–Zassenhaus factorization algorithm.
         Input: Over a finite field Fq of odd order q,
                p is a monic square free polynomial in Fq[x] of degree n = rd,
@@ -151,8 +168,8 @@ class Factorization:
 
         return [Factor(g, 1, 0) for g in factors]
 
-    def cantor_zassenhaus(self):
-        """Full factorisation of {poly}
+    def cantor_zassenhaus(self) -> Tuple[Collection[Factor], int]:
+        """Full factorisation algorithm
            input: any polynomial over a finite field
            output : a constant term and a list of factors with their multiplicity"""
 
@@ -189,20 +206,3 @@ class Factorization:
                 factors_to_consider += factorize(mfct.value).equal_degree(r, d)
 
         return irreducible_factors, constant_term
-
-
-class Factor(namedtuple('Factor', 'value, multiplicity, max_degree', defaults=(0,))):
-    __slots__ = ()
-
-    @property
-    def is_irreducible(self) -> bool:
-        return self.value.is_irreducible
-
-    def __str__(self):
-        if self.multiplicity > 1:
-            s = f'({self.value})**{self.multiplicity}'
-        else:
-            s = f'({self.value})'
-        if self.is_irreducible:
-            s += ' IRREDUCIBLE'
-        return s

@@ -1,8 +1,13 @@
+from typing import Iterable, Optional, Dict, Collection, Union, Tuple, Sequence, TypeVar
+
 from pyimath.functions import gcd, rgcd, power
 from pyimath.polyparse import symbolic_polynomial
 
-
 __all__ = ['Polynomial']
+
+
+BaseNumber = TypeVar('BaseNumber')
+Operand = Union['Polynomial', BaseNumber]
 
 
 class Polynomial:
@@ -23,7 +28,7 @@ class Polynomial:
        examples: Z, Z(i)
     """
 
-    def __init__(self, coeffs, base_field, indeterminate='X'):
+    def __init__(self, coeffs: Sequence[BaseNumber], base_field, indeterminate: Optional[str] = 'X'):
         """
         :param coeffs: an iterable of elements from the base field
         :param base_field: an instance generally a finite field
@@ -35,11 +40,11 @@ class Polynomial:
         self._coefficients = self._safe_convert_coefficients(self._remove_trailing_zeros(coeffs))
         self.indeterminate = indeterminate
 
-    def _safe_convert_coefficients(self, seq):
+    def _safe_convert_coefficients(self, seq: Iterable) -> Dict[int, BaseNumber]:
         bf = self.base_field
         return dict({deg: bf.element(c) for deg, c in enumerate(seq) if c != bf.zero})
 
-    def _remove_trailing_zeros(self, seq):
+    def _remove_trailing_zeros(self, seq: Sequence) -> Collection:
         if len(seq) == 0:
             return []
         revseq = list(reversed(seq))
@@ -50,7 +55,7 @@ class Polynomial:
 
         return list(reversed(revseq))
 
-    def set_term(self, deg, c):
+    def set_term(self, deg: int, c: BaseNumber):
         if c == self.base_field.zero:
             if deg in self._coefficients.keys():
                 del self._coefficients[deg]
@@ -58,7 +63,7 @@ class Polynomial:
             self._coefficients[deg] = c
 
     @property
-    def coefficients(self):
+    def coefficients(self) -> Collection:
         """Returns the coefficients as a list"""
         deg = 0
         res = []
@@ -68,13 +73,13 @@ class Polynomial:
         return res
 
     @property
-    def internal(self):
+    def internal(self) -> Dict[int, BaseNumber]:
         """Returns the coefficients as a dict indexed by their degree
         Eschews null terms"""
         return dict({deg: c for deg, c in self._coefficients.items()})
 
     @property
-    def copy(self):
+    def copy(self) -> 'Polynomial':
         """Returns a copy of itself"""
         res = self.null
         for deg, c in self.internal.items():
@@ -82,18 +87,18 @@ class Polynomial:
         return res
 
     @property
-    def null(self):
+    def null(self) -> 'Polynomial':
         """Returns the null polynomial"""
         return Polynomial([], base_field=self.base_field, indeterminate=self.indeterminate)
 
-    def monic(self, degree: int = 1):
+    def monic(self, degree: int = 1) -> 'Polynomial':
         """Returns a monic polynomial with a single term of a given degree"""
         res = self.null
         res.set_term(degree, self.base_field.one)
         return res
 
     @property
-    def unit(self):
+    def unit(self) -> 'Polynomial':
         """Return 1 as a polynomial of degree 0"""
         return self.monic(0)
 
@@ -136,7 +141,7 @@ class Polynomial:
             return max(self._coefficients.keys())
 
     @property
-    def constant(self):
+    def constant(self) -> BaseNumber:
         """Returns the value of the coefficient of the term of degree 0"""
         if not self.is_null:
             return self[0]
@@ -144,7 +149,7 @@ class Polynomial:
             return self.base_field.zero
 
     @property
-    def leading(self):
+    def leading(self) -> BaseNumber:
         """Returns the value of the coefficient of the term of highest degree"""
         if not self.is_null:
             return self._coefficients[self.degree]
@@ -152,7 +157,7 @@ class Polynomial:
             return self.base_field.zero
 
     @property
-    def trailing(self):
+    def trailing(self) -> BaseNumber:
         """Returns the value of the coefficient of the term of lowest degree"""
         if self.is_null:
             return self.base_field.zero
@@ -167,7 +172,7 @@ class Polynomial:
 
         return min(self._coefficients.keys())
 
-    def make_monic(self):
+    def make_monic(self) -> 'Polynomial':
         """
         Attempts to divide the polynomial by its leading coefficient (for a field) or by the gcd of its
         coefficients (for a ring)
@@ -190,14 +195,14 @@ class Polynomial:
         """Returns the number of non zero terms"""
         return len([c for c in self._coefficients.values() if c != 0])
 
-    def __getitem__(self, degree):
+    def __getitem__(self, degree: int) -> BaseNumber:
         """Returns the coefficient of the term of a given degree"""
         if degree in self._coefficients.keys():
             return self._coefficients[degree]
         else:
             return self.base_field.zero
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Operand) -> bool:
         """Term-wise comparison of two polynomials"""
         if isinstance(other, Polynomial):
             if self.degree == other.degree:
@@ -216,7 +221,7 @@ class Polynomial:
             other = self(other)
             return self == other
 
-    def add(self, poly):
+    def add(self, poly: 'Polynomial') -> 'Polynomial':
         """Addition in a ring of polynomials"""
         a = self._coefficients
         s = poly.copy
@@ -228,7 +233,7 @@ class Polynomial:
 
         return s
 
-    def add_constant(self, k):
+    def add_constant(self, k: BaseNumber) -> 'Polynomial':
         """External addition of a polynomial"""
         a = self._coefficients
         s = self.null
@@ -244,7 +249,7 @@ class Polynomial:
 
         return s
 
-    def __add__(self, other):
+    def __add__(self, other: Operand) -> 'Polynomial':
         if isinstance(other, Polynomial):
             return self.add(other)
         elif isinstance(other, list):
@@ -252,10 +257,10 @@ class Polynomial:
         else:
             return self.add_constant(other)
 
-    def __radd__(self, other):
+    def __radd__(self, other: Operand) -> 'Polynomial':
         return self.__add__(other)
 
-    def __neg__(self):
+    def __neg__(self) -> 'Polynomial':
         """Returns the inverse of a polynomial with respect to addition"""
         a = self._coefficients
         s = self.null
@@ -263,7 +268,7 @@ class Polynomial:
             s.set_term(deg, -c)
         return s
 
-    def mul(self, poly):
+    def mul(self, poly: 'Polynomial') -> 'Polynomial':
         """Multiplication in a ring of polynomials"""
         if poly.is_null or self.is_null:
             return self.null
@@ -280,7 +285,7 @@ class Polynomial:
 
         return res
 
-    def mul_constant(self, k):
+    def mul_constant(self, k: BaseNumber) -> 'Polynomial':
         """External multiplication (vector space external product)"""
         s = self.null
         if k != self.base_field.zero:
@@ -288,7 +293,7 @@ class Polynomial:
                 s.set_term(deg, k * c)
         return s
 
-    def __mul__(self, other):
+    def __mul__(self, other: Operand) -> 'Polynomial':
         if isinstance(other, Polynomial):
             return self.mul(other)
         elif isinstance(other, list):
@@ -296,15 +301,15 @@ class Polynomial:
         else:
             return self.mul_constant(other)
 
-    def __rmul__(self, other):
+    def __rmul__(self, other: Operand) -> 'Polynomial':
         return self.__mul__(other)
 
-    def sub(self, poly):
+    def sub(self, poly: 'Polynomial') -> 'Polynomial':
         """Subtraction is indeed just an addition of an inverse"""
         assert isinstance(poly, Polynomial)
         return self.add(-poly)
 
-    def __sub__(self, other):
+    def __sub__(self, other: Operand) -> 'Polynomial':
         if isinstance(other, (int, float,)):
             return self.add_constant(-other)
         elif isinstance(other, list):
@@ -312,10 +317,10 @@ class Polynomial:
         else:
             return self.sub(other)
 
-    def __pow__(self, n, modulo=None):
+    def __pow__(self, n: int, modulo: 'Polynomial' = None) -> 'Polynomial':
         return self.pow(n)
 
-    def pow(self, n: int):
+    def pow(self, n: int) -> 'Polynomial':
         """Exponentiation of a polynomial"""
         assert n >= 0
         if self.is_unit:
@@ -332,11 +337,11 @@ class Polynomial:
 
         return power(self.copy, n)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """Allows a polynomial to become a dictionary key"""
         return hash(tuple(self._coefficients.items()))
 
-    def long_division(self, divisor):
+    def long_division(self, divisor: 'Polynomial') -> Tuple['Polynomial', 'Polynomial']:
         """Defines the long division according to decreasing degrees
         Be careful if the coefficients are from a ring"""
 
@@ -358,7 +363,7 @@ class Polynomial:
 
         return quotient, remainder
 
-    def long_division_reversed(self, divisor):
+    def long_division_reversed(self, divisor: 'Polynomial') -> Tuple['Polynomial', 'Polynomial']:
         """Defines the long division according to increasing degrees"""
 
         quotient = self.null
@@ -379,20 +384,20 @@ class Polynomial:
 
         return quotient, remainder
 
-    def __truediv__(self, other):
+    def __truediv__(self, other: Operand) -> 'Polynomial':
         return self.__floordiv__(other)
 
-    def __floordiv__(self, other):
+    def __floordiv__(self, other: Operand) -> 'Polynomial':
         if isinstance(other, self.__class__):
             return self.long_division(other)[0]
         else:
             other = self.base_field.element(other)
             return self.mul_constant(self.base_field.one / other)
 
-    def __divmod__(self, other):
+    def __divmod__(self, other: Operand) -> Tuple['Polynomial', 'Polynomial']:
         return self.long_division(other)
 
-    def __mod__(self, other):
+    def __mod__(self, other: Operand) -> 'Polynomial':
         return self.long_division(other)[1]
 
     def __repr__(self) -> str:
@@ -401,7 +406,7 @@ class Polynomial:
         s += f'indeterminate="{self.indeterminate}")'
         return s
 
-    def _format_coefficient(self, c, display_plus_sign=False, raw=False):
+    def _format_coefficient(self, c: BaseNumber, display_plus_sign: bool = False, raw: bool = False) -> str:
         sf = ''
         if isinstance(c, int):
             if raw:
@@ -463,12 +468,12 @@ class Polynomial:
                         s += f'^{deg}'
         return s
 
-    def __call__(self, *args):
+    def __call__(self, *args) -> 'Polynomial':
         """Syntactic sugar to create a polynomial from another one
         example: p = poly(1, 2, 1) -> p == 1 + 2X + X^2"""
         return Polynomial(list(args), base_field=self.base_field, indeterminate=self.indeterminate)
 
-    def evaluate(self, value):
+    def evaluate(self, value: BaseNumber) -> BaseNumber:
         """Evaluate the polynomial for some value"""
         value = self.base_field.element(value)
         # f(k) = f(x) % (x-k)
@@ -478,7 +483,7 @@ class Polynomial:
         r = self % self.base_field.linear_polynomial(value)
         return r.trailing
 
-    def formal_derivative(self):
+    def formal_derivative(self) -> 'Polynomial':
         """Computes and returns the formal derivative of a polynomial"""
         res = self.null
         for deg, c in self.internal.items():
@@ -486,7 +491,7 @@ class Polynomial:
                 res.set_term(deg - 1, self.base_field.ext_mul(deg, c))
         return res
 
-    def gcd(self, p):
+    def gcd(self, p: 'Polynomial') -> 'Polynomial':
         """Returns the GCD of two polynomials"""
         return gcd(self, p)
 
@@ -511,11 +516,11 @@ class Polynomial:
 
         return True
 
-    def __invert__(self):
+    def __invert__(self) -> 'Polynomial':
         """Return the Frobenius reciprocal with the operator ~"""
         return self.frobenius_reciprocal()
 
-    def frobenius_reciprocal(self):
+    def frobenius_reciprocal(self) -> 'Polynomial':
         """If this polynomial can be written as R^(p*m)
         where R is a polynomial, p the field characteristic and m an integer
         then taking the p-th root <=> returning R^m"""
@@ -548,7 +553,7 @@ class Polynomial:
             raise RuntimeError(f'{self.base_field} does not support taking the p-th root of a polynomial')
 
     @staticmethod
-    def parse(expr, base_field, indeterminate='X'):
+    def parse(expr: str, base_field, indeterminate: Optional[str] = 'X') -> 'Polynomial':
         """Returns a polynomial from its algebraic expression
         :param expr: an algebraic expression in the indeterminate
         :param base_field: the field (or the ring) that coefficients are to be drawn from

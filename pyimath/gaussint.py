@@ -1,3 +1,6 @@
+from typing import Tuple, Iterator, Sequence
+
+
 from pyimath.polynomial import Polynomial
 from pyimath.polyparse import symbolic_polynomial
 from pyimath.integer import IntegerRing
@@ -13,42 +16,42 @@ class GaussianIntegerRing:
         self.base_polynomial = Polynomial([1, 0, 1], IntegerRing())  # X2 + 1 irreducible over Z
 
     @property
-    def characteristic(self):
+    def characteristic(self) -> int:
         return 0
 
     @staticmethod
-    def element(*args):
+    def element(*args) -> 'GaussInt':
         return GaussInt(*args)
 
     @property
-    def zero(self):
+    def zero(self) -> 'GaussInt':
         return GaussInt(0, 0)
 
     @property
-    def one(self):
+    def one(self) -> 'GaussInt':
         return GaussInt(1, 0)
 
     @property
-    def null(self):
+    def null(self) -> 'GaussInt':
         return self.zero
 
     @property
-    def neutral(self):
+    def neutral(self) -> 'GaussInt':
         return self.one
 
-    def add(self, a, b):
+    def add(self, a: 'GaussInt', b: 'GaussInt') -> 'GaussInt':
         return self(a.x + b.x, a.y + b.y)
 
-    def additive_inverse(self, a):
+    def additive_inverse(self, a: 'GaussInt') -> 'GaussInt':
         return self(-a.x, -a.y)
 
-    def mul(self, a, b):
+    def mul(self, a: 'GaussInt', b: 'GaussInt') -> 'GaussInt':
         return self(a.x * b.x - a.y * b.y, a.x * b.y + a.y * b.x)
 
-    def ext_mul(self, n: int, a):
+    def ext_mul(self, n: int, a: 'GaussInt') -> 'GaussInt':
         return self.mul(self(n, 0), a)
 
-    def divmod(self, a, b):
+    def divmod(self, a: 'GaussInt', b: 'GaussInt') -> Tuple['GaussInt', 'GaussInt']:
         p_a = Polynomial([a.x, a.y], IntegerRing())
         p_b = Polynomial([b.x, b.y], IntegerRing())
         q, r = p_a.long_division_reversed(p_b)
@@ -58,22 +61,22 @@ class GaussianIntegerRing:
 
         return self.element_from_polynomial(q), self.element_from_polynomial(r)
 
-    def floor_div(self, a, b):
+    def floor_div(self, a: 'GaussInt', b: 'GaussInt') -> 'GaussInt':
         q, _ = self.divmod(a, b)
         return q
 
-    def mod(self, a, b):
+    def mod(self, a: 'GaussInt', b: 'GaussInt') -> 'GaussInt':
         _, r = self.divmod(a, b)
         return r
 
     @staticmethod
-    def pow(a, e: int):
+    def pow(a: 'GaussInt', e: int) -> 'GaussInt':
         return power(a, e)
 
-    def __call__(self, *args):
+    def __call__(self, *args) -> 'GaussInt':
         return self.element(*args)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator:
         raise ValueError('Infinite sets are not iterable')
 
     def __str__(self) -> str:
@@ -82,10 +85,10 @@ class GaussianIntegerRing:
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}()'
 
-    def format_element(self, e) -> str:
+    def format_element(self, e: 'GaussInt') -> str:
         return str(self.polynomial_from_element(e))
 
-    def polynomial(self, coefficients, indeterminate='z') -> Polynomial:
+    def polynomial(self, coefficients: Sequence, indeterminate='z') -> Polynomial:
         return Polynomial(coefficients, self, indeterminate)
 
     def linear_polynomial(self, e) -> Polynomial:
@@ -98,7 +101,7 @@ class GaussianIntegerRing:
         assert p.base_field == IntegerRing()
         assert p.degree < 2
         if p.degree == 0:
-            return self(p.coefficients[0], 0)
+            return self(p[0], 0)
         else:
             return self(*tuple(p.coefficients))
 
@@ -167,8 +170,8 @@ class GaussInt:
     def __rmul__(self, other):
         return self.__mul__(other)
 
-    def __pow__(self, power, modulo=None):
-        return self.ring.pow(self, power)
+    def __pow__(self, e: int, modulo=None):
+        return self.ring.pow(self, e)
 
     def __floordiv__(self, other):
         if isinstance(other, tuple):
