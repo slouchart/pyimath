@@ -3,6 +3,10 @@
 This document lists the changes (and individuals who contributed to those
 changes) for each release of python-vagrant.
 
+## 0.0.5
+
+- Fixing a bug in the definition of multiplication and multiplicative inverse operations in `FiniteField` when a generator is defined
+
 ## 0.0.4
 
 - Adding type hints

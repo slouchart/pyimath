@@ -1,11 +1,10 @@
-from typing import Iterator, List, Dict, Tuple, Union, Any
+from typing import Iterator, Tuple, Union, Any, List, Dict
 import random
-
-
 import operator
+
 from pyimath.functions import maybe_prime, power
-from pyimath.polynomial import Polynomial
-from pyimath.polyparse import symbolic_polynomial
+from pyimath.polynomial import Polynomial, symbolic_polynomial
+
 
 AdditiveGroup = List[int]
 MultiplicativeGroup = Dict[Tuple[int, int], Union[int, List[int]]]

@@ -1,13 +1,12 @@
-from typing import Tuple, Iterator, Sequence
+from typing import Tuple, Iterator, Sequence, Union, Any
 
 
-from pyimath.polynomial import Polynomial
-from pyimath.polyparse import symbolic_polynomial
+from pyimath.polynomial import Polynomial, symbolic_polynomial
 from pyimath.integer import IntegerRing
 from pyimath.functions import power
 
 
-__all__ = ['GaussianIntegerRing']
+__all__ = ['GaussianIntegerRing', 'GaussInt']
 
 
 class GaussianIntegerRing:
@@ -91,13 +90,13 @@ class GaussianIntegerRing:
     def polynomial(self, coefficients: Sequence, indeterminate='z') -> Polynomial:
         return Polynomial(coefficients, self, indeterminate)
 
-    def linear_polynomial(self, e) -> Polynomial:
+    def linear_polynomial(self, e: 'GaussInt') -> Polynomial:
         return self.polynomial([e, self.one])
 
-    def polynomial_from_element(self, e) -> Polynomial:
+    def polynomial_from_element(self, e: 'GaussInt') -> Polynomial:
         return Polynomial([e.x, e.y], IntegerRing(), indeterminate=self.root_symbol)
 
-    def element_from_polynomial(self, p: Polynomial):
+    def element_from_polynomial(self, p: Polynomial) -> 'GaussInt':
         assert p.base_field == IntegerRing()
         assert p.degree < 2
         if p.degree == 0:
@@ -105,11 +104,14 @@ class GaussianIntegerRing:
         else:
             return self(*tuple(p.coefficients))
 
-    def parse(self, expr):
+    def parse(self, expr: str) -> 'GaussInt':
         p = symbolic_polynomial(expr, IntegerRing(), indeterminate=self.root_symbol)
         if p.degree > 1:
             raise ValueError(f'{expr} is not a valid gaussian integer')
         return self(p[0], p[1])
+
+
+CompatibleType = Union[int, Tuple[int, int]]
 
 
 class GaussInt:
@@ -118,18 +120,18 @@ class GaussInt:
         self.ring = GaussianIntegerRing()
 
     @property
-    def x(self):
+    def x(self) -> int:
         return self.vector[0]
 
     @property
-    def y(self):
+    def y(self) -> int:
         return self.vector[1]
 
     @property
-    def conjugate(self):
+    def conjugate(self) -> 'GaussInt':
         return self.ring(self.x, -self.y)
 
-    def __add__(self, other):
+    def __add__(self, other: Union['GaussInt', CompatibleType]) -> 'GaussInt':
         if isinstance(other, tuple):
             return self.ring.add(self, self.ring(*other))
         elif isinstance(other, int):
@@ -137,10 +139,10 @@ class GaussInt:
         else:
             return self.ring.add(self, other)
 
-    def __radd__(self, other):
+    def __radd__(self, other: Union['GaussInt', CompatibleType]) -> 'GaussInt':
         return self.__add__(other)
 
-    def __sub__(self, other):
+    def __sub__(self, other: Union['GaussInt', CompatibleType]) -> 'GaussInt':
         if isinstance(other, tuple):
             return self.ring.add(self, -self.ring(*other))
         elif isinstance(other, int):
@@ -148,7 +150,7 @@ class GaussInt:
         else:
             return self.ring.add(self, -other)
 
-    def __rsub__(self, other):
+    def __rsub__(self, other: Union['GaussInt', CompatibleType]) -> 'GaussInt':
         if isinstance(other, tuple):
             return self.ring.add(self.ring(*other), -self)
         elif isinstance(other, int):
@@ -156,10 +158,10 @@ class GaussInt:
         else:
             return self.ring.add(other, -self)
 
-    def __neg__(self):
+    def __neg__(self) -> 'GaussInt':
         return self.ring.additive_inverse(self)
 
-    def __mul__(self, other):
+    def __mul__(self, other: Union['GaussInt', CompatibleType]) -> 'GaussInt':
         if isinstance(other, tuple):
             return self.ring.mul(self, self.ring(*other))
         elif isinstance(other, int):
@@ -167,13 +169,13 @@ class GaussInt:
         else:
             return self.ring.mul(self, other)
 
-    def __rmul__(self, other):
+    def __rmul__(self, other: Union['GaussInt', CompatibleType]) -> 'GaussInt':
         return self.__mul__(other)
 
-    def __pow__(self, e: int, modulo=None):
+    def __pow__(self, e: int, modulo=None) -> 'GaussInt':
         return self.ring.pow(self, e)
 
-    def __floordiv__(self, other):
+    def __floordiv__(self, other: Union['GaussInt', CompatibleType]) -> 'GaussInt':
         if isinstance(other, tuple):
             return self.ring.floor_div(self, self.ring(*other))
         elif isinstance(other, int):
@@ -181,10 +183,10 @@ class GaussInt:
         else:
             return self.ring.floor_div(self, other)
 
-    def __truediv__(self, other):
+    def __truediv__(self, other: Any) -> None:
         raise TypeError('Gauss Integers do not define true division / but implement floor division //')
 
-    def __mod__(self, other):
+    def __mod__(self, other: Union['GaussInt', CompatibleType]) -> 'GaussInt':
         if isinstance(other, tuple):
             return self.ring.mod(self, self.ring(*other))
         elif isinstance(other, int):
@@ -192,7 +194,7 @@ class GaussInt:
         else:
             return self.ring.mod(self, other)
 
-    def __divmod__(self, other):
+    def __divmod__(self, other: Union['GaussInt', CompatibleType]) -> Tuple['GaussInt', 'GaussInt']:
         if isinstance(other, tuple):
             return self.ring.divmod(self, self.ring(*other))
         elif isinstance(other, int):
@@ -200,7 +202,7 @@ class GaussInt:
         else:
             return self.ring.divmod(self, other)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Union['GaussInt', CompatibleType]) -> bool:
         if isinstance(other, self.__class__):
             return self.x == other.x and self.y == other.y
         elif isinstance(other, tuple):
@@ -213,18 +215,18 @@ class GaussInt:
         else:
             raise TypeError
 
-    def __invert__(self):
+    def __invert__(self) -> 'GaussInt':
         """Defined the complex conjugate"""
         return self.conjugate
 
-    def __abs__(self):
+    def __abs__(self) -> int:
         """Defines the multiplicative norm of algebraic integers"""
         return self.x ** 2 + self.y ** 2
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.ring.format_element(self)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         s = f'{repr(self.ring)}('
         s += f'{self.x}, {self.y})'
         return s

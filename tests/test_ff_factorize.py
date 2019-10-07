@@ -2,16 +2,16 @@ from unittest import TestCase
 from unittest import main as run_tests
 
 
-from pyimath.finitefield import FiniteField, PrimeField
+from pyimath.finitefield import FiniteField, finite_field
+from pyimath.primefield import PrimeField
 from pyimath.factorize import factorize
 
 
 class TestFiniteFieldFactorization(TestCase):
 
     def testFiniteFieldF4(self):
-        f2 = PrimeField(2)
-        ideal = f2.polynomial(1, 1, 1)
-        f4 = FiniteField(2, 2, ideal)
+
+        f4 = finite_field(4)
 
         p1 = f4.polynomial(1, f4(1, 1), 1)
         p2 = f4.polynomial(1, f4(1, 1), 0, 1)
@@ -26,9 +26,8 @@ class TestFiniteFieldFactorization(TestCase):
                 self.assertTrue(p == factorize(p).factors_product(factors) * c)
 
     def testFiniteFieldF9(self):
-        f3 = PrimeField(3)
-        ideal = f3.polynomial(-1, 1, 1)
-        f9 = FiniteField(3, 2, ideal)
+
+        f9 = finite_field(9)
 
         p1 = f9.polynomial(1, f9(1, 1), 1)
         p2 = f9.polynomial(1, f9(1, 1), 0, 1)
@@ -44,9 +43,8 @@ class TestFiniteFieldFactorization(TestCase):
                 self.assertTrue(p == factorize(p).factors_product(factors) * c)
 
     def testFiniteFieldF8(self):
-        f2 = PrimeField(2)
-        ideal = f2.polynomial(1, 1, 0, 1)
-        f8 = FiniteField(2, 3, ideal)
+
+        f8 = finite_field(8)
 
         p1 = f8.polynomial(1, f8(1, 1), 1)
         p2 = f8.polynomial(1, f8(1, 1), 0, 1)

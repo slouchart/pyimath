@@ -2,7 +2,7 @@ from unittest import TestCase
 from unittest import skip
 from unittest import main as run_tests
 
-from pyimath.finitefield import FiniteField, FFElement
+from pyimath.finitefield import FiniteField, FFElement, finite_field
 from pyimath.polynomial import Polynomial
 from pyimath.primefield import PrimeField, PFElement
 
@@ -120,7 +120,56 @@ class TestTypingSanity(TestCase):
 
 
 class TestGenerator(TestCase):
-    pass
+
+    def setUp(self) -> None:
+
+        self.f2 = finite_field(2)
+        self.f4 = FiniteField(2, 2, self.f2.polynomial(1, 1, 1))
+        self.f4g = FiniteField(2, 2, self.f2.polynomial(1, 1, 1), generator=(0, 1))
+
+    def test0(self):
+        self.assertEqual(self.f4g.generator ** (self.f4g.order-1), self.f4g.one)
+
+    def test1(self):
+        for a in self.f4:
+            for b in self.f4:
+                self.assertEqual(a * b, self.f4g.element(a) * self.f4g.element(b))
+
+    def test2(self):
+        for a in self.f4:
+            for b in self.f4:
+                if not b.null:
+                    self.assertEqual(a / b, self.f4g.element(a) / self.f4g.element(b))
+
+    def test3(self):
+        f16g = finite_field(16)
+        f2 = finite_field(2)
+        f16 = FiniteField(2, 4, f2.polynomial(1, 1, 0, 0, 1))
+        for a in f16:
+            for b in f16:
+                self.assertEqual(a * b, f16g.element(a) * f16g.element(b))
+                if not b.null:
+                    self.assertEqual(a / b, f16g.element(a) / f16g.element(b))
+
+    def test4(self):
+        f25g = finite_field(25)
+        f5 = finite_field(5)
+        f25 = FiniteField(5, 2, f5.polynomial(2, 0, 1))
+        for a in f25:
+            for b in f25:
+                self.assertEqual(a * b, f25g.element(a) * f25g.element(b))
+                if not b.null:
+                    self.assertEqual(a / b, f25g.element(a) / f25g.element(b))
+
+    def test5(self):
+        f27g = finite_field(27)
+        f3 = finite_field(3)
+        f27 = FiniteField(3, 3, f3.polynomial(-1, -1, 0, 1))
+        for a in f27:
+            for b in f27:
+                self.assertEqual(a * b, f27g.element(a) * f27g.element(b))
+                if not b.null:
+                    self.assertEqual(a / b, f27g.element(a) / f27g.element(b))
 
 
 if __name__ == '__main__':

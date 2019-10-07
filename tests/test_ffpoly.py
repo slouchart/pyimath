@@ -3,7 +3,7 @@ from unittest import main as run_tests
 
 from pyimath.finitefield import FiniteField, PrimeField
 from pyimath.functions import gcd
-from pyimath.polyparse import symbolic_polynomial
+from pyimath.polynomial import symbolic_polynomial
 from pyimath.finitefield import FFElement  # needed to test eval(repr())
 
 

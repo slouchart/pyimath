@@ -1,4 +1,4 @@
-from typing import Tuple, Iterator
+from typing import Tuple, Iterator, Optional
 
 from pyimath.polynomial import Polynomial
 
@@ -19,7 +19,7 @@ class IntegerRing:
         return int(n)
 
     @property
-    def characteristic(self):
+    def characteristic(self) -> int:
         return 0
 
     @property
@@ -31,11 +31,11 @@ class IntegerRing:
         return 1
 
     @property
-    def null(self):
+    def null(self) -> int:
         return self.zero
 
     @property
-    def neutral(self):
+    def neutral(self) -> int:
         return self.one
 
     @staticmethod
@@ -85,9 +85,9 @@ class IntegerRing:
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}()'
 
-    def polynomial(self, *args, indeterminate='X'):
+    def polynomial(self, *args, indeterminate: Optional[str] = 'X') -> Polynomial:
         coefficients = [c for c in args]
         return Polynomial(coefficients, base_field=self, indeterminate=indeterminate)
 
-    def linear_polynomial(self, e: int):
+    def linear_polynomial(self, e: int) -> Polynomial:
         return self.polynomial(-e, 1)

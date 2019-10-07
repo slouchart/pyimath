@@ -2,6 +2,10 @@ from collections import namedtuple
 from typing import Collection, Tuple
 
 from pyimath.polynomial import Polynomial
+from pyimath.annotations import BaseField, BaseNumber
+
+
+__all__ = ['factorize']
 
 
 def factorize(p: Polynomial) -> 'Factorization':
@@ -38,7 +42,7 @@ class Factorization:
     Never use it directly, subclass it if you want but in any case, please use `factorize(poly).<method>()`
     """
 
-    def __init__(self, base_field, poly: Polynomial):
+    def __init__(self, base_field: BaseField, poly: Polynomial):
         self.base_field = base_field
         self.poly = poly
 
@@ -168,7 +172,7 @@ class Factorization:
 
         return [Factor(g, 1, 0) for g in factors]
 
-    def cantor_zassenhaus(self) -> Tuple[Collection[Factor], int]:
+    def cantor_zassenhaus(self) -> Tuple[Collection[Factor], BaseNumber]:
         """Full factorisation algorithm
            input: any polynomial over a finite field
            output : a constant term and a list of factors with their multiplicity"""

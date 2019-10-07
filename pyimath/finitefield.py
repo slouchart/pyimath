@@ -6,11 +6,10 @@ from typing import Optional, Sequence, MutableSequence, Iterator, Union, List, T
 
 from pyimath.functions import maybe_prime
 from pyimath.functions import power
-from pyimath.polynomial import Polynomial
-from pyimath.polyparse import symbolic_polynomial
+from pyimath.polynomial import Polynomial, symbolic_polynomial
 from pyimath.primefield import PrimeField, PFElement
 
-__all__ = ['Polynomial', 'FiniteField', 'PrimeField', 'finite_field', 'FFElement', 'PFElement']
+__all__ = ['FiniteField', 'finite_field', 'FFElement']
 
 
 BaseAtom = Union[int, PFElement]
@@ -65,7 +64,7 @@ class FiniteField:
                     p_th_roots.append(e)
         return p_th_roots
 
-    def element_order(self, e: 'FFElement') ->int:
+    def element_order(self, e: 'FFElement') -> int:
         """Returns the order of an element, that is the minimal integer k such as e^k = 1"""
         if self.has_valid_generator:
             return self.generator_powers[e]
@@ -165,7 +164,7 @@ class FiniteField:
         """
         return self.prime_field.characteristic ** self.dimension
 
-    def element(self, v: Vector) -> 'FFElement':
+    def element(self, v: Union[Vector, 'FFElement']) -> 'FFElement':
         return FFElement(self, self._safe_convert_vector(v))
 
     @property
@@ -231,6 +230,10 @@ class FiniteField:
         assert a.field == b.field == self
 
         if self.has_valid_generator:
+
+            if a.null or b.null:
+                return self.null
+
             p1 = self.element_as_powers[a]
             p2 = self.element_as_powers[b]
             p = p1 + p2
@@ -267,7 +270,10 @@ class FiniteField:
 
         if self.has_valid_generator:
             p = self.element_as_powers[a]
-            return self.generator_powers[self.order - 1 - p]
+            if self.order - 1 - p == 0:
+                return self.generator_powers[self.order - 1]
+            else:
+                return self.generator_powers[self.order - 1 - p]
         else:
             p_a = self.polynomial_from_element(a)
             p = self.base_polynomial
@@ -482,7 +488,10 @@ class FFElement:
         return self.field.pow(self, e)
 
     def __truediv__(self, other: 'FFElement') -> 'FFElement':
-        return self.field.div(self, other)
+        if isinstance(other, FFElement):
+            return self.field.div(self, other)
+        elif isinstance(other, (int, PFElement)):
+            return self.field.mul(self, self.field(other))
 
     def __floordiv__(self, other: 'FFElement') -> 'FFElement':
         return self.__truediv__(other)
@@ -501,27 +510,42 @@ class FFElement:
 
 
 # Pre-computed finite fields
+class Record:
+
+    def __init__(self, code: str):
+        self.code = code
+        self.instance = None
+        self.instantiated = False
+
+    def instantiate(self):
+        if not self.instantiated:
+            self.instance = eval(self.code)
+            self.instantiated = True
+
+        return self.instance
+
+
 FINITE_FIELD = {
-    'F2': PrimeField(2),
-    'F3': PrimeField(3),
-    'F4': FiniteField(2, 2, symbolic_polynomial('X^2+X+1', PrimeField(2)), generator=(0, 1)),
-    'F5': PrimeField(5),
-    'F7': PrimeField(7),
-    'F8': FiniteField(2, 3, symbolic_polynomial('X^3+X+1', PrimeField(2)), generator=(0, 1, 0)),
-    'F9': FiniteField(3, 2, symbolic_polynomial('X^2+1', PrimeField(3)), generator=(1, -1)),
-    'F11': PrimeField(11),
-    'F13': PrimeField(13),
-    'F16': FiniteField(2, 4, symbolic_polynomial('X^4+X+1', PrimeField(2)), generator=(0, 1, 0, 0)),
-    'F17': PrimeField(17),
-    'F19': PrimeField(19),
-    'F23': PrimeField(23),
-    'F25': FiniteField(5, 2, symbolic_polynomial('X^2+2', PrimeField(5)), generator=(1, 1)),
-    'F27': FiniteField(3, 3, symbolic_polynomial('X^3 - X - 1', PrimeField(3)), generator=(-1, -1, -1)),
+    'F2': Record("PrimeField(2)"),
+    'F3': Record("PrimeField(3)"),
+    'F4': Record("FiniteField(2, 2, symbolic_polynomial('X^2+X+1', PrimeField(2)), generator=(0, 1))"),
+    'F5': Record("PrimeField(5)"),
+    'F7': Record("PrimeField(7)"),
+    'F8': Record("FiniteField(2, 3, symbolic_polynomial('X^3+X+1', PrimeField(2)), generator=(0, 1))"),
+    'F9': Record("FiniteField(3, 2, symbolic_polynomial('X^2+1', PrimeField(3)), generator=(1, 1))"),
+    'F11': Record("PrimeField(11)"),
+    'F13': Record("PrimeField(13)"),
+    'F16': Record("FiniteField(2, 4, symbolic_polynomial('X^4+X+1', PrimeField(2)), generator=(1, 1, 0, 0))"),
+    'F17': Record("PrimeField(17)"),
+    'F19': Record("PrimeField(19)"),
+    'F23': Record("PrimeField(23)"),
+    'F25': Record("FiniteField(5, 2, symbolic_polynomial('X^2+2', PrimeField(5)), generator=(1, 1))"),
+    'F27': Record("FiniteField(3, 3, symbolic_polynomial('X^3-X-1', PrimeField(3)), generator=(1, 0, 1))")
 }
 
 
 def finite_field(order):
-    if f'F{order}' in FINITE_FIELD.keys:
-        return FINITE_FIELD[f'F{order}']
+    if f'F{order}' in FINITE_FIELD:
+        return FINITE_FIELD[f'F{order}'].instantiate()
     else:
         raise ValueError(f'No pre-instantiated finite field of order {order}')

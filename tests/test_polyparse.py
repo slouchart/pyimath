@@ -2,8 +2,9 @@ from unittest import TestCase
 from unittest import main as run_tests
 
 
-from pyimath.polyparse import symbolic_polynomial
-from pyimath.finitefield import PrimeField, FiniteField
+from pyimath.polynomial import symbolic_polynomial
+from pyimath.finitefield import FiniteField
+from pyimath.primefield import PrimeField
 from pyimath.integer import IntegerRing
 from pyimath.polynomial import Polynomial
 
