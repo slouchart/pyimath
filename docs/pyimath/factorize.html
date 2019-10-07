@@ -1,0 +1,782 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.1" />
+<title>pyimath.factorize API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pyimath.factorize</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from collections import namedtuple
+from typing import Collection, Tuple
+
+from pyimath.polynomial import Polynomial
+
+
+def factorize(p: Polynomial) -&gt; &#39;Factorization&#39;:
+    &#34;&#34;&#34;
+    Main entry point of the module, provide an instance of the Factorization class as a place holder
+    to call any factorization algorithms : `square_free`, `distinct_degree`, `equal_degree` or `cantor_zassenhaus`
+    :param p: a Polynomial
+    :return: a instance of `Factorization`
+    &#34;&#34;&#34;
+    return Factorization(p.base_field, p)
+
+
+class Factor(namedtuple(&#39;Factor&#39;, &#39;value, multiplicity, max_degree&#39;, defaults=(0,))):
+    __slots__ = ()
+
+    @property
+    def is_irreducible(self) -&gt; bool:
+        return self.value.is_irreducible
+
+    def __str__(self) -&gt; str:
+        if self.multiplicity &gt; 1:
+            s = f&#39;({self.value})**{self.multiplicity}&#39;
+        else:
+            s = f&#39;({self.value})&#39;
+        if self.is_irreducible:
+            s += &#39; IRREDUCIBLE&#39;
+        return s
+
+
+class Factorization:
+    &#34;&#34;&#34;
+    Service provider for polynomial factorization
+    The main service is the full factorization by the Cantor-Zassenhaus algorithm
+    Never use it directly, subclass it if you want but in any case, please use `factorize(poly).&lt;method&gt;()`
+    &#34;&#34;&#34;
+
+    def __init__(self, base_field, poly: Polynomial):
+        self.base_field = base_field
+        self.poly = poly
+
+    def factors_product(self, factors: Collection[Factor]) -&gt; Polynomial:
+        &#34;&#34;&#34;
+        Converts a list of factors into a polynomial
+        :param factors: an iterable of `Factor`
+        :return: a Polynomial that is the product of Factors.value along with their multiplicity
+        &#34;&#34;&#34;
+        bf = self.base_field
+        if len(factors) == 0:
+            res = bf.polynomial(bf.zero)
+        else:
+            res = bf.polynomial(bf.one)
+            for fct in factors:
+                res *= (fct.value ** fct.multiplicity)
+
+        return res
+
+    def square_free(self) -&gt; Tuple[Polynomial, Collection[Factor]]:
+        &#34;&#34;&#34;Square free factorization of a monic polynomial over a finite field of prime characteristic.
+           Returns the square free part and a partial (or complete factorization)&#34;&#34;&#34;
+
+        f = self.poly.copy.make_monic()
+        q = f.base_field.characteristic
+
+        factors = []
+        # step 2: identify all factors of multiplicity m not divisible by q
+        if f.formal_derivative() != f.null:
+            g = f.gcd(f.formal_derivative())
+            if not g.is_abs_unit:
+                w = f / g
+                i = 1
+                while not w.is_abs_unit:
+                    y = w.gcd(g)
+                    factor = w / y
+                    if factor.degree &gt; 0:
+                        factors.append(Factor(factor.make_monic(), i, 0))
+
+                    w, g = y, g / y
+                    i += 1
+            else:
+                return f, factors
+        else:
+            g = f.copy
+
+        if not g.is_abs_unit:
+            # step 2: g is the product of all factors of multiplicity divisible by q
+            g = ~g  # frobenius reciprocal
+
+            # we try another sqf
+            sqf, fct = factorize(g).square_free()
+            factors += [Factor(sf.value.make_monic(), sf.multiplicity * q, 0) for sf in fct]
+            factors += [Factor(sqf.make_monic(), q, 0)]
+
+        # step 3: compute square free part
+        sqf = f.copy
+        for fact in factors[:]:
+            if fact.multiplicity &gt; 1:
+                sqf /= fact.value ** fact.multiplicity
+            else:
+                factors.remove(fact)
+
+        return sqf, factors
+
+    def distinct_degree(self) -&gt; Collection[Factor]:
+        &#34;&#34;&#34;Distinct degree factorisation of a square free monic polynomial.
+        Returns a list of Factors with a multiplicity of 1 and the maximum degree of any irreducible factor&#34;&#34;&#34;
+        f = self.poly.copy.make_monic()
+        factors = []
+
+        fp = f.copy
+        q = f.base_field.characteristic
+        i = 1
+        while fp.degree &gt;= 2 * i:
+            g = fp.gcd(f.monic(q ** i) - f.monic(1))
+            if not g.make_monic().is_abs_unit:
+                factors.append(Factor(g.make_monic(), 1, i))
+            fp /= g
+            i += 1
+
+        if not fp.is_abs_unit and fp.degree &gt; 0:
+            factors.append(Factor(fp.make_monic(), 1, fp.degree))
+        if len(factors) == 0:
+            factors.append(Factor(f, 1, f.degree))
+
+        return factors
+
+    def equal_degree(self, nb_factors: int, max_degree: int) -&gt; Collection[Factor]:
+        &#34;&#34;&#34;Cantor–Zassenhaus factorization algorithm.
+        Input: Over a finite field Fq of odd order q,
+               p is a monic square free polynomial in Fq[x] of degree n = rd,
+               which has r ≥ 2 irreducible factors each of degree d
+        Output: The set of monic irreducible factors of f.&#34;&#34;&#34;
+
+        factors = []
+        r, d = nb_factors, max_degree
+        f = self.poly.copy.make_monic()
+        q = self.poly.base_field.characteristic
+
+        assert f.degree == r * d, f&#39;Degree of {str(f)} mismatches input parameters {nb_factors}, {max_degree}&#39;
+        assert r &gt;= 2
+
+        max_retries = 2 * r * d
+        found_factors, nb_retries = 0, 0
+        while found_factors &lt; r and nb_retries &lt; max_retries:
+            # pick a random polynomial a of degree &lt; r * d
+            a = f.base_field.random_polynomial(f.degree - 1)
+            g = f.gcd(a).make_monic()
+            if not g.is_unit and g not in factors:
+                factors.append(g)
+                found_factors += 1
+                continue
+            else:
+                m = (q ** d - 1) // 2
+                a_p = a ** m + a.unit
+                if not a_p.is_null:
+                    g = f.gcd(a_p).make_monic()
+                    if not g.is_unit and g != f and g not in factors:
+                        factors.append(g)
+                        found_factors += 1
+                        continue
+            nb_retries += 1
+        else:
+            if nb_retries &gt;= max_retries:
+                raise RuntimeError(f&#39;unable to find {r} degree {d} factors for {str(f)}&#39;)
+
+        return [Factor(g, 1, 0) for g in factors]
+
+    def cantor_zassenhaus(self) -&gt; Tuple[Collection[Factor], int]:
+        &#34;&#34;&#34;Full factorisation algorithm
+           input: any polynomial over a finite field
+           output : a constant term and a list of factors with their multiplicity&#34;&#34;&#34;
+
+        irreducible_factors = []
+        factors_to_consider = []
+        # make monic polynomial
+        if not self.poly.is_monic:
+            f = self.poly.make_monic()
+            constant_term = self.poly.leading
+        else:
+            f = self.poly.copy
+            constant_term = self.poly.base_field.one
+
+        # attempt a square free factorisation
+        sqf, multiple_factors = factorize(f).square_free()
+        # sqf may be irreducible or not
+        # each factors may be irreducible or not
+        if not sqf.is_unit:
+            factors_to_consider.append(Factor(sqf, 1, 0))
+        factors_to_consider += multiple_factors
+
+        while len(factors_to_consider) &gt; 0:  # we keep on factorizing while some reducible factors remain
+            mfct = factors_to_consider.pop()
+            if mfct.is_irreducible:
+                irreducible_factors.append(mfct)
+            elif mfct.max_degree == 0:
+                subfactors = factorize(mfct.value).distinct_degree()
+                for s in subfactors:
+                    factors_to_consider.append(Factor(s.value, mfct.multiplicity, s.max_degree))
+            else:
+                d = int(mfct.max_degree)
+                assert mfct.value.degree % d == 0
+                r = mfct.value.degree // d
+                factors_to_consider += factorize(mfct.value).equal_degree(r, d)
+
+        return irreducible_factors, constant_term</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pyimath.factorize.factorize"><code class="name flex">
+<span>def <span class="ident">factorize</span></span>(<span>p)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Main entry point of the module, provide an instance of the Factorization class as a place holder
+to call any factorization algorithms : <code>square_free</code>, <code>distinct_degree</code>, <code>equal_degree</code> or <code>cantor_zassenhaus</code>
+:param p: a Polynomial
+:return: a instance of <a title="pyimath.factorize.Factorization" href="#pyimath.factorize.Factorization"><code>Factorization</code></a></p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def factorize(p: Polynomial) -&gt; &#39;Factorization&#39;:
+    &#34;&#34;&#34;
+    Main entry point of the module, provide an instance of the Factorization class as a place holder
+    to call any factorization algorithms : `square_free`, `distinct_degree`, `equal_degree` or `cantor_zassenhaus`
+    :param p: a Polynomial
+    :return: a instance of `Factorization`
+    &#34;&#34;&#34;
+    return Factorization(p.base_field, p)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="pyimath.factorize.Factor"><code class="flex name class">
+<span>class <span class="ident">Factor</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Factor(value, multiplicity, max_degree)</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Factor(namedtuple(&#39;Factor&#39;, &#39;value, multiplicity, max_degree&#39;, defaults=(0,))):
+    __slots__ = ()
+
+    @property
+    def is_irreducible(self) -&gt; bool:
+        return self.value.is_irreducible
+
+    def __str__(self) -&gt; str:
+        if self.multiplicity &gt; 1:
+            s = f&#39;({self.value})**{self.multiplicity}&#39;
+        else:
+            s = f&#39;({self.value})&#39;
+        if self.is_irreducible:
+            s += &#39; IRREDUCIBLE&#39;
+        return s</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.tuple</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="pyimath.factorize.Factor.is_irreducible"><code class="name">var <span class="ident">is_irreducible</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def is_irreducible(self) -&gt; bool:
+    return self.value.is_irreducible</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pyimath.factorize.Factorization"><code class="flex name class">
+<span>class <span class="ident">Factorization</span></span>
+<span>(</span><span>base_field, poly)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Service provider for polynomial factorization
+The main service is the full factorization by the Cantor-Zassenhaus algorithm
+Never use it directly, subclass it if you want but in any case, please use <code>factorize(poly).&lt;method&gt;()</code></p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Factorization:
+    &#34;&#34;&#34;
+    Service provider for polynomial factorization
+    The main service is the full factorization by the Cantor-Zassenhaus algorithm
+    Never use it directly, subclass it if you want but in any case, please use `factorize(poly).&lt;method&gt;()`
+    &#34;&#34;&#34;
+
+    def __init__(self, base_field, poly: Polynomial):
+        self.base_field = base_field
+        self.poly = poly
+
+    def factors_product(self, factors: Collection[Factor]) -&gt; Polynomial:
+        &#34;&#34;&#34;
+        Converts a list of factors into a polynomial
+        :param factors: an iterable of `Factor`
+        :return: a Polynomial that is the product of Factors.value along with their multiplicity
+        &#34;&#34;&#34;
+        bf = self.base_field
+        if len(factors) == 0:
+            res = bf.polynomial(bf.zero)
+        else:
+            res = bf.polynomial(bf.one)
+            for fct in factors:
+                res *= (fct.value ** fct.multiplicity)
+
+        return res
+
+    def square_free(self) -&gt; Tuple[Polynomial, Collection[Factor]]:
+        &#34;&#34;&#34;Square free factorization of a monic polynomial over a finite field of prime characteristic.
+           Returns the square free part and a partial (or complete factorization)&#34;&#34;&#34;
+
+        f = self.poly.copy.make_monic()
+        q = f.base_field.characteristic
+
+        factors = []
+        # step 2: identify all factors of multiplicity m not divisible by q
+        if f.formal_derivative() != f.null:
+            g = f.gcd(f.formal_derivative())
+            if not g.is_abs_unit:
+                w = f / g
+                i = 1
+                while not w.is_abs_unit:
+                    y = w.gcd(g)
+                    factor = w / y
+                    if factor.degree &gt; 0:
+                        factors.append(Factor(factor.make_monic(), i, 0))
+
+                    w, g = y, g / y
+                    i += 1
+            else:
+                return f, factors
+        else:
+            g = f.copy
+
+        if not g.is_abs_unit:
+            # step 2: g is the product of all factors of multiplicity divisible by q
+            g = ~g  # frobenius reciprocal
+
+            # we try another sqf
+            sqf, fct = factorize(g).square_free()
+            factors += [Factor(sf.value.make_monic(), sf.multiplicity * q, 0) for sf in fct]
+            factors += [Factor(sqf.make_monic(), q, 0)]
+
+        # step 3: compute square free part
+        sqf = f.copy
+        for fact in factors[:]:
+            if fact.multiplicity &gt; 1:
+                sqf /= fact.value ** fact.multiplicity
+            else:
+                factors.remove(fact)
+
+        return sqf, factors
+
+    def distinct_degree(self) -&gt; Collection[Factor]:
+        &#34;&#34;&#34;Distinct degree factorisation of a square free monic polynomial.
+        Returns a list of Factors with a multiplicity of 1 and the maximum degree of any irreducible factor&#34;&#34;&#34;
+        f = self.poly.copy.make_monic()
+        factors = []
+
+        fp = f.copy
+        q = f.base_field.characteristic
+        i = 1
+        while fp.degree &gt;= 2 * i:
+            g = fp.gcd(f.monic(q ** i) - f.monic(1))
+            if not g.make_monic().is_abs_unit:
+                factors.append(Factor(g.make_monic(), 1, i))
+            fp /= g
+            i += 1
+
+        if not fp.is_abs_unit and fp.degree &gt; 0:
+            factors.append(Factor(fp.make_monic(), 1, fp.degree))
+        if len(factors) == 0:
+            factors.append(Factor(f, 1, f.degree))
+
+        return factors
+
+    def equal_degree(self, nb_factors: int, max_degree: int) -&gt; Collection[Factor]:
+        &#34;&#34;&#34;Cantor–Zassenhaus factorization algorithm.
+        Input: Over a finite field Fq of odd order q,
+               p is a monic square free polynomial in Fq[x] of degree n = rd,
+               which has r ≥ 2 irreducible factors each of degree d
+        Output: The set of monic irreducible factors of f.&#34;&#34;&#34;
+
+        factors = []
+        r, d = nb_factors, max_degree
+        f = self.poly.copy.make_monic()
+        q = self.poly.base_field.characteristic
+
+        assert f.degree == r * d, f&#39;Degree of {str(f)} mismatches input parameters {nb_factors}, {max_degree}&#39;
+        assert r &gt;= 2
+
+        max_retries = 2 * r * d
+        found_factors, nb_retries = 0, 0
+        while found_factors &lt; r and nb_retries &lt; max_retries:
+            # pick a random polynomial a of degree &lt; r * d
+            a = f.base_field.random_polynomial(f.degree - 1)
+            g = f.gcd(a).make_monic()
+            if not g.is_unit and g not in factors:
+                factors.append(g)
+                found_factors += 1
+                continue
+            else:
+                m = (q ** d - 1) // 2
+                a_p = a ** m + a.unit
+                if not a_p.is_null:
+                    g = f.gcd(a_p).make_monic()
+                    if not g.is_unit and g != f and g not in factors:
+                        factors.append(g)
+                        found_factors += 1
+                        continue
+            nb_retries += 1
+        else:
+            if nb_retries &gt;= max_retries:
+                raise RuntimeError(f&#39;unable to find {r} degree {d} factors for {str(f)}&#39;)
+
+        return [Factor(g, 1, 0) for g in factors]
+
+    def cantor_zassenhaus(self) -&gt; Tuple[Collection[Factor], int]:
+        &#34;&#34;&#34;Full factorisation algorithm
+           input: any polynomial over a finite field
+           output : a constant term and a list of factors with their multiplicity&#34;&#34;&#34;
+
+        irreducible_factors = []
+        factors_to_consider = []
+        # make monic polynomial
+        if not self.poly.is_monic:
+            f = self.poly.make_monic()
+            constant_term = self.poly.leading
+        else:
+            f = self.poly.copy
+            constant_term = self.poly.base_field.one
+
+        # attempt a square free factorisation
+        sqf, multiple_factors = factorize(f).square_free()
+        # sqf may be irreducible or not
+        # each factors may be irreducible or not
+        if not sqf.is_unit:
+            factors_to_consider.append(Factor(sqf, 1, 0))
+        factors_to_consider += multiple_factors
+
+        while len(factors_to_consider) &gt; 0:  # we keep on factorizing while some reducible factors remain
+            mfct = factors_to_consider.pop()
+            if mfct.is_irreducible:
+                irreducible_factors.append(mfct)
+            elif mfct.max_degree == 0:
+                subfactors = factorize(mfct.value).distinct_degree()
+                for s in subfactors:
+                    factors_to_consider.append(Factor(s.value, mfct.multiplicity, s.max_degree))
+            else:
+                d = int(mfct.max_degree)
+                assert mfct.value.degree % d == 0
+                r = mfct.value.degree // d
+                factors_to_consider += factorize(mfct.value).equal_degree(r, d)
+
+        return irreducible_factors, constant_term</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="pyimath.factorize.Factorization.cantor_zassenhaus"><code class="name flex">
+<span>def <span class="ident">cantor_zassenhaus</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Full factorisation algorithm
+input: any polynomial over a finite field
+output : a constant term and a list of factors with their multiplicity</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def cantor_zassenhaus(self) -&gt; Tuple[Collection[Factor], int]:
+    &#34;&#34;&#34;Full factorisation algorithm
+       input: any polynomial over a finite field
+       output : a constant term and a list of factors with their multiplicity&#34;&#34;&#34;
+
+    irreducible_factors = []
+    factors_to_consider = []
+    # make monic polynomial
+    if not self.poly.is_monic:
+        f = self.poly.make_monic()
+        constant_term = self.poly.leading
+    else:
+        f = self.poly.copy
+        constant_term = self.poly.base_field.one
+
+    # attempt a square free factorisation
+    sqf, multiple_factors = factorize(f).square_free()
+    # sqf may be irreducible or not
+    # each factors may be irreducible or not
+    if not sqf.is_unit:
+        factors_to_consider.append(Factor(sqf, 1, 0))
+    factors_to_consider += multiple_factors
+
+    while len(factors_to_consider) &gt; 0:  # we keep on factorizing while some reducible factors remain
+        mfct = factors_to_consider.pop()
+        if mfct.is_irreducible:
+            irreducible_factors.append(mfct)
+        elif mfct.max_degree == 0:
+            subfactors = factorize(mfct.value).distinct_degree()
+            for s in subfactors:
+                factors_to_consider.append(Factor(s.value, mfct.multiplicity, s.max_degree))
+        else:
+            d = int(mfct.max_degree)
+            assert mfct.value.degree % d == 0
+            r = mfct.value.degree // d
+            factors_to_consider += factorize(mfct.value).equal_degree(r, d)
+
+    return irreducible_factors, constant_term</code></pre>
+</details>
+</dd>
+<dt id="pyimath.factorize.Factorization.distinct_degree"><code class="name flex">
+<span>def <span class="ident">distinct_degree</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Distinct degree factorisation of a square free monic polynomial.
+Returns a list of Factors with a multiplicity of 1 and the maximum degree of any irreducible factor</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def distinct_degree(self) -&gt; Collection[Factor]:
+    &#34;&#34;&#34;Distinct degree factorisation of a square free monic polynomial.
+    Returns a list of Factors with a multiplicity of 1 and the maximum degree of any irreducible factor&#34;&#34;&#34;
+    f = self.poly.copy.make_monic()
+    factors = []
+
+    fp = f.copy
+    q = f.base_field.characteristic
+    i = 1
+    while fp.degree &gt;= 2 * i:
+        g = fp.gcd(f.monic(q ** i) - f.monic(1))
+        if not g.make_monic().is_abs_unit:
+            factors.append(Factor(g.make_monic(), 1, i))
+        fp /= g
+        i += 1
+
+    if not fp.is_abs_unit and fp.degree &gt; 0:
+        factors.append(Factor(fp.make_monic(), 1, fp.degree))
+    if len(factors) == 0:
+        factors.append(Factor(f, 1, f.degree))
+
+    return factors</code></pre>
+</details>
+</dd>
+<dt id="pyimath.factorize.Factorization.equal_degree"><code class="name flex">
+<span>def <span class="ident">equal_degree</span></span>(<span>self, nb_factors, max_degree)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Cantor–Zassenhaus factorization algorithm.
+Input: Over a finite field Fq of odd order q,
+p is a monic square free polynomial in Fq[x] of degree n = rd,
+which has r ≥ 2 irreducible factors each of degree d
+Output: The set of monic irreducible factors of f.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def equal_degree(self, nb_factors: int, max_degree: int) -&gt; Collection[Factor]:
+    &#34;&#34;&#34;Cantor–Zassenhaus factorization algorithm.
+    Input: Over a finite field Fq of odd order q,
+           p is a monic square free polynomial in Fq[x] of degree n = rd,
+           which has r ≥ 2 irreducible factors each of degree d
+    Output: The set of monic irreducible factors of f.&#34;&#34;&#34;
+
+    factors = []
+    r, d = nb_factors, max_degree
+    f = self.poly.copy.make_monic()
+    q = self.poly.base_field.characteristic
+
+    assert f.degree == r * d, f&#39;Degree of {str(f)} mismatches input parameters {nb_factors}, {max_degree}&#39;
+    assert r &gt;= 2
+
+    max_retries = 2 * r * d
+    found_factors, nb_retries = 0, 0
+    while found_factors &lt; r and nb_retries &lt; max_retries:
+        # pick a random polynomial a of degree &lt; r * d
+        a = f.base_field.random_polynomial(f.degree - 1)
+        g = f.gcd(a).make_monic()
+        if not g.is_unit and g not in factors:
+            factors.append(g)
+            found_factors += 1
+            continue
+        else:
+            m = (q ** d - 1) // 2
+            a_p = a ** m + a.unit
+            if not a_p.is_null:
+                g = f.gcd(a_p).make_monic()
+                if not g.is_unit and g != f and g not in factors:
+                    factors.append(g)
+                    found_factors += 1
+                    continue
+        nb_retries += 1
+    else:
+        if nb_retries &gt;= max_retries:
+            raise RuntimeError(f&#39;unable to find {r} degree {d} factors for {str(f)}&#39;)
+
+    return [Factor(g, 1, 0) for g in factors]</code></pre>
+</details>
+</dd>
+<dt id="pyimath.factorize.Factorization.factors_product"><code class="name flex">
+<span>def <span class="ident">factors_product</span></span>(<span>self, factors)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Converts a list of factors into a polynomial
+:param factors: an iterable of <a title="pyimath.factorize.Factor" href="#pyimath.factorize.Factor"><code>Factor</code></a>
+:return: a Polynomial that is the product of Factors.value along with their multiplicity</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def factors_product(self, factors: Collection[Factor]) -&gt; Polynomial:
+    &#34;&#34;&#34;
+    Converts a list of factors into a polynomial
+    :param factors: an iterable of `Factor`
+    :return: a Polynomial that is the product of Factors.value along with their multiplicity
+    &#34;&#34;&#34;
+    bf = self.base_field
+    if len(factors) == 0:
+        res = bf.polynomial(bf.zero)
+    else:
+        res = bf.polynomial(bf.one)
+        for fct in factors:
+            res *= (fct.value ** fct.multiplicity)
+
+    return res</code></pre>
+</details>
+</dd>
+<dt id="pyimath.factorize.Factorization.square_free"><code class="name flex">
+<span>def <span class="ident">square_free</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Square free factorization of a monic polynomial over a finite field of prime characteristic.
+Returns the square free part and a partial (or complete factorization)</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def square_free(self) -&gt; Tuple[Polynomial, Collection[Factor]]:
+    &#34;&#34;&#34;Square free factorization of a monic polynomial over a finite field of prime characteristic.
+       Returns the square free part and a partial (or complete factorization)&#34;&#34;&#34;
+
+    f = self.poly.copy.make_monic()
+    q = f.base_field.characteristic
+
+    factors = []
+    # step 2: identify all factors of multiplicity m not divisible by q
+    if f.formal_derivative() != f.null:
+        g = f.gcd(f.formal_derivative())
+        if not g.is_abs_unit:
+            w = f / g
+            i = 1
+            while not w.is_abs_unit:
+                y = w.gcd(g)
+                factor = w / y
+                if factor.degree &gt; 0:
+                    factors.append(Factor(factor.make_monic(), i, 0))
+
+                w, g = y, g / y
+                i += 1
+        else:
+            return f, factors
+    else:
+        g = f.copy
+
+    if not g.is_abs_unit:
+        # step 2: g is the product of all factors of multiplicity divisible by q
+        g = ~g  # frobenius reciprocal
+
+        # we try another sqf
+        sqf, fct = factorize(g).square_free()
+        factors += [Factor(sf.value.make_monic(), sf.multiplicity * q, 0) for sf in fct]
+        factors += [Factor(sqf.make_monic(), q, 0)]
+
+    # step 3: compute square free part
+    sqf = f.copy
+    for fact in factors[:]:
+        if fact.multiplicity &gt; 1:
+            sqf /= fact.value ** fact.multiplicity
+        else:
+            factors.remove(fact)
+
+    return sqf, factors</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pyimath" href="index.html">pyimath</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pyimath.factorize.factorize" href="#pyimath.factorize.factorize">factorize</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="pyimath.factorize.Factor" href="#pyimath.factorize.Factor">Factor</a></code></h4>
+<ul class="">
+<li><code><a title="pyimath.factorize.Factor.is_irreducible" href="#pyimath.factorize.Factor.is_irreducible">is_irreducible</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyimath.factorize.Factorization" href="#pyimath.factorize.Factorization">Factorization</a></code></h4>
+<ul class="">
+<li><code><a title="pyimath.factorize.Factorization.cantor_zassenhaus" href="#pyimath.factorize.Factorization.cantor_zassenhaus">cantor_zassenhaus</a></code></li>
+<li><code><a title="pyimath.factorize.Factorization.distinct_degree" href="#pyimath.factorize.Factorization.distinct_degree">distinct_degree</a></code></li>
+<li><code><a title="pyimath.factorize.Factorization.equal_degree" href="#pyimath.factorize.Factorization.equal_degree">equal_degree</a></code></li>
+<li><code><a title="pyimath.factorize.Factorization.factors_product" href="#pyimath.factorize.Factorization.factors_product">factors_product</a></code></li>
+<li><code><a title="pyimath.factorize.Factorization.square_free" href="#pyimath.factorize.Factorization.square_free">square_free</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

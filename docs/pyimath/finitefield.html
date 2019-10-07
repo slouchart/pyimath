@@ -1,0 +1,4006 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.1" />
+<title>pyimath.finitefield API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pyimath.finitefield</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from itertools import product as cartesian_product
+import operator
+
+from typing import Optional, Sequence, MutableSequence, Iterator, Union, List, Tuple, Any, Collection
+
+
+from pyimath.functions import maybe_prime
+from pyimath.functions import power
+from pyimath.polynomial import Polynomial
+from pyimath.polyparse import symbolic_polynomial
+from pyimath.primefield import PrimeField, PFElement
+
+__all__ = [&#39;Polynomial&#39;, &#39;FiniteField&#39;, &#39;PrimeField&#39;, &#39;finite_field&#39;, &#39;FFElement&#39;, &#39;PFElement&#39;]
+
+
+BaseAtom = Union[int, PFElement]
+Vector = Union[List[BaseAtom], MutableSequence[BaseAtom], Sequence[BaseAtom], Collection[BaseAtom]]
+
+
+class FiniteField:
+    &#34;&#34;&#34;Represents a non-prime finite field&#34;&#34;&#34;
+    def __init__(self,
+                 prime: int,
+                 dimension: int,
+                 poly: Polynomial,
+                 generator: Optional[Sequence[int]] = None,
+                 root_symbol: Optional[str] = &#39;j&#39;):
+        &#34;&#34;&#34;
+        :param prime: the order of the prime field Fprime
+        :param dimension: the dimension of the finite field seen as a vector space over its prime field
+        :param poly: the minimal polynomial of the adjunct root j, must be irreducible over Fprime
+        :param generator: an element of the field that generates the multiplicative group (tuple of int)
+        :param root_symbol: for formatting elements
+        &#34;&#34;&#34;
+        self._prime_field = PrimeField(prime)
+        self.dimension = dimension
+        self.base_polynomial = poly
+        self.generator = generator
+        self.root_symbol = root_symbol
+
+        assert self.dimension &gt;= 2
+        assert self.base_polynomial.base_field == self.prime_field
+        assert self.base_polynomial.degree == self.dimension
+        assert self.base_polynomial.is_monic
+        assert self.base_polynomial.is_irreducible
+
+        self.root_powers = dict()
+        self._compute_root_powers()
+
+        self.generator_powers = dict()
+        self.element_as_powers = dict()
+        if self.generator is not None:
+            self.generator = self.element(self.generator)
+            self._check_generator_order()
+
+        self._frobenius_map = self._compute_frobenius_map()
+
+    def _compute_frobenius_map(self) -&gt; MutableSequence[&#39;FFElement&#39;]:
+        &#34;&#34;&#34;The Frobenius automorphisme is defined by a -&gt; a^p where p is the prime field characteristic
+        This methods computes the inverse map of the automorphisme&#34;&#34;&#34;
+        p_th_roots = []
+        for b in self.basis:
+            for e in self:
+                if e ** self.characteristic == b:
+                    p_th_roots.append(e)
+        return p_th_roots
+
+    def element_order(self, e: &#39;FFElement&#39;) -&gt;int:
+        &#34;&#34;&#34;Returns the order of an element, that is the minimal integer k such as e^k = 1&#34;&#34;&#34;
+        if self.has_valid_generator:
+            return self.generator_powers[e]
+        else:
+            max_order = self.order - 1  # the order of the multiplicative group
+            order = 1
+            g = e
+            while g != self.one and order &lt; max_order:
+                g *= e
+                order += 1
+            return order
+
+    @property
+    def frobenius_map(self) -&gt; MutableSequence[&#39;FFElement&#39;]:
+        &#34;&#34;&#34;It&#39;s actually the linear map of the inverse function of Frobenius automorphism (see MISCELLANEOUS.md)&#34;&#34;&#34;
+        return self._frobenius_map[:]
+
+    def _check_generator_order(self):
+        &#34;&#34;&#34;computes the powers of the wanna-be generator and checks
+        if the results form the multiplicative group. This method can be
+        computer-intensive for large finite fields&#34;&#34;&#34;
+        expected_order = self.order - 1  # the order of the multiplicative group
+        order = 1
+        g = self.generator
+        powers = dict()
+        powers[order] = g
+
+        while g != self.one and order &lt;= expected_order:
+            g *= self.generator
+            order += 1
+            powers[order] = g
+
+        if order != expected_order:
+            raise ValueError(f&#39;Element {self.generator} is not a generator for {self}&#39;)
+        else:
+            self.generator_powers = powers
+
+        if self.has_valid_generator:
+            for (o, e) in self.generator_powers.items():
+                if e != self.zero:
+                    self.element_as_powers[e] = o  # reverse map
+
+    @property
+    def has_valid_generator(self) -&gt; bool:
+        return len(self.generator_powers) &gt; 0 and self.generator is not None
+
+    @property
+    def prime_field(self) -&gt; PrimeField:
+        return self._prime_field
+
+    @property
+    def basis(self) -&gt; Iterator[&#39;FFElement&#39;]:
+        return (self(0, 1) ** e for e in range(0, self.dimension))
+
+    def _compute_root_powers(self):
+        p = self.base_polynomial
+        f = self.prime_field
+        pr = p - p.monic(p.degree)
+        p_neutral = f.polynomial(f.one)
+        r = -pr
+        e = self.dimension
+        self.root_powers[e] = r
+        while r != p_neutral and e &lt; self.order - 1:
+            r *= r.monic(1)
+            e += 1
+            if r.degree == p.degree:
+                r -= p.monic(p.degree)
+                r += -pr
+            self.root_powers[e] = r
+
+    def _safe_convert_vector(self, v: Vector) -&gt; List[PFElement]:
+
+        if isinstance(v, FFElement):
+            assert v.field == self
+            o = v.vector[:]
+        else:
+            o = []
+            if not isinstance(v, (list, tuple)):
+                v = [v]
+
+            for c in v:
+                if isinstance(c, int):
+                    o.append(self.prime_field(c))
+                else:
+                    assert isinstance(c, PFElement)
+                    o.append(c)
+
+            for _ in range(self.dimension - len(v)):
+                o.append(self.prime_field.zero)
+
+        return o
+
+    @property
+    def order(self) -&gt; int:
+        &#34;&#34;&#34;
+        :return: The order of the field
+        &#34;&#34;&#34;
+        return self.prime_field.characteristic ** self.dimension
+
+    def element(self, v: Vector) -&gt; &#39;FFElement&#39;:
+        return FFElement(self, self._safe_convert_vector(v))
+
+    @property
+    def zero(self) -&gt; &#39;FFElement&#39;:
+        return self.element([self.prime_field.zero] * self.dimension)
+
+    @property
+    def one(self) -&gt; &#39;FFElement&#39;:
+        return self.element([self.prime_field.one] + [self.prime_field.zero] * (self.dimension - 1))
+
+    @property
+    def characteristic(self) -&gt; int:
+        return self._prime_field.characteristic
+
+    @property
+    def null(self) -&gt; &#39;FFElement&#39;:
+        return self.zero
+
+    @property
+    def neutral(self) -&gt; &#39;FFElement&#39;:
+        return self.one
+
+    def __call__(self, *args) -&gt; &#39;FFElement&#39;:
+        return self.element([self.prime_field(c) for c in args])
+
+    def __eq__(self, other: &#39;FiniteField&#39;) -&gt; bool:
+        assert isinstance(other, self.__class__)
+        return other.prime_field == self.prime_field and other.dimension == self.dimension
+
+    def __iter__(self) -&gt; Iterator[&#39;FFElement&#39;]:
+        &#34;&#34;&#34;
+        Iterates over all the elements
+        :return: an iterator
+        &#34;&#34;&#34;
+        iterables = [self.prime_field] * self.dimension
+        return iter((self.element(list(v)) for v in cartesian_product(*iterables)))
+
+    def __str__(self) -&gt; str:
+        return f&#39;Finite field of order {self.prime_field.characteristic}^{self.dimension}&#39;
+
+    def __repr__(self) -&gt; str:
+        s = f&#39;{self.__class__.__name__}(&#39;
+        s += f&#39;{self.prime_field.characteristic}, &#39;
+        s += f&#39;{self.dimension}, &#39;
+        s += f&#39;{repr(self.base_polynomial)}, &#39;
+        if self.has_valid_generator:
+            s += f&#39; generator={repr(self.generator.vector)})&#39;
+        else:
+            s += &#39;)&#39;
+        return s
+
+    def add(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        assert a.field == b.field == self
+        s = [self.prime_field.zero] * self.dimension
+        for i in range(0, self.dimension):
+            s[i] = a[i] + b[i]
+        return self.element(s)
+
+    def additive_inverse(self, a: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        return self.element([-e for e in a.vector])
+
+    def mul(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        assert a.field == b.field == self
+
+        if self.has_valid_generator:
+            p1 = self.element_as_powers[a]
+            p2 = self.element_as_powers[b]
+            p = p1 + p2
+            if p in self.generator_powers.keys():
+                return self.generator_powers[p]
+            else:
+                assert p &gt; self.order - 1
+                return self.generator_powers[p - self.order + 1]
+
+        else:
+            p1 = self.polynomial_from_element(a)
+            p2 = self.polynomial_from_element(b)
+            p = (p1 * p2) % self.base_polynomial
+
+            return self.element_from_polynomial(p)
+
+    def ext_mul(self, n: int, a: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        assert a.field == self
+        r = self.zero
+        for _ in range(0, n):
+            r += a
+        return r
+
+    def pow(self, a: &#39;FFElement&#39;, e: int) -&gt; &#39;FFElement&#39;:
+        assert a.field == self
+        assert e &gt;= 0
+        res = power(a, e)
+        if not isinstance(res, FFElement):
+            return self(res)
+        else:
+            return res
+
+    def multiplicative_inverse(self, a: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+
+        if self.has_valid_generator:
+            p = self.element_as_powers[a]
+            return self.generator_powers[self.order - 1 - p]
+        else:
+            p_a = self.polynomial_from_element(a)
+            p = self.base_polynomial
+
+            if p_a == p or p_a == p_a.null:
+                raise ZeroDivisionError
+
+            neutral = p_a.unit
+            t = p_a.null
+            newt = neutral
+            r = p
+            newr = p_a
+            while newr != newr.null:
+                quotient = r / newr
+                r, newr = newr, r - quotient * newr
+                t, newt = newt, t - quotient * newt
+
+            assert r.degree == 0
+            # if r.degree &gt; 0
+            # Either p is not irreducible over the base_field or p_a is a multiple of p
+            return self.element_from_polynomial((neutral / r) * t)
+
+    def div(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        if b.null:
+            raise ZeroDivisionError
+        if a.null:
+            return self.zero
+
+        return a * self.multiplicative_inverse(b)
+
+    def floor_div(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        return self.div(a, b)
+
+    def mod(self, _, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        if b.null:
+            raise ZeroDivisionError
+
+        return self.zero
+
+    def divmod(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; Tuple[&#39;FFElement&#39;, &#39;FFElement&#39;]:
+        return self.div(a, b), self.mod(a, b)
+
+    def format_element(self, e: &#39;FFElement&#39;, format_spec: str = &#39;&#39;) -&gt; str:
+
+        if format_spec == &#39;short&#39;:
+            s = &#39;&#39;
+            if e.is_scalar:
+                s = str(e.vector[0])
+            else:
+                for c in str(self.polynomial_from_element(e)):
+                    if c != &#39; &#39;:
+                        s += c
+                return f&#39;({s})&#39;
+        else:
+            s = str(self.polynomial_from_element(e))
+        return s
+
+    def polynomial(self, *args, indeterminate: Optional[str] = &#39;X&#39;) -&gt; Polynomial:
+        coefficients = []
+        for c in args:
+            if isinstance(c, (tuple, list)):
+                coefficients.append(self.element(c))
+            elif isinstance(c, FFElement):
+                coefficients.append(c)
+            else:
+                # shall be an integer or, at least an atom (e.g. a PFElement)
+                c = [c] + [self.prime_field.zero] * (self.dimension - 1)
+                coefficients.append(self.element(c))
+
+        return Polynomial(coefficients, base_field=self, indeterminate=indeterminate)
+
+    def linear_polynomial(self, e: &#39;FFElement&#39;) -&gt; Polynomial:
+        p = self.polynomial(-e)
+        p += p.monic(1)
+        return p
+
+    def check_irreducible_polynomial(self, p: Polynomial) -&gt; bool:
+        assert p.base_field == self
+        return p.is_irreducible
+
+    def frobenius_reciprocal(self, a: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+
+        assert isinstance(a, FFElement)
+        assert a in self
+        r = self.zero
+        for i, e in enumerate(a.vector):
+            b = self._frobenius_map[i]
+            r += self(e) * b
+        return r
+
+    def polynomial_from_element(self, e: &#39;FFElement&#39;) -&gt; Polynomial:
+        return Polynomial(e.vector, self.prime_field, indeterminate=self.root_symbol)
+
+    def element_from_polynomial(self, p: Polynomial) -&gt; &#39;FFElement&#39;:
+        assert p.base_field == self.prime_field
+        assert p.degree &lt;= self.dimension - 1
+        v = p.coefficients
+        if p.degree &lt; self.dimension - 1:
+            v += [self.prime_field.zero] * (self.dimension - (1 + p.degree))
+        return self.element(v)
+
+    def find_generator(self, set_generator=False) -&gt; &#39;FFElement&#39;:
+
+        if self.has_valid_generator:
+            g = self.generator
+        elif maybe_prime(self.order - 1):
+            # if the order of the multiplicative group is prime, any element but 1 and -1 is a generator
+            p = self.base_polynomial.monic(self.dimension - 1)
+            p += self.base_polynomial.monic(0)
+            g = self.element_from_polynomial(p)
+        else:
+            # find it the hard way
+            g = None
+            for elt in iter(self):
+                if elt != self.one and elt != self.zero:
+                    o = self.element_order(elt)
+                    if o == self.order - 1:
+                        g = elt
+                        break
+            if g is None:
+                raise ValueError(f&#39;Unable to find a generator for {self}. Please check the field definition&#39;)
+        if not self.has_valid_generator and set_generator:
+            self.generator = g
+            self._check_generator_order()
+        return g
+
+    def parse_poly(self, expr: str) -&gt; Polynomial:
+        &#34;&#34;&#34;Returns a polynomial from its symbolic expression&#34;&#34;&#34;
+        return symbolic_polynomial(expr, self)
+
+
+class FFElement:
+    def __init__(self, field: FiniteField, v: Vector):
+        self.field = field
+        self.vector = v
+
+        assert isinstance(field, FiniteField)
+        assert len(self.vector) == self.field.dimension
+
+    @property
+    def null(self) -&gt; bool:
+        return self == self.field.zero
+
+    @property
+    def is_scalar(self) -&gt; bool:
+        r = True
+        for c in self.vector[1:]:
+            if not c.is_zero:
+                r = False
+                break
+        return r
+
+    def __str__(self) -&gt; str:
+        return self.field.format_element(self)
+
+    def __format__(self, format_spec: str) -&gt; str:
+        return self.field.format_element(self, format_spec)
+
+    def __repr__(self) -&gt; str:
+        s = f&#39;{self.__class__.__name__}(&#39;
+        s += f&#39;{repr(self.field)}, &#39;
+        s += str(self.vector)
+        s += &#39;)&#39;
+        return s
+
+    def __getitem__(self, item: int) -&gt; PFElement:
+        return self.vector[item]
+
+    def __add__(self, other: Any) -&gt; &#39;FFElement&#39;:
+        if isinstance(other, self.__class__):
+            return self.field.add(self, other)
+        elif isinstance(other, PFElement):
+            return self.field.add(self, self.field(other))
+        elif isinstance(other, int):
+            return self.field.add(self, self.field(other))
+        else:
+            return operator.add(other, self)
+
+    def __eq__(self, other: Any) -&gt; bool:
+        if isinstance(other, int):
+            other = self.field(self.field.prime_field(other))
+
+        elif isinstance(other, PFElement):
+            assert other.field == self.field.prime_field
+            other = self.field(other)
+
+        for i in range(0, self.field.dimension):
+            if other[i] != self[i]:
+                return False
+        return True
+
+    def __neg__(self) -&gt; &#39;FFElement&#39;:
+        return self.field.additive_inverse(self)
+
+    def __sub__(self, other: Any) -&gt; &#39;FFElement&#39;:
+        return self.__add__(-other)
+
+    def __mul__(self, other: Any) -&gt; &#39;FFElement&#39;:
+        if isinstance(other, FFElement):
+            return self.field.mul(self, other)
+        elif isinstance(other, int):
+            return self.field.ext_mul(other, self)
+        elif isinstance(other, PFElement):
+            return self.field.mul(self, self.field(other))
+        else:
+            return operator.add(other, self)
+
+    def __rmul__(self, other: Any) -&gt; &#39;FFElement&#39;:
+        return self.__mul__(other)
+
+    def __pow__(self, e: int, modulo=None) -&gt; &#39;FFElement&#39;:
+        return self.field.pow(self, e)
+
+    def __truediv__(self, other: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        return self.field.div(self, other)
+
+    def __floordiv__(self, other: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        return self.__truediv__(other)
+
+    def __mod__(self, other: Any) -&gt; &#39;FFElement&#39;:
+        return self.field.zero
+
+    def __hash__(self) -&gt; int:
+        return hash(tuple(self.vector))
+
+    def __len__(self) -&gt; int:
+        return len(self.vector)
+
+    def __invert__(self) -&gt; &#39;FFElement&#39;:
+        return self.field.frobenius_reciprocal(self)
+
+
+# Pre-computed finite fields
+FINITE_FIELD = {
+    &#39;F2&#39;: PrimeField(2),
+    &#39;F3&#39;: PrimeField(3),
+    &#39;F4&#39;: FiniteField(2, 2, symbolic_polynomial(&#39;X^2+X+1&#39;, PrimeField(2)), generator=(0, 1)),
+    &#39;F5&#39;: PrimeField(5),
+    &#39;F7&#39;: PrimeField(7),
+    &#39;F8&#39;: FiniteField(2, 3, symbolic_polynomial(&#39;X^3+X+1&#39;, PrimeField(2)), generator=(0, 1, 0)),
+    &#39;F9&#39;: FiniteField(3, 2, symbolic_polynomial(&#39;X^2+1&#39;, PrimeField(3)), generator=(1, -1)),
+    &#39;F11&#39;: PrimeField(11),
+    &#39;F13&#39;: PrimeField(13),
+    &#39;F16&#39;: FiniteField(2, 4, symbolic_polynomial(&#39;X^4+X+1&#39;, PrimeField(2)), generator=(0, 1, 0, 0)),
+    &#39;F17&#39;: PrimeField(17),
+    &#39;F19&#39;: PrimeField(19),
+    &#39;F23&#39;: PrimeField(23),
+    &#39;F25&#39;: FiniteField(5, 2, symbolic_polynomial(&#39;X^2+2&#39;, PrimeField(5)), generator=(1, 1)),
+    &#39;F27&#39;: FiniteField(3, 3, symbolic_polynomial(&#39;X^3 - X - 1&#39;, PrimeField(3)), generator=(-1, -1, -1)),
+}
+
+
+def finite_field(order):
+    if f&#39;F{order}&#39; in FINITE_FIELD.keys:
+        return FINITE_FIELD[f&#39;F{order}&#39;]
+    else:
+        raise ValueError(f&#39;No pre-instantiated finite field of order {order}&#39;)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pyimath.finitefield.finite_field"><code class="name flex">
+<span>def <span class="ident">finite_field</span></span>(<span>order)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def finite_field(order):
+    if f&#39;F{order}&#39; in FINITE_FIELD.keys:
+        return FINITE_FIELD[f&#39;F{order}&#39;]
+    else:
+        raise ValueError(f&#39;No pre-instantiated finite field of order {order}&#39;)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="pyimath.finitefield.FFElement"><code class="flex name class">
+<span>class <span class="ident">FFElement</span></span>
+<span>(</span><span>field, v)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FFElement:
+    def __init__(self, field: FiniteField, v: Vector):
+        self.field = field
+        self.vector = v
+
+        assert isinstance(field, FiniteField)
+        assert len(self.vector) == self.field.dimension
+
+    @property
+    def null(self) -&gt; bool:
+        return self == self.field.zero
+
+    @property
+    def is_scalar(self) -&gt; bool:
+        r = True
+        for c in self.vector[1:]:
+            if not c.is_zero:
+                r = False
+                break
+        return r
+
+    def __str__(self) -&gt; str:
+        return self.field.format_element(self)
+
+    def __format__(self, format_spec: str) -&gt; str:
+        return self.field.format_element(self, format_spec)
+
+    def __repr__(self) -&gt; str:
+        s = f&#39;{self.__class__.__name__}(&#39;
+        s += f&#39;{repr(self.field)}, &#39;
+        s += str(self.vector)
+        s += &#39;)&#39;
+        return s
+
+    def __getitem__(self, item: int) -&gt; PFElement:
+        return self.vector[item]
+
+    def __add__(self, other: Any) -&gt; &#39;FFElement&#39;:
+        if isinstance(other, self.__class__):
+            return self.field.add(self, other)
+        elif isinstance(other, PFElement):
+            return self.field.add(self, self.field(other))
+        elif isinstance(other, int):
+            return self.field.add(self, self.field(other))
+        else:
+            return operator.add(other, self)
+
+    def __eq__(self, other: Any) -&gt; bool:
+        if isinstance(other, int):
+            other = self.field(self.field.prime_field(other))
+
+        elif isinstance(other, PFElement):
+            assert other.field == self.field.prime_field
+            other = self.field(other)
+
+        for i in range(0, self.field.dimension):
+            if other[i] != self[i]:
+                return False
+        return True
+
+    def __neg__(self) -&gt; &#39;FFElement&#39;:
+        return self.field.additive_inverse(self)
+
+    def __sub__(self, other: Any) -&gt; &#39;FFElement&#39;:
+        return self.__add__(-other)
+
+    def __mul__(self, other: Any) -&gt; &#39;FFElement&#39;:
+        if isinstance(other, FFElement):
+            return self.field.mul(self, other)
+        elif isinstance(other, int):
+            return self.field.ext_mul(other, self)
+        elif isinstance(other, PFElement):
+            return self.field.mul(self, self.field(other))
+        else:
+            return operator.add(other, self)
+
+    def __rmul__(self, other: Any) -&gt; &#39;FFElement&#39;:
+        return self.__mul__(other)
+
+    def __pow__(self, e: int, modulo=None) -&gt; &#39;FFElement&#39;:
+        return self.field.pow(self, e)
+
+    def __truediv__(self, other: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        return self.field.div(self, other)
+
+    def __floordiv__(self, other: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        return self.__truediv__(other)
+
+    def __mod__(self, other: Any) -&gt; &#39;FFElement&#39;:
+        return self.field.zero
+
+    def __hash__(self) -&gt; int:
+        return hash(tuple(self.vector))
+
+    def __len__(self) -&gt; int:
+        return len(self.vector)
+
+    def __invert__(self) -&gt; &#39;FFElement&#39;:
+        return self.field.frobenius_reciprocal(self)</code></pre>
+</details>
+<h3>Instance variables</h3>
+<dl>
+<dt id="pyimath.finitefield.FFElement.is_scalar"><code class="name">var <span class="ident">is_scalar</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def is_scalar(self) -&gt; bool:
+    r = True
+    for c in self.vector[1:]:
+        if not c.is_zero:
+            r = False
+            break
+    return r</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.FFElement.null"><code class="name">var <span class="ident">null</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def null(self) -&gt; bool:
+    return self == self.field.zero</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pyimath.finitefield.FiniteField"><code class="flex name class">
+<span>class <span class="ident">FiniteField</span></span>
+<span>(</span><span>prime, dimension, poly, generator=None, root_symbol='j')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Represents a non-prime finite field</p>
+<p>:param prime: the order of the prime field Fprime
+:param dimension: the dimension of the finite field seen as a vector space over its prime field
+:param poly: the minimal polynomial of the adjunct root j, must be irreducible over Fprime
+:param generator: an element of the field that generates the multiplicative group (tuple of int)
+:param root_symbol: for formatting elements</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FiniteField:
+    &#34;&#34;&#34;Represents a non-prime finite field&#34;&#34;&#34;
+    def __init__(self,
+                 prime: int,
+                 dimension: int,
+                 poly: Polynomial,
+                 generator: Optional[Sequence[int]] = None,
+                 root_symbol: Optional[str] = &#39;j&#39;):
+        &#34;&#34;&#34;
+        :param prime: the order of the prime field Fprime
+        :param dimension: the dimension of the finite field seen as a vector space over its prime field
+        :param poly: the minimal polynomial of the adjunct root j, must be irreducible over Fprime
+        :param generator: an element of the field that generates the multiplicative group (tuple of int)
+        :param root_symbol: for formatting elements
+        &#34;&#34;&#34;
+        self._prime_field = PrimeField(prime)
+        self.dimension = dimension
+        self.base_polynomial = poly
+        self.generator = generator
+        self.root_symbol = root_symbol
+
+        assert self.dimension &gt;= 2
+        assert self.base_polynomial.base_field == self.prime_field
+        assert self.base_polynomial.degree == self.dimension
+        assert self.base_polynomial.is_monic
+        assert self.base_polynomial.is_irreducible
+
+        self.root_powers = dict()
+        self._compute_root_powers()
+
+        self.generator_powers = dict()
+        self.element_as_powers = dict()
+        if self.generator is not None:
+            self.generator = self.element(self.generator)
+            self._check_generator_order()
+
+        self._frobenius_map = self._compute_frobenius_map()
+
+    def _compute_frobenius_map(self) -&gt; MutableSequence[&#39;FFElement&#39;]:
+        &#34;&#34;&#34;The Frobenius automorphisme is defined by a -&gt; a^p where p is the prime field characteristic
+        This methods computes the inverse map of the automorphisme&#34;&#34;&#34;
+        p_th_roots = []
+        for b in self.basis:
+            for e in self:
+                if e ** self.characteristic == b:
+                    p_th_roots.append(e)
+        return p_th_roots
+
+    def element_order(self, e: &#39;FFElement&#39;) -&gt;int:
+        &#34;&#34;&#34;Returns the order of an element, that is the minimal integer k such as e^k = 1&#34;&#34;&#34;
+        if self.has_valid_generator:
+            return self.generator_powers[e]
+        else:
+            max_order = self.order - 1  # the order of the multiplicative group
+            order = 1
+            g = e
+            while g != self.one and order &lt; max_order:
+                g *= e
+                order += 1
+            return order
+
+    @property
+    def frobenius_map(self) -&gt; MutableSequence[&#39;FFElement&#39;]:
+        &#34;&#34;&#34;It&#39;s actually the linear map of the inverse function of Frobenius automorphism (see MISCELLANEOUS.md)&#34;&#34;&#34;
+        return self._frobenius_map[:]
+
+    def _check_generator_order(self):
+        &#34;&#34;&#34;computes the powers of the wanna-be generator and checks
+        if the results form the multiplicative group. This method can be
+        computer-intensive for large finite fields&#34;&#34;&#34;
+        expected_order = self.order - 1  # the order of the multiplicative group
+        order = 1
+        g = self.generator
+        powers = dict()
+        powers[order] = g
+
+        while g != self.one and order &lt;= expected_order:
+            g *= self.generator
+            order += 1
+            powers[order] = g
+
+        if order != expected_order:
+            raise ValueError(f&#39;Element {self.generator} is not a generator for {self}&#39;)
+        else:
+            self.generator_powers = powers
+
+        if self.has_valid_generator:
+            for (o, e) in self.generator_powers.items():
+                if e != self.zero:
+                    self.element_as_powers[e] = o  # reverse map
+
+    @property
+    def has_valid_generator(self) -&gt; bool:
+        return len(self.generator_powers) &gt; 0 and self.generator is not None
+
+    @property
+    def prime_field(self) -&gt; PrimeField:
+        return self._prime_field
+
+    @property
+    def basis(self) -&gt; Iterator[&#39;FFElement&#39;]:
+        return (self(0, 1) ** e for e in range(0, self.dimension))
+
+    def _compute_root_powers(self):
+        p = self.base_polynomial
+        f = self.prime_field
+        pr = p - p.monic(p.degree)
+        p_neutral = f.polynomial(f.one)
+        r = -pr
+        e = self.dimension
+        self.root_powers[e] = r
+        while r != p_neutral and e &lt; self.order - 1:
+            r *= r.monic(1)
+            e += 1
+            if r.degree == p.degree:
+                r -= p.monic(p.degree)
+                r += -pr
+            self.root_powers[e] = r
+
+    def _safe_convert_vector(self, v: Vector) -&gt; List[PFElement]:
+
+        if isinstance(v, FFElement):
+            assert v.field == self
+            o = v.vector[:]
+        else:
+            o = []
+            if not isinstance(v, (list, tuple)):
+                v = [v]
+
+            for c in v:
+                if isinstance(c, int):
+                    o.append(self.prime_field(c))
+                else:
+                    assert isinstance(c, PFElement)
+                    o.append(c)
+
+            for _ in range(self.dimension - len(v)):
+                o.append(self.prime_field.zero)
+
+        return o
+
+    @property
+    def order(self) -&gt; int:
+        &#34;&#34;&#34;
+        :return: The order of the field
+        &#34;&#34;&#34;
+        return self.prime_field.characteristic ** self.dimension
+
+    def element(self, v: Vector) -&gt; &#39;FFElement&#39;:
+        return FFElement(self, self._safe_convert_vector(v))
+
+    @property
+    def zero(self) -&gt; &#39;FFElement&#39;:
+        return self.element([self.prime_field.zero] * self.dimension)
+
+    @property
+    def one(self) -&gt; &#39;FFElement&#39;:
+        return self.element([self.prime_field.one] + [self.prime_field.zero] * (self.dimension - 1))
+
+    @property
+    def characteristic(self) -&gt; int:
+        return self._prime_field.characteristic
+
+    @property
+    def null(self) -&gt; &#39;FFElement&#39;:
+        return self.zero
+
+    @property
+    def neutral(self) -&gt; &#39;FFElement&#39;:
+        return self.one
+
+    def __call__(self, *args) -&gt; &#39;FFElement&#39;:
+        return self.element([self.prime_field(c) for c in args])
+
+    def __eq__(self, other: &#39;FiniteField&#39;) -&gt; bool:
+        assert isinstance(other, self.__class__)
+        return other.prime_field == self.prime_field and other.dimension == self.dimension
+
+    def __iter__(self) -&gt; Iterator[&#39;FFElement&#39;]:
+        &#34;&#34;&#34;
+        Iterates over all the elements
+        :return: an iterator
+        &#34;&#34;&#34;
+        iterables = [self.prime_field] * self.dimension
+        return iter((self.element(list(v)) for v in cartesian_product(*iterables)))
+
+    def __str__(self) -&gt; str:
+        return f&#39;Finite field of order {self.prime_field.characteristic}^{self.dimension}&#39;
+
+    def __repr__(self) -&gt; str:
+        s = f&#39;{self.__class__.__name__}(&#39;
+        s += f&#39;{self.prime_field.characteristic}, &#39;
+        s += f&#39;{self.dimension}, &#39;
+        s += f&#39;{repr(self.base_polynomial)}, &#39;
+        if self.has_valid_generator:
+            s += f&#39; generator={repr(self.generator.vector)})&#39;
+        else:
+            s += &#39;)&#39;
+        return s
+
+    def add(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        assert a.field == b.field == self
+        s = [self.prime_field.zero] * self.dimension
+        for i in range(0, self.dimension):
+            s[i] = a[i] + b[i]
+        return self.element(s)
+
+    def additive_inverse(self, a: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        return self.element([-e for e in a.vector])
+
+    def mul(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        assert a.field == b.field == self
+
+        if self.has_valid_generator:
+            p1 = self.element_as_powers[a]
+            p2 = self.element_as_powers[b]
+            p = p1 + p2
+            if p in self.generator_powers.keys():
+                return self.generator_powers[p]
+            else:
+                assert p &gt; self.order - 1
+                return self.generator_powers[p - self.order + 1]
+
+        else:
+            p1 = self.polynomial_from_element(a)
+            p2 = self.polynomial_from_element(b)
+            p = (p1 * p2) % self.base_polynomial
+
+            return self.element_from_polynomial(p)
+
+    def ext_mul(self, n: int, a: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        assert a.field == self
+        r = self.zero
+        for _ in range(0, n):
+            r += a
+        return r
+
+    def pow(self, a: &#39;FFElement&#39;, e: int) -&gt; &#39;FFElement&#39;:
+        assert a.field == self
+        assert e &gt;= 0
+        res = power(a, e)
+        if not isinstance(res, FFElement):
+            return self(res)
+        else:
+            return res
+
+    def multiplicative_inverse(self, a: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+
+        if self.has_valid_generator:
+            p = self.element_as_powers[a]
+            return self.generator_powers[self.order - 1 - p]
+        else:
+            p_a = self.polynomial_from_element(a)
+            p = self.base_polynomial
+
+            if p_a == p or p_a == p_a.null:
+                raise ZeroDivisionError
+
+            neutral = p_a.unit
+            t = p_a.null
+            newt = neutral
+            r = p
+            newr = p_a
+            while newr != newr.null:
+                quotient = r / newr
+                r, newr = newr, r - quotient * newr
+                t, newt = newt, t - quotient * newt
+
+            assert r.degree == 0
+            # if r.degree &gt; 0
+            # Either p is not irreducible over the base_field or p_a is a multiple of p
+            return self.element_from_polynomial((neutral / r) * t)
+
+    def div(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        if b.null:
+            raise ZeroDivisionError
+        if a.null:
+            return self.zero
+
+        return a * self.multiplicative_inverse(b)
+
+    def floor_div(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        return self.div(a, b)
+
+    def mod(self, _, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        if b.null:
+            raise ZeroDivisionError
+
+        return self.zero
+
+    def divmod(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; Tuple[&#39;FFElement&#39;, &#39;FFElement&#39;]:
+        return self.div(a, b), self.mod(a, b)
+
+    def format_element(self, e: &#39;FFElement&#39;, format_spec: str = &#39;&#39;) -&gt; str:
+
+        if format_spec == &#39;short&#39;:
+            s = &#39;&#39;
+            if e.is_scalar:
+                s = str(e.vector[0])
+            else:
+                for c in str(self.polynomial_from_element(e)):
+                    if c != &#39; &#39;:
+                        s += c
+                return f&#39;({s})&#39;
+        else:
+            s = str(self.polynomial_from_element(e))
+        return s
+
+    def polynomial(self, *args, indeterminate: Optional[str] = &#39;X&#39;) -&gt; Polynomial:
+        coefficients = []
+        for c in args:
+            if isinstance(c, (tuple, list)):
+                coefficients.append(self.element(c))
+            elif isinstance(c, FFElement):
+                coefficients.append(c)
+            else:
+                # shall be an integer or, at least an atom (e.g. a PFElement)
+                c = [c] + [self.prime_field.zero] * (self.dimension - 1)
+                coefficients.append(self.element(c))
+
+        return Polynomial(coefficients, base_field=self, indeterminate=indeterminate)
+
+    def linear_polynomial(self, e: &#39;FFElement&#39;) -&gt; Polynomial:
+        p = self.polynomial(-e)
+        p += p.monic(1)
+        return p
+
+    def check_irreducible_polynomial(self, p: Polynomial) -&gt; bool:
+        assert p.base_field == self
+        return p.is_irreducible
+
+    def frobenius_reciprocal(self, a: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+
+        assert isinstance(a, FFElement)
+        assert a in self
+        r = self.zero
+        for i, e in enumerate(a.vector):
+            b = self._frobenius_map[i]
+            r += self(e) * b
+        return r
+
+    def polynomial_from_element(self, e: &#39;FFElement&#39;) -&gt; Polynomial:
+        return Polynomial(e.vector, self.prime_field, indeterminate=self.root_symbol)
+
+    def element_from_polynomial(self, p: Polynomial) -&gt; &#39;FFElement&#39;:
+        assert p.base_field == self.prime_field
+        assert p.degree &lt;= self.dimension - 1
+        v = p.coefficients
+        if p.degree &lt; self.dimension - 1:
+            v += [self.prime_field.zero] * (self.dimension - (1 + p.degree))
+        return self.element(v)
+
+    def find_generator(self, set_generator=False) -&gt; &#39;FFElement&#39;:
+
+        if self.has_valid_generator:
+            g = self.generator
+        elif maybe_prime(self.order - 1):
+            # if the order of the multiplicative group is prime, any element but 1 and -1 is a generator
+            p = self.base_polynomial.monic(self.dimension - 1)
+            p += self.base_polynomial.monic(0)
+            g = self.element_from_polynomial(p)
+        else:
+            # find it the hard way
+            g = None
+            for elt in iter(self):
+                if elt != self.one and elt != self.zero:
+                    o = self.element_order(elt)
+                    if o == self.order - 1:
+                        g = elt
+                        break
+            if g is None:
+                raise ValueError(f&#39;Unable to find a generator for {self}. Please check the field definition&#39;)
+        if not self.has_valid_generator and set_generator:
+            self.generator = g
+            self._check_generator_order()
+        return g
+
+    def parse_poly(self, expr: str) -&gt; Polynomial:
+        &#34;&#34;&#34;Returns a polynomial from its symbolic expression&#34;&#34;&#34;
+        return symbolic_polynomial(expr, self)</code></pre>
+</details>
+<h3>Instance variables</h3>
+<dl>
+<dt id="pyimath.finitefield.FiniteField.basis"><code class="name">var <span class="ident">basis</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def basis(self) -&gt; Iterator[&#39;FFElement&#39;]:
+    return (self(0, 1) ** e for e in range(0, self.dimension))</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.FiniteField.characteristic"><code class="name">var <span class="ident">characteristic</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def characteristic(self) -&gt; int:
+    return self._prime_field.characteristic</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.FiniteField.frobenius_map"><code class="name">var <span class="ident">frobenius_map</span></code></dt>
+<dd>
+<section class="desc"><p>It's actually the linear map of the inverse function of Frobenius automorphism (see MISCELLANEOUS.md)</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def frobenius_map(self) -&gt; MutableSequence[&#39;FFElement&#39;]:
+    &#34;&#34;&#34;It&#39;s actually the linear map of the inverse function of Frobenius automorphism (see MISCELLANEOUS.md)&#34;&#34;&#34;
+    return self._frobenius_map[:]</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.FiniteField.has_valid_generator"><code class="name">var <span class="ident">has_valid_generator</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def has_valid_generator(self) -&gt; bool:
+    return len(self.generator_powers) &gt; 0 and self.generator is not None</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.FiniteField.neutral"><code class="name">var <span class="ident">neutral</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def neutral(self) -&gt; &#39;FFElement&#39;:
+    return self.one</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.FiniteField.null"><code class="name">var <span class="ident">null</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def null(self) -&gt; &#39;FFElement&#39;:
+    return self.zero</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.FiniteField.one"><code class="name">var <span class="ident">one</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def one(self) -&gt; &#39;FFElement&#39;:
+    return self.element([self.prime_field.one] + [self.prime_field.zero] * (self.dimension - 1))</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.FiniteField.order"><code class="name">var <span class="ident">order</span></code></dt>
+<dd>
+<section class="desc"><p>:return: The order of the field</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def order(self) -&gt; int:
+    &#34;&#34;&#34;
+    :return: The order of the field
+    &#34;&#34;&#34;
+    return self.prime_field.characteristic ** self.dimension</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.FiniteField.prime_field"><code class="name">var <span class="ident">prime_field</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def prime_field(self) -&gt; PrimeField:
+    return self._prime_field</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.FiniteField.zero"><code class="name">var <span class="ident">zero</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def zero(self) -&gt; &#39;FFElement&#39;:
+    return self.element([self.prime_field.zero] * self.dimension)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pyimath.finitefield.FiniteField.add"><code class="name flex">
+<span>def <span class="ident">add</span></span>(<span>self, a, b)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+    assert a.field == b.field == self
+    s = [self.prime_field.zero] * self.dimension
+    for i in range(0, self.dimension):
+        s[i] = a[i] + b[i]
+    return self.element(s)</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.FiniteField.additive_inverse"><code class="name flex">
+<span>def <span class="ident">additive_inverse</span></span>(<span>self, a)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def additive_inverse(self, a: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+    return self.element([-e for e in a.vector])</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.FiniteField.check_irreducible_polynomial"><code class="name flex">
+<span>def <span class="ident">check_irreducible_polynomial</span></span>(<span>self, p)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def check_irreducible_polynomial(self, p: Polynomial) -&gt; bool:
+    assert p.base_field == self
+    return p.is_irreducible</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.FiniteField.div"><code class="name flex">
+<span>def <span class="ident">div</span></span>(<span>self, a, b)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def div(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+    if b.null:
+        raise ZeroDivisionError
+    if a.null:
+        return self.zero
+
+    return a * self.multiplicative_inverse(b)</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.FiniteField.divmod"><code class="name flex">
+<span>def <span class="ident">divmod</span></span>(<span>self, a, b)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def divmod(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; Tuple[&#39;FFElement&#39;, &#39;FFElement&#39;]:
+    return self.div(a, b), self.mod(a, b)</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.FiniteField.element"><code class="name flex">
+<span>def <span class="ident">element</span></span>(<span>self, v)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def element(self, v: Vector) -&gt; &#39;FFElement&#39;:
+    return FFElement(self, self._safe_convert_vector(v))</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.FiniteField.element_from_polynomial"><code class="name flex">
+<span>def <span class="ident">element_from_polynomial</span></span>(<span>self, p)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def element_from_polynomial(self, p: Polynomial) -&gt; &#39;FFElement&#39;:
+    assert p.base_field == self.prime_field
+    assert p.degree &lt;= self.dimension - 1
+    v = p.coefficients
+    if p.degree &lt; self.dimension - 1:
+        v += [self.prime_field.zero] * (self.dimension - (1 + p.degree))
+    return self.element(v)</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.FiniteField.element_order"><code class="name flex">
+<span>def <span class="ident">element_order</span></span>(<span>self, e)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns the order of an element, that is the minimal integer k such as e^k = 1</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def element_order(self, e: &#39;FFElement&#39;) -&gt;int:
+    &#34;&#34;&#34;Returns the order of an element, that is the minimal integer k such as e^k = 1&#34;&#34;&#34;
+    if self.has_valid_generator:
+        return self.generator_powers[e]
+    else:
+        max_order = self.order - 1  # the order of the multiplicative group
+        order = 1
+        g = e
+        while g != self.one and order &lt; max_order:
+            g *= e
+            order += 1
+        return order</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.FiniteField.ext_mul"><code class="name flex">
+<span>def <span class="ident">ext_mul</span></span>(<span>self, n, a)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def ext_mul(self, n: int, a: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+    assert a.field == self
+    r = self.zero
+    for _ in range(0, n):
+        r += a
+    return r</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.FiniteField.find_generator"><code class="name flex">
+<span>def <span class="ident">find_generator</span></span>(<span>self, set_generator=False)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def find_generator(self, set_generator=False) -&gt; &#39;FFElement&#39;:
+
+    if self.has_valid_generator:
+        g = self.generator
+    elif maybe_prime(self.order - 1):
+        # if the order of the multiplicative group is prime, any element but 1 and -1 is a generator
+        p = self.base_polynomial.monic(self.dimension - 1)
+        p += self.base_polynomial.monic(0)
+        g = self.element_from_polynomial(p)
+    else:
+        # find it the hard way
+        g = None
+        for elt in iter(self):
+            if elt != self.one and elt != self.zero:
+                o = self.element_order(elt)
+                if o == self.order - 1:
+                    g = elt
+                    break
+        if g is None:
+            raise ValueError(f&#39;Unable to find a generator for {self}. Please check the field definition&#39;)
+    if not self.has_valid_generator and set_generator:
+        self.generator = g
+        self._check_generator_order()
+    return g</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.FiniteField.floor_div"><code class="name flex">
+<span>def <span class="ident">floor_div</span></span>(<span>self, a, b)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def floor_div(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+    return self.div(a, b)</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.FiniteField.format_element"><code class="name flex">
+<span>def <span class="ident">format_element</span></span>(<span>self, e, format_spec='')</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def format_element(self, e: &#39;FFElement&#39;, format_spec: str = &#39;&#39;) -&gt; str:
+
+    if format_spec == &#39;short&#39;:
+        s = &#39;&#39;
+        if e.is_scalar:
+            s = str(e.vector[0])
+        else:
+            for c in str(self.polynomial_from_element(e)):
+                if c != &#39; &#39;:
+                    s += c
+            return f&#39;({s})&#39;
+    else:
+        s = str(self.polynomial_from_element(e))
+    return s</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.FiniteField.frobenius_reciprocal"><code class="name flex">
+<span>def <span class="ident">frobenius_reciprocal</span></span>(<span>self, a)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def frobenius_reciprocal(self, a: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+
+    assert isinstance(a, FFElement)
+    assert a in self
+    r = self.zero
+    for i, e in enumerate(a.vector):
+        b = self._frobenius_map[i]
+        r += self(e) * b
+    return r</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.FiniteField.linear_polynomial"><code class="name flex">
+<span>def <span class="ident">linear_polynomial</span></span>(<span>self, e)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def linear_polynomial(self, e: &#39;FFElement&#39;) -&gt; Polynomial:
+    p = self.polynomial(-e)
+    p += p.monic(1)
+    return p</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.FiniteField.mod"><code class="name flex">
+<span>def <span class="ident">mod</span></span>(<span>self, _, b)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def mod(self, _, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+    if b.null:
+        raise ZeroDivisionError
+
+    return self.zero</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.FiniteField.mul"><code class="name flex">
+<span>def <span class="ident">mul</span></span>(<span>self, a, b)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def mul(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+    assert a.field == b.field == self
+
+    if self.has_valid_generator:
+        p1 = self.element_as_powers[a]
+        p2 = self.element_as_powers[b]
+        p = p1 + p2
+        if p in self.generator_powers.keys():
+            return self.generator_powers[p]
+        else:
+            assert p &gt; self.order - 1
+            return self.generator_powers[p - self.order + 1]
+
+    else:
+        p1 = self.polynomial_from_element(a)
+        p2 = self.polynomial_from_element(b)
+        p = (p1 * p2) % self.base_polynomial
+
+        return self.element_from_polynomial(p)</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.FiniteField.multiplicative_inverse"><code class="name flex">
+<span>def <span class="ident">multiplicative_inverse</span></span>(<span>self, a)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def multiplicative_inverse(self, a: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+
+    if self.has_valid_generator:
+        p = self.element_as_powers[a]
+        return self.generator_powers[self.order - 1 - p]
+    else:
+        p_a = self.polynomial_from_element(a)
+        p = self.base_polynomial
+
+        if p_a == p or p_a == p_a.null:
+            raise ZeroDivisionError
+
+        neutral = p_a.unit
+        t = p_a.null
+        newt = neutral
+        r = p
+        newr = p_a
+        while newr != newr.null:
+            quotient = r / newr
+            r, newr = newr, r - quotient * newr
+            t, newt = newt, t - quotient * newt
+
+        assert r.degree == 0
+        # if r.degree &gt; 0
+        # Either p is not irreducible over the base_field or p_a is a multiple of p
+        return self.element_from_polynomial((neutral / r) * t)</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.FiniteField.parse_poly"><code class="name flex">
+<span>def <span class="ident">parse_poly</span></span>(<span>self, expr)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns a polynomial from its symbolic expression</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def parse_poly(self, expr: str) -&gt; Polynomial:
+    &#34;&#34;&#34;Returns a polynomial from its symbolic expression&#34;&#34;&#34;
+    return symbolic_polynomial(expr, self)</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.FiniteField.polynomial"><code class="name flex">
+<span>def <span class="ident">polynomial</span></span>(<span>self, *args, indeterminate='X')</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def polynomial(self, *args, indeterminate: Optional[str] = &#39;X&#39;) -&gt; Polynomial:
+    coefficients = []
+    for c in args:
+        if isinstance(c, (tuple, list)):
+            coefficients.append(self.element(c))
+        elif isinstance(c, FFElement):
+            coefficients.append(c)
+        else:
+            # shall be an integer or, at least an atom (e.g. a PFElement)
+            c = [c] + [self.prime_field.zero] * (self.dimension - 1)
+            coefficients.append(self.element(c))
+
+    return Polynomial(coefficients, base_field=self, indeterminate=indeterminate)</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.FiniteField.polynomial_from_element"><code class="name flex">
+<span>def <span class="ident">polynomial_from_element</span></span>(<span>self, e)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def polynomial_from_element(self, e: &#39;FFElement&#39;) -&gt; Polynomial:
+    return Polynomial(e.vector, self.prime_field, indeterminate=self.root_symbol)</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.FiniteField.pow"><code class="name flex">
+<span>def <span class="ident">pow</span></span>(<span>self, a, e)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def pow(self, a: &#39;FFElement&#39;, e: int) -&gt; &#39;FFElement&#39;:
+    assert a.field == self
+    assert e &gt;= 0
+    res = power(a, e)
+    if not isinstance(res, FFElement):
+        return self(res)
+    else:
+        return res</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pyimath.finitefield.PFElement"><code class="flex name class">
+<span>class <span class="ident">PFElement</span></span>
+<span>(</span><span>field, n)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Generic class that duck-types an integer
+Represents a single element from a prime field</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PFElement:
+    &#34;&#34;&#34;Generic class that duck-types an integer
+       Represents a single element from a prime field&#34;&#34;&#34;
+    def __init__(self, field: PrimeField, n: int):
+        self.field = field
+        self.value = n
+        assert self.value in self.field.additive_group, f&#39;{self.value} is not a field element&#39;
+
+    def __pos__(self) -&gt; &#39;PFElement&#39;:
+        return self.field(self.value)
+
+    def __neg__(self) -&gt; &#39;PFElement&#39;:
+        return self.field.additive_inverse(self)
+
+    def __add__(self, other: Any) -&gt; &#39;PFElement&#39;:
+        if isinstance(other, self.__class__):
+            return self.field.add(self, other)
+        elif isinstance(other, int):
+            return self.field.add(self, self.field(other))
+        else:
+            return operator.add(other, self)
+
+    def __radd__(self, other: Any) -&gt; &#39;PFElement&#39;:
+        return self.__add__(other)
+
+    def __iadd__(self, other: Any) -&gt; &#39;PFElement&#39;:
+        self.value = int(self.__add__(other))
+        return self
+
+    def __sub__(self, other: Any) -&gt; &#39;PFElement&#39;:
+        return self.__add__(-other)
+
+    def __rsub__(self, other: Any) -&gt; &#39;PFElement&#39;:
+        if isinstance(other, int):
+            other = self.field(other)
+        return self.field.add(other, -self)
+
+    def __isub__(self, other: Any) -&gt; &#39;PFElement&#39;:
+        if isinstance(other, int):
+            other = self.field(other)
+        self.value = int(self - other)
+        return self
+
+    def __mul__(self, other: Any) -&gt; &#39;PFElement&#39;:
+        if isinstance(other, self.__class__):
+            return self.field.mul(self, other)
+        elif isinstance(other, (int, float)):
+            return self.field.ext_mul(other, self)
+        else:
+            return operator.mul(other, self)
+
+    def __rmul__(self, other: Any) -&gt; &#39;PFElement&#39;:
+        return self.__mul__(other)
+
+    def __imul__(self, other: Any) -&gt; &#39;PFElement&#39;:
+        self.value = int(self.__mul__(other))
+        return self
+
+    def __eq__(self, other: Any) -&gt; bool:
+        if isinstance(other, self.__class__):
+            return other.value == self.value
+        elif isinstance(other, int):
+            return other == self.value
+        else:
+            return other == self
+
+    def __lt__(self, other: Any) -&gt; bool:
+        return int(self.value) &lt; int(other)
+
+    def __gt__(self, other: Any) -&gt; bool:
+        return int(self.value) &gt; int(other)
+
+    def __int__(self) -&gt; int:
+        return self.value
+
+    def __pow__(self, e: int, modulo=None) -&gt; &#39;PFElement&#39;:
+        return self.field.pow(self, e)
+
+    def __floordiv__(self, other: Any) -&gt; &#39;PFElement&#39;:
+        if isinstance(other, int):
+            other = self.field(other)
+        return self.field.div(self, other)
+
+    def __truediv__(self, other: Any) -&gt; &#39;PFElement&#39;:
+        return self.__floordiv__(other)
+
+    def __rfloordiv__(self, other: Any) -&gt; &#39;PFElement&#39;:
+        if isinstance(other, int):
+            other = self.field(other)
+        return self.field.div(other, self)
+
+    def __rtruediv__(self, other: Any) -&gt; &#39;PFElement&#39;:
+        return self.__rfloordiv__(other)
+
+    def __ifloordiv__(self, other: Any) -&gt; &#39;PFElement&#39;:
+        if isinstance(other, int):
+            other = self.field(other)
+        self.value = int(self // other)
+        return self
+
+    def __itruediv__(self, other: Any) -&gt; &#39;PFElement&#39;:
+        return self.__ifloordiv__(other)
+
+    def __mod__(self, other: Any) -&gt; &#39;PFElement&#39;:
+        return self.field.zero  # element of a field always has a mult. inv.
+
+    def __divmod__(self, other: Any) -&gt; Tuple[&#39;PFElement&#39;, &#39;PFElement&#39;]:
+        return self.__truediv__(other), self.field.zero
+
+    def __repr__(self) -&gt; str:
+        return repr(int(self))
+
+    def __str__(self) -&gt; str:
+        return str(int(self))
+
+    def __format__(self, format_spec: str = &#39;&#39;) -&gt; str:
+        try:
+            return format(int(self.value), format_spec)
+        except ValueError:
+            # invalid format specifier
+            return format(int(self.value))
+
+    def __abs__(self) -&gt; &#39;PFElement&#39;:
+        return self.field(abs(self.value))
+
+    def __hash__(self) -&gt; int:
+        return self.value
+
+    @property
+    def is_zero(self) -&gt; bool:
+        return self.field.zero == self
+
+    @property
+    def is_one(self) -&gt; bool:
+        return self.field.one == self
+
+    def __invert__(self) -&gt; &#39;PFElement&#39;:
+        return self.field.frobenius_reciprocal(self)</code></pre>
+</details>
+<h3>Instance variables</h3>
+<dl>
+<dt id="pyimath.finitefield.PFElement.is_one"><code class="name">var <span class="ident">is_one</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def is_one(self) -&gt; bool:
+    return self.field.one == self</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.PFElement.is_zero"><code class="name">var <span class="ident">is_zero</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def is_zero(self) -&gt; bool:
+    return self.field.zero == self</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pyimath.finitefield.Polynomial"><code class="flex name class">
+<span>class <span class="ident">Polynomial</span></span>
+<span>(</span><span>coeffs, base_field, indeterminate='X')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Represents a polynomial over a finite field or over the integers
+More generally, definition of polynomials over a ring is possible
+but not recommended
+The internal representation of the coefficients uses a dict that
+indexes the coefficients by their degree
+The usual definition of a polynomial as a sequence of numbers
+that are all zeroes from a certain index is used to initialize the polynomial
+on instantiation and can be retrieved through the coefficients property
+Moreover this class implements all the operations over a ring of polynomials</p>
+<p>base_field must represent an integral domain that is:
+a set which is an abelian group for + and a semi-group
+for * and where GCD are computable.
+A ring of polynomials is at least defined over an integral domain
+examples: Z, Z(i)</p>
+<p>:param coeffs: an iterable of elements from the base field
+:param base_field: an instance generally a finite field
+:param indeterminate: a single digit string used to format the polynomial</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Polynomial:
+    &#34;&#34;&#34;Represents a polynomial over a finite field or over the integers
+    More generally, definition of polynomials over a ring is possible
+    but not recommended
+    The internal representation of the coefficients uses a dict that
+    indexes the coefficients by their degree
+    The usual definition of a polynomial as a sequence of numbers
+    that are all zeroes from a certain index is used to initialize the polynomial
+    on instantiation and can be retrieved through the coefficients property
+    Moreover this class implements all the operations over a ring of polynomials
+
+    base_field must represent an integral domain that is:
+       a set which is an abelian group for + and a semi-group
+       for * and where GCD are computable.
+       A ring of polynomials is at least defined over an integral domain
+       examples: Z, Z(i)
+    &#34;&#34;&#34;
+
+    def __init__(self, coeffs: Sequence[BaseNumber], base_field, indeterminate: Optional[str] = &#39;X&#39;):
+        &#34;&#34;&#34;
+        :param coeffs: an iterable of elements from the base field
+        :param base_field: an instance generally a finite field
+        :param indeterminate: a single digit string used to format the polynomial
+        &#34;&#34;&#34;
+        self.base_field = base_field
+        assert hasattr(base_field, &#39;element&#39;) and hasattr(base_field, &#39;__call__&#39;)
+
+        self._coefficients = self._safe_convert_coefficients(self._remove_trailing_zeros(coeffs))
+        self.indeterminate = indeterminate
+
+    def _safe_convert_coefficients(self, seq: Iterable) -&gt; Dict[int, BaseNumber]:
+        bf = self.base_field
+        return dict({deg: bf.element(c) for deg, c in enumerate(seq) if c != bf.zero})
+
+    def _remove_trailing_zeros(self, seq: Sequence) -&gt; Collection:
+        if len(seq) == 0:
+            return []
+        revseq = list(reversed(seq))
+        while revseq[0] == self.base_field.zero:
+            revseq = revseq[1:]
+            if len(revseq) == 0:
+                return []
+
+        return list(reversed(revseq))
+
+    def set_term(self, deg: int, c: BaseNumber):
+        if c == self.base_field.zero:
+            if deg in self._coefficients.keys():
+                del self._coefficients[deg]
+        else:
+            self._coefficients[deg] = c
+
+    @property
+    def coefficients(self) -&gt; Collection:
+        &#34;&#34;&#34;Returns the coefficients as a list&#34;&#34;&#34;
+        deg = 0
+        res = []
+        while deg &lt;= self.degree:
+            res.append(self[deg])
+            deg += 1
+        return res
+
+    @property
+    def internal(self) -&gt; Dict[int, BaseNumber]:
+        &#34;&#34;&#34;Returns the coefficients as a dict indexed by their degree
+        Eschews null terms&#34;&#34;&#34;
+        return dict({deg: c for deg, c in self._coefficients.items()})
+
+    @property
+    def copy(self) -&gt; &#39;Polynomial&#39;:
+        &#34;&#34;&#34;Returns a copy of itself&#34;&#34;&#34;
+        res = self.null
+        for deg, c in self.internal.items():
+            res.set_term(deg, c)
+        return res
+
+    @property
+    def null(self) -&gt; &#39;Polynomial&#39;:
+        &#34;&#34;&#34;Returns the null polynomial&#34;&#34;&#34;
+        return Polynomial([], base_field=self.base_field, indeterminate=self.indeterminate)
+
+    def monic(self, degree: int = 1) -&gt; &#39;Polynomial&#39;:
+        &#34;&#34;&#34;Returns a monic polynomial with a single term of a given degree&#34;&#34;&#34;
+        res = self.null
+        res.set_term(degree, self.base_field.one)
+        return res
+
+    @property
+    def unit(self) -&gt; &#39;Polynomial&#39;:
+        &#34;&#34;&#34;Return 1 as a polynomial of degree 0&#34;&#34;&#34;
+        return self.monic(0)
+
+    @property
+    def is_constant(self) -&gt; bool:
+        &#34;&#34;&#34;Returns True if the polynomial is of degree zero and is not null&#34;&#34;&#34;
+        return self.degree == 0 and not self.is_null
+
+    @property
+    def is_monic(self) -&gt; bool:
+        &#34;&#34;&#34;Returns True if the leading coefficient is one&#34;&#34;&#34;
+        return self._coefficients[self.degree] == self.base_field.one
+
+    @property
+    def is_null(self) -&gt; bool:
+        &#34;&#34;&#34;Returns True if all coefficients are zero&#34;&#34;&#34;
+        return len(self._coefficients.keys()) == 0
+
+    @property
+    def is_unit(self) -&gt; bool:
+        &#34;&#34;&#34;Returns True if the polynomial is constant of constant term 1&#34;&#34;&#34;
+        return self == self.unit
+
+    @property
+    def is_abs_unit(self) -&gt; bool:
+        &#34;&#34;&#34;Returns True if the polynomial is contant of constant term 1 or -1&#34;&#34;&#34;
+        return self in (self.monic(0), -self.monic(0))
+
+    @property
+    def is_irreducible(self) -&gt; bool:
+        &#34;&#34;&#34;Returns True if the polynomial is irreducible&#34;&#34;&#34;
+        return self.check_irreducibility()
+
+    @property
+    def degree(self) -&gt; int:
+        &#34;&#34;&#34;Returns the degree of the polynomial&#34;&#34;&#34;
+        if self.is_null:
+            return 0  # rigorously, it should be -infinity
+        else:
+            return max(self._coefficients.keys())
+
+    @property
+    def constant(self) -&gt; BaseNumber:
+        &#34;&#34;&#34;Returns the value of the coefficient of the term of degree 0&#34;&#34;&#34;
+        if not self.is_null:
+            return self[0]
+        else:
+            return self.base_field.zero
+
+    @property
+    def leading(self) -&gt; BaseNumber:
+        &#34;&#34;&#34;Returns the value of the coefficient of the term of highest degree&#34;&#34;&#34;
+        if not self.is_null:
+            return self._coefficients[self.degree]
+        else:
+            return self.base_field.zero
+
+    @property
+    def trailing(self) -&gt; BaseNumber:
+        &#34;&#34;&#34;Returns the value of the coefficient of the term of lowest degree&#34;&#34;&#34;
+        if self.is_null:
+            return self.base_field.zero
+        else:
+            return self._coefficients[self.valuation]
+
+    @property
+    def valuation(self) -&gt; int:
+        &#34;&#34;&#34;Returns the degree of the term of lowest degree&#34;&#34;&#34;
+        if self.is_null:
+            raise ValueError(&#39;The valuation of the null polynomial is undefined&#39;)
+
+        return min(self._coefficients.keys())
+
+    def make_monic(self) -&gt; &#39;Polynomial&#39;:
+        &#34;&#34;&#34;
+        Attempts to divide the polynomial by its leading coefficient (for a field) or by the gcd of its
+        coefficients (for a ring)
+        :return: a monic polynomial or raises an error if the polynomial cannot be made monic
+        &#34;&#34;&#34;
+        if not self.is_monic:
+            if self.base_field.characteristic != 0:
+                return self / self.leading
+            else:
+                g = rgcd(self.coefficients)
+                if self.leading // g == self.base_field.one:
+                    return self // self.leading
+                else:
+                    raise ValueError(f&#39;Polynomial {self} over {self.base_field} cannot be made monic&#39;)
+
+        else:
+            return self.copy
+
+    def __len__(self) -&gt; int:
+        &#34;&#34;&#34;Returns the number of non zero terms&#34;&#34;&#34;
+        return len([c for c in self._coefficients.values() if c != 0])
+
+    def __getitem__(self, degree: int) -&gt; BaseNumber:
+        &#34;&#34;&#34;Returns the coefficient of the term of a given degree&#34;&#34;&#34;
+        if degree in self._coefficients.keys():
+            return self._coefficients[degree]
+        else:
+            return self.base_field.zero
+
+    def __eq__(self, other: Operand) -&gt; bool:
+        &#34;&#34;&#34;Term-wise comparison of two polynomials&#34;&#34;&#34;
+        if isinstance(other, Polynomial):
+            if self.degree == other.degree:
+
+                if self.is_null or other.is_null:
+                    return self.is_null and other.is_null
+
+                a = self.coefficients
+                b = other.coefficients
+
+                assert len(a) == len(b)
+                return a == b
+            else:
+                return False
+        else:
+            other = self(other)
+            return self == other
+
+    def add(self, poly: &#39;Polynomial&#39;) -&gt; &#39;Polynomial&#39;:
+        &#34;&#34;&#34;Addition in a ring of polynomials&#34;&#34;&#34;
+        a = self._coefficients
+        s = poly.copy
+        for deg_a, c_a in a.items():
+            if deg_a in s.internal.keys():
+                s.set_term(deg_a, s[deg_a] + c_a)
+            else:
+                s.set_term(deg_a, c_a)
+
+        return s
+
+    def add_constant(self, k: BaseNumber) -&gt; &#39;Polynomial&#39;:
+        &#34;&#34;&#34;External addition of a polynomial&#34;&#34;&#34;
+        a = self._coefficients
+        s = self.null
+
+        if not self.is_null:
+            for deg, c in a.items():
+                if deg == 0:
+                    s.set_term(deg, c + k)
+                else:
+                    s.set_term(deg, c)
+        else:
+            s.set_term(0, k)
+
+        return s
+
+    def __add__(self, other: Operand) -&gt; &#39;Polynomial&#39;:
+        if isinstance(other, Polynomial):
+            return self.add(other)
+        elif isinstance(other, list):
+            return self.add(Polynomial(other, base_field=self.base_field))
+        else:
+            return self.add_constant(other)
+
+    def __radd__(self, other: Operand) -&gt; &#39;Polynomial&#39;:
+        return self.__add__(other)
+
+    def __neg__(self) -&gt; &#39;Polynomial&#39;:
+        &#34;&#34;&#34;Returns the inverse of a polynomial with respect to addition&#34;&#34;&#34;
+        a = self._coefficients
+        s = self.null
+        for deg, c in a.items():
+            s.set_term(deg, -c)
+        return s
+
+    def mul(self, poly: &#39;Polynomial&#39;) -&gt; &#39;Polynomial&#39;:
+        &#34;&#34;&#34;Multiplication in a ring of polynomials&#34;&#34;&#34;
+        if poly.is_null or self.is_null:
+            return self.null
+
+        res = self.null
+        for deg_p, c_p in poly.internal.items():
+            a = self._coefficients
+            for deg_a, c_a in a.items():
+                deg = deg_a + deg_p
+                if deg in res._coefficients.keys():
+                    res.set_term(deg, res[deg] + c_p * c_a)
+                else:
+                    res.set_term(deg, c_p * c_a)
+
+        return res
+
+    def mul_constant(self, k: BaseNumber) -&gt; &#39;Polynomial&#39;:
+        &#34;&#34;&#34;External multiplication (vector space external product)&#34;&#34;&#34;
+        s = self.null
+        if k != self.base_field.zero:
+            for deg, c in self._coefficients.items():
+                s.set_term(deg, k * c)
+        return s
+
+    def __mul__(self, other: Operand) -&gt; &#39;Polynomial&#39;:
+        if isinstance(other, Polynomial):
+            return self.mul(other)
+        elif isinstance(other, list):
+            return self.mul(Polynomial(other, base_field=self.base_field))
+        else:
+            return self.mul_constant(other)
+
+    def __rmul__(self, other: Operand) -&gt; &#39;Polynomial&#39;:
+        return self.__mul__(other)
+
+    def sub(self, poly: &#39;Polynomial&#39;) -&gt; &#39;Polynomial&#39;:
+        &#34;&#34;&#34;Subtraction is indeed just an addition of an inverse&#34;&#34;&#34;
+        assert isinstance(poly, Polynomial)
+        return self.add(-poly)
+
+    def __sub__(self, other: Operand) -&gt; &#39;Polynomial&#39;:
+        if isinstance(other, (int, float,)):
+            return self.add_constant(-other)
+        elif isinstance(other, list):
+            return self.sub(Polynomial(other, base_field=self.base_field))
+        else:
+            return self.sub(other)
+
+    def __pow__(self, n: int, modulo: &#39;Polynomial&#39; = None) -&gt; &#39;Polynomial&#39;:
+        return self.pow(n)
+
+    def pow(self, n: int) -&gt; &#39;Polynomial&#39;:
+        &#34;&#34;&#34;Exponentiation of a polynomial&#34;&#34;&#34;
+        assert n &gt;= 0
+        if self.is_unit:
+            return self.unit
+
+        if n == 0:
+            return self.unit
+
+        if n == 1:
+            return self.copy
+
+        if self.is_null:
+            return self.null
+
+        return power(self.copy, n)
+
+    def __hash__(self) -&gt; int:
+        &#34;&#34;&#34;Allows a polynomial to become a dictionary key&#34;&#34;&#34;
+        return hash(tuple(self._coefficients.items()))
+
+    def long_division(self, divisor: &#39;Polynomial&#39;) -&gt; Tuple[&#39;Polynomial&#39;, &#39;Polynomial&#39;]:
+        &#34;&#34;&#34;Defines the long division according to decreasing degrees
+        Be careful if the coefficients are from a ring&#34;&#34;&#34;
+
+        quotient = self.null
+        remainder = self.copy
+        while remainder != self.null and remainder.degree &gt;= divisor.degree:
+            deg = remainder.degree - divisor.degree
+            if remainder.leading % divisor.leading == self.base_field.zero:
+                c = remainder.leading // divisor.leading
+            else:
+                raise ValueError(f&#39;{remainder.leading} is not divisible by {divisor.leading}&#39;)
+
+            if deg == 0:
+                poly = self.unit.mul_constant(c)
+            else:
+                poly = self.monic(deg).mul_constant(c)
+            quotient += poly
+            remainder -= (divisor * poly)
+
+        return quotient, remainder
+
+    def long_division_reversed(self, divisor: &#39;Polynomial&#39;) -&gt; Tuple[&#39;Polynomial&#39;, &#39;Polynomial&#39;]:
+        &#34;&#34;&#34;Defines the long division according to increasing degrees&#34;&#34;&#34;
+
+        quotient = self.null
+        remainder = self
+        while remainder != self.null and remainder.valuation &lt;= divisor.degree:
+
+            deg = remainder.valuation - divisor.valuation
+            if remainder.trailing % divisor.trailing == 0:
+                c = self.base_field(remainder.trailing // divisor.trailing)
+            else:
+                raise ValueError(f&#39;{remainder.trailing} is not divisible by {divisor.trailing}&#39;)
+            if deg == 0:
+                poly = self.unit.mul_constant(c)
+            else:
+                poly = self.monic(deg).mul_constant(c)
+            quotient += poly
+            remainder -= (divisor * poly)
+
+        return quotient, remainder
+
+    def __truediv__(self, other: Operand) -&gt; &#39;Polynomial&#39;:
+        return self.__floordiv__(other)
+
+    def __floordiv__(self, other: Operand) -&gt; &#39;Polynomial&#39;:
+        if isinstance(other, self.__class__):
+            return self.long_division(other)[0]
+        else:
+            other = self.base_field.element(other)
+            return self.mul_constant(self.base_field.one / other)
+
+    def __divmod__(self, other: Operand) -&gt; Tuple[&#39;Polynomial&#39;, &#39;Polynomial&#39;]:
+        return self.long_division(other)
+
+    def __mod__(self, other: Operand) -&gt; &#39;Polynomial&#39;:
+        return self.long_division(other)[1]
+
+    def __repr__(self) -&gt; str:
+        s = f&#39;{repr(self.base_field)}.polynomial(&#39;
+        s += f&#39;{&#34;, &#34;.join([repr(c) for c in self.coefficients])}, &#39;
+        s += f&#39;indeterminate=&#34;{self.indeterminate}&#34;)&#39;
+        return s
+
+    def _format_coefficient(self, c: BaseNumber, display_plus_sign: bool = False, raw: bool = False) -&gt; str:
+        sf = &#39;&#39;
+        if isinstance(c, int):
+            if raw:
+                sf = str(c)
+            else:
+                if display_plus_sign:
+                    if c &lt; 0:
+                        sf += &#39; - &#39;
+                    else:
+                        sf += &#39; + &#39;
+                    if abs(c) != 1:
+                        sf += f&#39;{abs(c)}&#39;
+                else:
+                    if c &lt; 0:
+                        sf += &#39;-&#39;
+                    if abs(c) != 1:
+                        sf += f&#39;{abs(c)}&#39;
+        else:
+            # rely on the override of __format__
+            sc = format(c, &#39;short&#39;)
+            if raw:
+                sf = sc
+            else:
+                if display_plus_sign:
+                    if sc[0] == &#39;-&#39;:
+                        sf += &#39; - &#39;
+                    else:
+                        sf += &#39; + &#39;
+                    # abs may not be defined but neg must be
+                    if c != self.base_field.one and c != self.base_field.one.__neg__():
+                        if sc[0] == &#39;-&#39;:
+                            sf += sc[1:]
+                        else:
+                            sf += sc
+                else:
+                    if sc[0] == &#39;-&#39;:
+                        sf += &#39;-&#39;
+                    if c != self.base_field.one and c != self.base_field.one.__neg__():
+                        if sc[0] == &#39;-&#39;:
+                            sf += sc[1:]
+                        else:
+                            sf += sc
+        return sf
+
+    def __str__(self) -&gt; str:
+        s = &#39;&#39;
+        if self == self.null:
+            return &#39;0&#39;
+
+        for deg in sorted(self._coefficients.keys()):
+            c = self[deg]
+            if c != self.base_field.zero:
+                if deg == 0:
+                    s += self._format_coefficient(c, raw=True)
+                else:
+                    s += self._format_coefficient(c, len(s) &gt; 0)
+                    s += f&#39;{self.indeterminate}&#39;
+                    if deg &gt; 1:
+                        s += f&#39;^{deg}&#39;
+        return s
+
+    def __call__(self, *args) -&gt; &#39;Polynomial&#39;:
+        &#34;&#34;&#34;Syntactic sugar to create a polynomial from another one
+        example: p = poly(1, 2, 1) -&gt; p == 1 + 2X + X^2&#34;&#34;&#34;
+        return Polynomial(list(args), base_field=self.base_field, indeterminate=self.indeterminate)
+
+    def evaluate(self, value: BaseNumber) -&gt; BaseNumber:
+        &#34;&#34;&#34;Evaluate the polynomial for some value&#34;&#34;&#34;
+        value = self.base_field.element(value)
+        # f(k) = f(x) % (x-k)
+        # f(x) = q(x)(x - k) + r (deg(r) &lt; d(x-k) = 1 =&gt; deg(r)=0
+        # f(k) = r
+
+        r = self % self.base_field.linear_polynomial(value)
+        return r.trailing
+
+    def formal_derivative(self) -&gt; &#39;Polynomial&#39;:
+        &#34;&#34;&#34;Computes and returns the formal derivative of a polynomial&#34;&#34;&#34;
+        res = self.null
+        for deg, c in self.internal.items():
+            if deg &gt; 0:
+                res.set_term(deg - 1, self.base_field.ext_mul(deg, c))
+        return res
+
+    def gcd(self, p: &#39;Polynomial&#39;) -&gt; &#39;Polynomial&#39;:
+        &#34;&#34;&#34;Returns the GCD of two polynomials&#34;&#34;&#34;
+        return gcd(self, p)
+
+    def check_irreducibility(self) -&gt; bool:
+        &#34;&#34;&#34;Returns True if the polynomial is irreducible
+        Inspired by https://jeremykun.com/2014/03/13/programming-with-finite-fields/&#34;&#34;&#34;
+        p = self.copy
+        q = p.base_field.characteristic
+        if q == 0:
+            raise NotImplementedError(f&#39;Cannot check polynomial irreducibility in {self.base_field}&#39;)
+
+        x = p.monic(1)
+        term = x.copy
+
+        for _ in range(p.degree // 2):
+            term = term ** q % p
+            if not (term - x).is_null:
+                if p.gcd(term - x).degree &gt; 0:
+                    return False
+            else:
+                return False
+
+        return True
+
+    def __invert__(self) -&gt; &#39;Polynomial&#39;:
+        &#34;&#34;&#34;Return the Frobenius reciprocal with the operator ~&#34;&#34;&#34;
+        return self.frobenius_reciprocal()
+
+    def frobenius_reciprocal(self) -&gt; &#39;Polynomial&#39;:
+        &#34;&#34;&#34;If this polynomial can be written as R^(p*m)
+        where R is a polynomial, p the field characteristic and m an integer
+        then taking the p-th root &lt;=&gt; returning R^m&#34;&#34;&#34;
+        assert self.base_field.characteristic &gt; 0
+        if self.base_field.characteristic &gt; 0:
+            &#34;&#34;&#34;if p is a power of a multiple of the field characteristic
+            the function returns the base polynomial that is:
+            if p == x^q where q % self.c == 0 it returns x^(q/self.c)&#34;&#34;&#34;
+            assert hasattr(self.base_field, &#39;frobenius_reciprocal&#39;)
+            p_th_root_func = self.base_field.frobenius_reciprocal
+
+            if not self.formal_derivative().is_null:
+                raise ValueError(f&#39;The polynomial p is not a {self.base_field.characteristic} power&#39;)
+            else:
+                res = self.null
+
+                for deg in range(0, self.degree + 1):
+                    if deg == 0:
+                        res += p_th_root_func(self.constant)
+                    else:
+                        if deg % self.base_field.characteristic == 0:
+                            term = self.monic(deg // self.base_field.characteristic)
+                            term *= p_th_root_func(self[deg])
+                            res += term
+                        else:
+                            assert self[deg] == 0
+
+                return res
+        else:
+            raise RuntimeError(f&#39;{self.base_field} does not support taking the p-th root of a polynomial&#39;)
+
+    @staticmethod
+    def parse(expr: str, base_field, indeterminate: Optional[str] = &#39;X&#39;) -&gt; &#39;Polynomial&#39;:
+        &#34;&#34;&#34;Returns a polynomial from its algebraic expression
+        :param expr: an algebraic expression in the indeterminate
+        :param base_field: the field (or the ring) that coefficients are to be drawn from
+        :param indeterminate: a single digit string in the range [a-zA-Z]
+        :return: a polynomial&#34;&#34;&#34;
+        return symbolic_polynomial(expr, base_field, indeterminate=indeterminate)</code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="pyimath.finitefield.Polynomial.parse"><code class="name flex">
+<span>def <span class="ident">parse</span></span>(<span>expr, base_field, indeterminate='X')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns a polynomial from its algebraic expression
+:param expr: an algebraic expression in the indeterminate
+:param base_field: the field (or the ring) that coefficients are to be drawn from
+:param indeterminate: a single digit string in the range [a-zA-Z]
+:return: a polynomial</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def parse(expr: str, base_field, indeterminate: Optional[str] = &#39;X&#39;) -&gt; &#39;Polynomial&#39;:
+    &#34;&#34;&#34;Returns a polynomial from its algebraic expression
+    :param expr: an algebraic expression in the indeterminate
+    :param base_field: the field (or the ring) that coefficients are to be drawn from
+    :param indeterminate: a single digit string in the range [a-zA-Z]
+    :return: a polynomial&#34;&#34;&#34;
+    return symbolic_polynomial(expr, base_field, indeterminate=indeterminate)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="pyimath.finitefield.Polynomial.coefficients"><code class="name">var <span class="ident">coefficients</span></code></dt>
+<dd>
+<section class="desc"><p>Returns the coefficients as a list</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def coefficients(self) -&gt; Collection:
+    &#34;&#34;&#34;Returns the coefficients as a list&#34;&#34;&#34;
+    deg = 0
+    res = []
+    while deg &lt;= self.degree:
+        res.append(self[deg])
+        deg += 1
+    return res</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.Polynomial.constant"><code class="name">var <span class="ident">constant</span></code></dt>
+<dd>
+<section class="desc"><p>Returns the value of the coefficient of the term of degree 0</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def constant(self) -&gt; BaseNumber:
+    &#34;&#34;&#34;Returns the value of the coefficient of the term of degree 0&#34;&#34;&#34;
+    if not self.is_null:
+        return self[0]
+    else:
+        return self.base_field.zero</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.Polynomial.copy"><code class="name">var <span class="ident">copy</span></code></dt>
+<dd>
+<section class="desc"><p>Returns a copy of itself</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def copy(self) -&gt; &#39;Polynomial&#39;:
+    &#34;&#34;&#34;Returns a copy of itself&#34;&#34;&#34;
+    res = self.null
+    for deg, c in self.internal.items():
+        res.set_term(deg, c)
+    return res</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.Polynomial.degree"><code class="name">var <span class="ident">degree</span></code></dt>
+<dd>
+<section class="desc"><p>Returns the degree of the polynomial</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def degree(self) -&gt; int:
+    &#34;&#34;&#34;Returns the degree of the polynomial&#34;&#34;&#34;
+    if self.is_null:
+        return 0  # rigorously, it should be -infinity
+    else:
+        return max(self._coefficients.keys())</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.Polynomial.internal"><code class="name">var <span class="ident">internal</span></code></dt>
+<dd>
+<section class="desc"><p>Returns the coefficients as a dict indexed by their degree
+Eschews null terms</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def internal(self) -&gt; Dict[int, BaseNumber]:
+    &#34;&#34;&#34;Returns the coefficients as a dict indexed by their degree
+    Eschews null terms&#34;&#34;&#34;
+    return dict({deg: c for deg, c in self._coefficients.items()})</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.Polynomial.is_abs_unit"><code class="name">var <span class="ident">is_abs_unit</span></code></dt>
+<dd>
+<section class="desc"><p>Returns True if the polynomial is contant of constant term 1 or -1</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def is_abs_unit(self) -&gt; bool:
+    &#34;&#34;&#34;Returns True if the polynomial is contant of constant term 1 or -1&#34;&#34;&#34;
+    return self in (self.monic(0), -self.monic(0))</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.Polynomial.is_constant"><code class="name">var <span class="ident">is_constant</span></code></dt>
+<dd>
+<section class="desc"><p>Returns True if the polynomial is of degree zero and is not null</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def is_constant(self) -&gt; bool:
+    &#34;&#34;&#34;Returns True if the polynomial is of degree zero and is not null&#34;&#34;&#34;
+    return self.degree == 0 and not self.is_null</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.Polynomial.is_irreducible"><code class="name">var <span class="ident">is_irreducible</span></code></dt>
+<dd>
+<section class="desc"><p>Returns True if the polynomial is irreducible</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def is_irreducible(self) -&gt; bool:
+    &#34;&#34;&#34;Returns True if the polynomial is irreducible&#34;&#34;&#34;
+    return self.check_irreducibility()</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.Polynomial.is_monic"><code class="name">var <span class="ident">is_monic</span></code></dt>
+<dd>
+<section class="desc"><p>Returns True if the leading coefficient is one</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def is_monic(self) -&gt; bool:
+    &#34;&#34;&#34;Returns True if the leading coefficient is one&#34;&#34;&#34;
+    return self._coefficients[self.degree] == self.base_field.one</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.Polynomial.is_null"><code class="name">var <span class="ident">is_null</span></code></dt>
+<dd>
+<section class="desc"><p>Returns True if all coefficients are zero</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def is_null(self) -&gt; bool:
+    &#34;&#34;&#34;Returns True if all coefficients are zero&#34;&#34;&#34;
+    return len(self._coefficients.keys()) == 0</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.Polynomial.is_unit"><code class="name">var <span class="ident">is_unit</span></code></dt>
+<dd>
+<section class="desc"><p>Returns True if the polynomial is constant of constant term 1</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def is_unit(self) -&gt; bool:
+    &#34;&#34;&#34;Returns True if the polynomial is constant of constant term 1&#34;&#34;&#34;
+    return self == self.unit</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.Polynomial.leading"><code class="name">var <span class="ident">leading</span></code></dt>
+<dd>
+<section class="desc"><p>Returns the value of the coefficient of the term of highest degree</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def leading(self) -&gt; BaseNumber:
+    &#34;&#34;&#34;Returns the value of the coefficient of the term of highest degree&#34;&#34;&#34;
+    if not self.is_null:
+        return self._coefficients[self.degree]
+    else:
+        return self.base_field.zero</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.Polynomial.null"><code class="name">var <span class="ident">null</span></code></dt>
+<dd>
+<section class="desc"><p>Returns the null polynomial</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def null(self) -&gt; &#39;Polynomial&#39;:
+    &#34;&#34;&#34;Returns the null polynomial&#34;&#34;&#34;
+    return Polynomial([], base_field=self.base_field, indeterminate=self.indeterminate)</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.Polynomial.trailing"><code class="name">var <span class="ident">trailing</span></code></dt>
+<dd>
+<section class="desc"><p>Returns the value of the coefficient of the term of lowest degree</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def trailing(self) -&gt; BaseNumber:
+    &#34;&#34;&#34;Returns the value of the coefficient of the term of lowest degree&#34;&#34;&#34;
+    if self.is_null:
+        return self.base_field.zero
+    else:
+        return self._coefficients[self.valuation]</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.Polynomial.unit"><code class="name">var <span class="ident">unit</span></code></dt>
+<dd>
+<section class="desc"><p>Return 1 as a polynomial of degree 0</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def unit(self) -&gt; &#39;Polynomial&#39;:
+    &#34;&#34;&#34;Return 1 as a polynomial of degree 0&#34;&#34;&#34;
+    return self.monic(0)</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.Polynomial.valuation"><code class="name">var <span class="ident">valuation</span></code></dt>
+<dd>
+<section class="desc"><p>Returns the degree of the term of lowest degree</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def valuation(self) -&gt; int:
+    &#34;&#34;&#34;Returns the degree of the term of lowest degree&#34;&#34;&#34;
+    if self.is_null:
+        raise ValueError(&#39;The valuation of the null polynomial is undefined&#39;)
+
+    return min(self._coefficients.keys())</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pyimath.finitefield.Polynomial.add"><code class="name flex">
+<span>def <span class="ident">add</span></span>(<span>self, poly)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Addition in a ring of polynomials</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add(self, poly: &#39;Polynomial&#39;) -&gt; &#39;Polynomial&#39;:
+    &#34;&#34;&#34;Addition in a ring of polynomials&#34;&#34;&#34;
+    a = self._coefficients
+    s = poly.copy
+    for deg_a, c_a in a.items():
+        if deg_a in s.internal.keys():
+            s.set_term(deg_a, s[deg_a] + c_a)
+        else:
+            s.set_term(deg_a, c_a)
+
+    return s</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.Polynomial.add_constant"><code class="name flex">
+<span>def <span class="ident">add_constant</span></span>(<span>self, k)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>External addition of a polynomial</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_constant(self, k: BaseNumber) -&gt; &#39;Polynomial&#39;:
+    &#34;&#34;&#34;External addition of a polynomial&#34;&#34;&#34;
+    a = self._coefficients
+    s = self.null
+
+    if not self.is_null:
+        for deg, c in a.items():
+            if deg == 0:
+                s.set_term(deg, c + k)
+            else:
+                s.set_term(deg, c)
+    else:
+        s.set_term(0, k)
+
+    return s</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.Polynomial.check_irreducibility"><code class="name flex">
+<span>def <span class="ident">check_irreducibility</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns True if the polynomial is irreducible
+Inspired by <a href="https://jeremykun.com/2014/03/13/programming-with-finite-fields/">https://jeremykun.com/2014/03/13/programming-with-finite-fields/</a></p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def check_irreducibility(self) -&gt; bool:
+    &#34;&#34;&#34;Returns True if the polynomial is irreducible
+    Inspired by https://jeremykun.com/2014/03/13/programming-with-finite-fields/&#34;&#34;&#34;
+    p = self.copy
+    q = p.base_field.characteristic
+    if q == 0:
+        raise NotImplementedError(f&#39;Cannot check polynomial irreducibility in {self.base_field}&#39;)
+
+    x = p.monic(1)
+    term = x.copy
+
+    for _ in range(p.degree // 2):
+        term = term ** q % p
+        if not (term - x).is_null:
+            if p.gcd(term - x).degree &gt; 0:
+                return False
+        else:
+            return False
+
+    return True</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.Polynomial.evaluate"><code class="name flex">
+<span>def <span class="ident">evaluate</span></span>(<span>self, value)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Evaluate the polynomial for some value</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def evaluate(self, value: BaseNumber) -&gt; BaseNumber:
+    &#34;&#34;&#34;Evaluate the polynomial for some value&#34;&#34;&#34;
+    value = self.base_field.element(value)
+    # f(k) = f(x) % (x-k)
+    # f(x) = q(x)(x - k) + r (deg(r) &lt; d(x-k) = 1 =&gt; deg(r)=0
+    # f(k) = r
+
+    r = self % self.base_field.linear_polynomial(value)
+    return r.trailing</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.Polynomial.formal_derivative"><code class="name flex">
+<span>def <span class="ident">formal_derivative</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Computes and returns the formal derivative of a polynomial</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def formal_derivative(self) -&gt; &#39;Polynomial&#39;:
+    &#34;&#34;&#34;Computes and returns the formal derivative of a polynomial&#34;&#34;&#34;
+    res = self.null
+    for deg, c in self.internal.items():
+        if deg &gt; 0:
+            res.set_term(deg - 1, self.base_field.ext_mul(deg, c))
+    return res</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.Polynomial.frobenius_reciprocal"><code class="name flex">
+<span>def <span class="ident">frobenius_reciprocal</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>If this polynomial can be written as R^(p*m)
+where R is a polynomial, p the field characteristic and m an integer
+then taking the p-th root &lt;=&gt; returning R^m</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def frobenius_reciprocal(self) -&gt; &#39;Polynomial&#39;:
+    &#34;&#34;&#34;If this polynomial can be written as R^(p*m)
+    where R is a polynomial, p the field characteristic and m an integer
+    then taking the p-th root &lt;=&gt; returning R^m&#34;&#34;&#34;
+    assert self.base_field.characteristic &gt; 0
+    if self.base_field.characteristic &gt; 0:
+        &#34;&#34;&#34;if p is a power of a multiple of the field characteristic
+        the function returns the base polynomial that is:
+        if p == x^q where q % self.c == 0 it returns x^(q/self.c)&#34;&#34;&#34;
+        assert hasattr(self.base_field, &#39;frobenius_reciprocal&#39;)
+        p_th_root_func = self.base_field.frobenius_reciprocal
+
+        if not self.formal_derivative().is_null:
+            raise ValueError(f&#39;The polynomial p is not a {self.base_field.characteristic} power&#39;)
+        else:
+            res = self.null
+
+            for deg in range(0, self.degree + 1):
+                if deg == 0:
+                    res += p_th_root_func(self.constant)
+                else:
+                    if deg % self.base_field.characteristic == 0:
+                        term = self.monic(deg // self.base_field.characteristic)
+                        term *= p_th_root_func(self[deg])
+                        res += term
+                    else:
+                        assert self[deg] == 0
+
+            return res
+    else:
+        raise RuntimeError(f&#39;{self.base_field} does not support taking the p-th root of a polynomial&#39;)</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.Polynomial.gcd"><code class="name flex">
+<span>def <span class="ident">gcd</span></span>(<span>self, p)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns the GCD of two polynomials</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def gcd(self, p: &#39;Polynomial&#39;) -&gt; &#39;Polynomial&#39;:
+    &#34;&#34;&#34;Returns the GCD of two polynomials&#34;&#34;&#34;
+    return gcd(self, p)</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.Polynomial.long_division"><code class="name flex">
+<span>def <span class="ident">long_division</span></span>(<span>self, divisor)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Defines the long division according to decreasing degrees
+Be careful if the coefficients are from a ring</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def long_division(self, divisor: &#39;Polynomial&#39;) -&gt; Tuple[&#39;Polynomial&#39;, &#39;Polynomial&#39;]:
+    &#34;&#34;&#34;Defines the long division according to decreasing degrees
+    Be careful if the coefficients are from a ring&#34;&#34;&#34;
+
+    quotient = self.null
+    remainder = self.copy
+    while remainder != self.null and remainder.degree &gt;= divisor.degree:
+        deg = remainder.degree - divisor.degree
+        if remainder.leading % divisor.leading == self.base_field.zero:
+            c = remainder.leading // divisor.leading
+        else:
+            raise ValueError(f&#39;{remainder.leading} is not divisible by {divisor.leading}&#39;)
+
+        if deg == 0:
+            poly = self.unit.mul_constant(c)
+        else:
+            poly = self.monic(deg).mul_constant(c)
+        quotient += poly
+        remainder -= (divisor * poly)
+
+    return quotient, remainder</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.Polynomial.long_division_reversed"><code class="name flex">
+<span>def <span class="ident">long_division_reversed</span></span>(<span>self, divisor)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Defines the long division according to increasing degrees</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def long_division_reversed(self, divisor: &#39;Polynomial&#39;) -&gt; Tuple[&#39;Polynomial&#39;, &#39;Polynomial&#39;]:
+    &#34;&#34;&#34;Defines the long division according to increasing degrees&#34;&#34;&#34;
+
+    quotient = self.null
+    remainder = self
+    while remainder != self.null and remainder.valuation &lt;= divisor.degree:
+
+        deg = remainder.valuation - divisor.valuation
+        if remainder.trailing % divisor.trailing == 0:
+            c = self.base_field(remainder.trailing // divisor.trailing)
+        else:
+            raise ValueError(f&#39;{remainder.trailing} is not divisible by {divisor.trailing}&#39;)
+        if deg == 0:
+            poly = self.unit.mul_constant(c)
+        else:
+            poly = self.monic(deg).mul_constant(c)
+        quotient += poly
+        remainder -= (divisor * poly)
+
+    return quotient, remainder</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.Polynomial.make_monic"><code class="name flex">
+<span>def <span class="ident">make_monic</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Attempts to divide the polynomial by its leading coefficient (for a field) or by the gcd of its
+coefficients (for a ring)
+:return: a monic polynomial or raises an error if the polynomial cannot be made monic</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def make_monic(self) -&gt; &#39;Polynomial&#39;:
+    &#34;&#34;&#34;
+    Attempts to divide the polynomial by its leading coefficient (for a field) or by the gcd of its
+    coefficients (for a ring)
+    :return: a monic polynomial or raises an error if the polynomial cannot be made monic
+    &#34;&#34;&#34;
+    if not self.is_monic:
+        if self.base_field.characteristic != 0:
+            return self / self.leading
+        else:
+            g = rgcd(self.coefficients)
+            if self.leading // g == self.base_field.one:
+                return self // self.leading
+            else:
+                raise ValueError(f&#39;Polynomial {self} over {self.base_field} cannot be made monic&#39;)
+
+    else:
+        return self.copy</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.Polynomial.monic"><code class="name flex">
+<span>def <span class="ident">monic</span></span>(<span>self, degree=1)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns a monic polynomial with a single term of a given degree</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def monic(self, degree: int = 1) -&gt; &#39;Polynomial&#39;:
+    &#34;&#34;&#34;Returns a monic polynomial with a single term of a given degree&#34;&#34;&#34;
+    res = self.null
+    res.set_term(degree, self.base_field.one)
+    return res</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.Polynomial.mul"><code class="name flex">
+<span>def <span class="ident">mul</span></span>(<span>self, poly)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Multiplication in a ring of polynomials</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def mul(self, poly: &#39;Polynomial&#39;) -&gt; &#39;Polynomial&#39;:
+    &#34;&#34;&#34;Multiplication in a ring of polynomials&#34;&#34;&#34;
+    if poly.is_null or self.is_null:
+        return self.null
+
+    res = self.null
+    for deg_p, c_p in poly.internal.items():
+        a = self._coefficients
+        for deg_a, c_a in a.items():
+            deg = deg_a + deg_p
+            if deg in res._coefficients.keys():
+                res.set_term(deg, res[deg] + c_p * c_a)
+            else:
+                res.set_term(deg, c_p * c_a)
+
+    return res</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.Polynomial.mul_constant"><code class="name flex">
+<span>def <span class="ident">mul_constant</span></span>(<span>self, k)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>External multiplication (vector space external product)</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def mul_constant(self, k: BaseNumber) -&gt; &#39;Polynomial&#39;:
+    &#34;&#34;&#34;External multiplication (vector space external product)&#34;&#34;&#34;
+    s = self.null
+    if k != self.base_field.zero:
+        for deg, c in self._coefficients.items():
+            s.set_term(deg, k * c)
+    return s</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.Polynomial.pow"><code class="name flex">
+<span>def <span class="ident">pow</span></span>(<span>self, n)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Exponentiation of a polynomial</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def pow(self, n: int) -&gt; &#39;Polynomial&#39;:
+    &#34;&#34;&#34;Exponentiation of a polynomial&#34;&#34;&#34;
+    assert n &gt;= 0
+    if self.is_unit:
+        return self.unit
+
+    if n == 0:
+        return self.unit
+
+    if n == 1:
+        return self.copy
+
+    if self.is_null:
+        return self.null
+
+    return power(self.copy, n)</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.Polynomial.set_term"><code class="name flex">
+<span>def <span class="ident">set_term</span></span>(<span>self, deg, c)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_term(self, deg: int, c: BaseNumber):
+    if c == self.base_field.zero:
+        if deg in self._coefficients.keys():
+            del self._coefficients[deg]
+    else:
+        self._coefficients[deg] = c</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.Polynomial.sub"><code class="name flex">
+<span>def <span class="ident">sub</span></span>(<span>self, poly)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Subtraction is indeed just an addition of an inverse</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sub(self, poly: &#39;Polynomial&#39;) -&gt; &#39;Polynomial&#39;:
+    &#34;&#34;&#34;Subtraction is indeed just an addition of an inverse&#34;&#34;&#34;
+    assert isinstance(poly, Polynomial)
+    return self.add(-poly)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pyimath.finitefield.PrimeField"><code class="flex name class">
+<span>class <span class="ident">PrimeField</span></span>
+<span>(</span><span>prime)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Prime field definition of characteristic P
+The representation of the field elements are not integer modulo P
+but rather relative integers in the range -(P-1)/2..(P-1)/2</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PrimeField:
+    &#34;&#34;&#34;Prime field definition of characteristic P
+       The representation of the field elements are not integer modulo P
+       but rather relative integers in the range -(P-1)/2..(P-1)/2&#34;&#34;&#34;
+    def __init__(self, prime: int):
+        self.characteristic = prime
+        self.additive_group = self.additive_group_representation(prime)
+        self.multiplicative_group = self.multiplicative_group_representation(self.additive_group)
+
+    def element(self, n: Any) -&gt; &#39;PFElement&#39;:
+        &#34;&#34;&#34;Casts an integer into an element of the field&#34;&#34;&#34;
+        if not int(n) in self.additive_group:
+            raise ValueError(f&#39;{n} does not belong to the additive group of {self}&#39;)
+        return PFElement(self, int(n))
+
+    @property
+    def zero(self) -&gt; &#39;PFElement&#39;:
+        &#34;&#34;&#34;returns the neutral of the additive group&#34;&#34;&#34;
+        return self(0)
+
+    @property
+    def null(self) -&gt; &#39;PFElement&#39;:
+        &#34;&#34;&#34;Same as self.zero&#34;&#34;&#34;
+        return self.zero
+
+    @property
+    def one(self) -&gt; &#39;PFElement&#39;:
+        &#34;&#34;&#34;returns the neutral of the multiplicative group&#34;&#34;&#34;
+        return self(1)
+
+    @property
+    def neutral(self) -&gt; &#39;PFElement&#39;:
+        &#34;&#34;&#34;Same as self.one&#34;&#34;&#34;
+        return self.one
+
+    def add(self, a: &#39;PFElement&#39;, b: &#39;PFElement&#39;) -&gt; &#39;PFElement&#39;:
+        &#34;&#34;&#34;Addition in the field&#34;&#34;&#34;
+        return self(self._pf_add(a.value, b.value, self.additive_group))
+
+    def additive_inverse(self, a: &#39;PFElement&#39;) -&gt; &#39;PFElement&#39;:
+        &#34;&#34;&#34;Returns -a &#34;&#34;&#34;
+        return self(self._pf_additive_inverse(a.value, self.additive_group))
+
+    def mul(self, a: &#39;PFElement&#39;, b: &#39;PFElement&#39;) -&gt; &#39;PFElement&#39;:
+        &#34;&#34;&#34;Multiplication in the field&#34;&#34;&#34;
+        return self(self._pf_mul(a.value, b.value, self.multiplicative_group))
+
+    def ext_mul(self, n: int, a: &#39;PFElement&#39;) -&gt; &#39;PFElement&#39;:
+        &#34;&#34;&#34;Multiplication of a by integer n &lt;=&gt; a+...+a n times&#34;&#34;&#34;
+        return self(self._pf_ext_mul(n, a.value, self.additive_group))
+
+    def multiplicative_inverse(self, a: &#39;PFElement&#39;) -&gt; &#39;PFElement&#39;:
+        &#34;&#34;&#34;Returns 1/a&#34;&#34;&#34;
+        return self(self._pf_multiplicative_inverse(a.value, self.multiplicative_group))
+
+    def floor_div(self, a: &#39;PFElement&#39;, b: &#39;PFElement&#39;) -&gt; &#39;PFElement&#39;:
+        return self.div(a, b)
+
+    def mod(self, *_) -&gt; &#39;PFElement&#39;:
+        return self.zero
+
+    def divmod(self, a: &#39;PFElement&#39;, b: &#39;PFElement&#39;) -&gt; Tuple[&#39;PFElement&#39;, &#39;PFElement&#39;]:
+        return self.div(a, b), self.mod(a, b)
+
+    def div(self, a: &#39;PFElement&#39;, b: &#39;PFElement&#39;) -&gt; &#39;PFElement&#39;:
+        &#34;&#34;&#34;Exact division in the field&#34;&#34;&#34;
+        return self(self._pf_div(a.value, b.value, self.multiplicative_group))
+
+    def pow(self, a: &#39;PFElement&#39;, e: int) -&gt; &#39;PFElement&#39;:
+        &#34;&#34;&#34;Returns a**e using rapid exponentiation&#34;&#34;&#34;
+        res = power(a, e)
+        if not isinstance(res, PFElement):
+            return self(res)
+        else:
+            return res
+
+    def __eq__(self, other: &#39;PrimeField&#39;) -&gt; bool:
+        assert isinstance(other, self.__class__)
+        return other.characteristic == self.characteristic
+
+    def __call__(self, n: int) -&gt; &#39;PFElement&#39;:
+        &#34;&#34;&#34;Syntactic sugar for self.element(e)&#34;&#34;&#34;
+        return self.element(n)
+
+    def __iter__(self) -&gt; Iterator[&#39;PFElement&#39;]:
+        &#34;&#34;&#34;Allows iteration over all the elements&#34;&#34;&#34;
+        return (self(n) for n in self.additive_group)
+
+    def __contains__(self, item: Union[&#39;PFElement&#39;, int]) -&gt; bool:
+        if isinstance(item, PFElement):
+            assert item.field == self
+            return True
+        elif isinstance(item, int):
+            return self(item) in self.additive_group
+        else:
+            return False
+
+    def __str__(self) -&gt; str:
+        return f&#39;Prime field of characteristic {self.characteristic}&#39;
+
+    def __repr__(self) -&gt; str:
+        return f&#39;{self.__class__.__name__}({self.characteristic})&#39;
+
+    def rand_element(self) -&gt; &#39;PFElement&#39;:
+        &#34;&#34;&#34;Returns an element of the field at random&#34;&#34;&#34;
+        return random.choice(list(iter(self)))
+
+    def polynomial(self, *args, indeterminate: str = &#39;X&#39;) -&gt; Polynomial:
+        &#34;&#34;&#34;Polynomial factory&#34;&#34;&#34;
+        return Polynomial([self.element(c) for c in args], base_field=self, indeterminate=indeterminate)
+
+    def random_polynomial(self, degree: int) -&gt; Polynomial:
+        &#34;&#34;&#34;Returns a random polynomial of a given degree&#34;&#34;&#34;
+        p = self.polynomial(*[self.rand_element() for _ in range(0, degree)])
+        p += p.monic(degree)
+        return p
+
+    def linear_polynomial(self, e: &#39;PFElement&#39;) -&gt; Polynomial:
+        &#34;&#34;&#34;Returns the polynomial X + (-e)&#34;&#34;&#34;
+        poly = self.polynomial(-e)
+        poly += poly.monic(1)
+        return poly
+
+    def generate_irreducible_polynomial(self, degree: int, max_retries: int = 15) -&gt; Polynomial:
+        &#34;&#34;&#34;
+        Returns an irreducible polynomial over the base field.
+        This algorithm is not deterministic and may raise exceptions
+        :param degree: the degree of the irreducible polynomial
+        :param max_retries: the maximum number of attempts
+        :return: an irreducible polynomial of a given degree
+        &#34;&#34;&#34;
+        max_retries = max(degree // 2, max_retries)
+        tries = 0
+        retries = 0
+        while retries &lt;= max_retries:
+            while tries &lt;= degree:
+                coefficients = [self.rand_element() for _ in range(degree)]
+                p = self.polynomial(coefficients)
+                p += p.monic(degree)
+
+                if p.is_irreducible:
+                    return p
+                tries += 1
+            retries += 1
+        err_msg = f&#39;Could not find an irreducible polynomial of degree {degree} over {self} in {tries*retries} attempts&#39;
+        raise RuntimeError(err_msg)
+
+    def frobenius_reciprocal(self, a: &#39;PFElement&#39;) -&gt; &#39;PFElement&#39;:
+        &#34;&#34;&#34;Returns the Frobenius reciprocal of a. As a remainder, the Frobenius automorphism is:
+        a -&gt; a^q where q is the characteristic of the field. In prime fields, it is the identity&#34;&#34;&#34;
+        assert a in self
+        return a
+
+    def parse_poly(self, expr: str) -&gt; Polynomial:
+        &#34;&#34;&#34;Returns a polynomial from its symbolic expression&#34;&#34;&#34;
+        return symbolic_polynomial(expr, self)
+
+    &#34;&#34;&#34;LOW LEVEL FIELD OPERATIONS&#34;&#34;&#34;
+
+    @staticmethod
+    def additive_group_representation(p: int) -&gt; AdditiveGroup:
+        assert p &gt;= 2  # indeed, p must be a prime
+        assert maybe_prime(p, 3)
+        res = [0, 1]
+        if p == 2:
+            return res
+
+        res = [-1] + res
+        for elt in range(2, (p + 1) // 2):
+            res.append(elt)
+            res.insert(0, -elt)
+        return res
+
+    @staticmethod
+    def _pf_add(a: int, b: int, gr: AdditiveGroup) -&gt; int:
+        assert a in gr and b in gr
+
+        if a == 0:
+            return b
+
+        if b == 0:
+            return a
+
+        if a == -b:
+            return 0
+
+        p = len(gr)
+        # special cas for F2, this field isn&#39;t symmetric
+        if p == 2:
+            if a == 1 and b == 1:
+                return 0
+
+        bound = p - 1
+        pos = gr.index(a)
+        offset = b
+        if offset &gt; 0:
+            if pos + offset &gt; bound:
+                return gr[(pos + offset) - bound - 1]
+            else:
+                return gr[pos + offset]
+        else:
+            if pos + offset &lt; 0:
+                return gr[bound + (pos + offset) + 1]
+            else:
+                return gr[pos - abs(offset)]
+
+    @staticmethod
+    def _pf_additive_inverse(n: int, gr: AdditiveGroup) -&gt; int:
+        p = len(gr)
+        if p == 2:
+            return n
+        else:
+            return -n
+
+    @staticmethod
+    def multiplicative_group_representation(gr: AdditiveGroup) -&gt; MultiplicativeGroup:
+        def uni_deg_one_poly(elt):
+            return [elt - 1]
+
+        def mul_uni_deg_one_poly(p1, p2, gr_add, gr_mul):
+            return [PrimeField._pf_mul(p1[0], p2[0], gr_mul), PrimeField._pf_add(p1[0], p2[0], gr_add)]
+
+        def eval_uni_poly_at_1(p0, gr_add):
+            s = 1
+            for elt in p0:
+                s = PrimeField._pf_add(s, elt, gr_add)
+            return s
+
+        p = len(gr)  # characteristic of the field
+        res = {(1, 1): 1}
+        reciprocals = {k: None for k in gr if k != 0}
+        reciprocals[1] = 1
+
+        if p &gt; 2:
+            # step 0, initialize the matrix through the action of group {-1, 1} over the field
+            for e in gr:
+                if e != 0:
+                    res[(1, e)] = res[(e, 1)] = e
+                    res[(e, -1)] = res[(-1, e)] = -e
+                    res[(1, -e)] = res[(-e, 1)] = -e
+                    res[(-e, -1)] = res[(-1, -e)] = e
+            res[(-1, -1)] = 1
+            reciprocals[-1] = -1
+
+            if p &gt; 3:
+
+                for e in range(2, (p + 1) // 2):
+                    # step 1, compute squares
+                    pn = uni_deg_one_poly(e)
+                    v = eval_uni_poly_at_1(mul_uni_deg_one_poly(pn, pn, gr, res), gr)
+                    res[(e, e)] = res[(-e, -e)] = v
+                    res[(-e, e)] = res[(e, -e)] = -v
+                    if v == 1:
+                        reciprocals[e] = e
+                    if -v == 1:
+                        reciprocals[e] = -e
+                        reciprocals[-e] = e
+
+                    # step 2, compute lateral products
+                    for f in range(e + 1, (p + 1) // 2):
+                        pn2 = uni_deg_one_poly(f)
+                        v = eval_uni_poly_at_1(mul_uni_deg_one_poly(pn2, pn, gr, res), gr)
+                        res[(e, f)] = res[(f, e)] = v
+                        res[(-e, f)] = res[(f, -e)] = -v
+                        res[(e, -f)] = res[(-f, e)] = -v
+                        res[(-e, -f)] = res[(-f, -e)] = v
+                        if v == 1:
+                            reciprocals[e] = f
+                            reciprocals[f] = e
+                            reciprocals[-e] = -f
+                        if -v == 1:
+                            reciprocals[-e] = f
+                            reciprocals[f] = -e
+                            reciprocals[-f] = e
+                            reciprocals[e] = -f
+
+        assert len(res) == (p - 1) ** 2
+
+        res[(0, 0)] = reciprocals
+        return res
+
+    @staticmethod
+    def _pf_mul(a: int, b: int, gr: MultiplicativeGroup) -&gt; int:
+        if a == 0 or b == 0:
+            return 0
+
+        assert (a, b) in gr, f&#39;{(a, b)} not in {gr}&#39;
+
+        if a == 1:
+            return b
+
+        if b == 1:
+            return a
+
+        if a == -1:
+            return -b
+
+        if b == -1:
+            return -a
+
+        return gr[(a, b)]
+
+    @staticmethod
+    def _pf_ext_mul(n: int, a: int, gr: AdditiveGroup) -&gt; int:
+        if a == 0:
+            return 0
+        res = a
+        for i in range(1, n):
+            res = PrimeField._pf_add(res, a, gr)
+        return res
+
+    @staticmethod
+    def _pf_multiplicative_inverse(a: int, gr: MultiplicativeGroup) -&gt; int:
+        if a == 0:
+            raise ZeroDivisionError
+
+        return gr[(0, 0)][a]
+
+    @staticmethod
+    def _pf_div(a: int, b: int, gr: MultiplicativeGroup) -&gt; int:
+        _1_b = PrimeField._pf_multiplicative_inverse(b, gr)
+        return PrimeField._pf_mul(a, _1_b, gr)</code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="pyimath.finitefield.PrimeField.additive_group_representation"><code class="name flex">
+<span>def <span class="ident">additive_group_representation</span></span>(<span>p)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def additive_group_representation(p: int) -&gt; AdditiveGroup:
+    assert p &gt;= 2  # indeed, p must be a prime
+    assert maybe_prime(p, 3)
+    res = [0, 1]
+    if p == 2:
+        return res
+
+    res = [-1] + res
+    for elt in range(2, (p + 1) // 2):
+        res.append(elt)
+        res.insert(0, -elt)
+    return res</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.PrimeField.multiplicative_group_representation"><code class="name flex">
+<span>def <span class="ident">multiplicative_group_representation</span></span>(<span>gr)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def multiplicative_group_representation(gr: AdditiveGroup) -&gt; MultiplicativeGroup:
+    def uni_deg_one_poly(elt):
+        return [elt - 1]
+
+    def mul_uni_deg_one_poly(p1, p2, gr_add, gr_mul):
+        return [PrimeField._pf_mul(p1[0], p2[0], gr_mul), PrimeField._pf_add(p1[0], p2[0], gr_add)]
+
+    def eval_uni_poly_at_1(p0, gr_add):
+        s = 1
+        for elt in p0:
+            s = PrimeField._pf_add(s, elt, gr_add)
+        return s
+
+    p = len(gr)  # characteristic of the field
+    res = {(1, 1): 1}
+    reciprocals = {k: None for k in gr if k != 0}
+    reciprocals[1] = 1
+
+    if p &gt; 2:
+        # step 0, initialize the matrix through the action of group {-1, 1} over the field
+        for e in gr:
+            if e != 0:
+                res[(1, e)] = res[(e, 1)] = e
+                res[(e, -1)] = res[(-1, e)] = -e
+                res[(1, -e)] = res[(-e, 1)] = -e
+                res[(-e, -1)] = res[(-1, -e)] = e
+        res[(-1, -1)] = 1
+        reciprocals[-1] = -1
+
+        if p &gt; 3:
+
+            for e in range(2, (p + 1) // 2):
+                # step 1, compute squares
+                pn = uni_deg_one_poly(e)
+                v = eval_uni_poly_at_1(mul_uni_deg_one_poly(pn, pn, gr, res), gr)
+                res[(e, e)] = res[(-e, -e)] = v
+                res[(-e, e)] = res[(e, -e)] = -v
+                if v == 1:
+                    reciprocals[e] = e
+                if -v == 1:
+                    reciprocals[e] = -e
+                    reciprocals[-e] = e
+
+                # step 2, compute lateral products
+                for f in range(e + 1, (p + 1) // 2):
+                    pn2 = uni_deg_one_poly(f)
+                    v = eval_uni_poly_at_1(mul_uni_deg_one_poly(pn2, pn, gr, res), gr)
+                    res[(e, f)] = res[(f, e)] = v
+                    res[(-e, f)] = res[(f, -e)] = -v
+                    res[(e, -f)] = res[(-f, e)] = -v
+                    res[(-e, -f)] = res[(-f, -e)] = v
+                    if v == 1:
+                        reciprocals[e] = f
+                        reciprocals[f] = e
+                        reciprocals[-e] = -f
+                    if -v == 1:
+                        reciprocals[-e] = f
+                        reciprocals[f] = -e
+                        reciprocals[-f] = e
+                        reciprocals[e] = -f
+
+    assert len(res) == (p - 1) ** 2
+
+    res[(0, 0)] = reciprocals
+    return res</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="pyimath.finitefield.PrimeField.neutral"><code class="name">var <span class="ident">neutral</span></code></dt>
+<dd>
+<section class="desc"><p>Same as self.one</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def neutral(self) -&gt; &#39;PFElement&#39;:
+    &#34;&#34;&#34;Same as self.one&#34;&#34;&#34;
+    return self.one</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.PrimeField.null"><code class="name">var <span class="ident">null</span></code></dt>
+<dd>
+<section class="desc"><p>Same as self.zero</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def null(self) -&gt; &#39;PFElement&#39;:
+    &#34;&#34;&#34;Same as self.zero&#34;&#34;&#34;
+    return self.zero</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.PrimeField.one"><code class="name">var <span class="ident">one</span></code></dt>
+<dd>
+<section class="desc"><p>returns the neutral of the multiplicative group</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def one(self) -&gt; &#39;PFElement&#39;:
+    &#34;&#34;&#34;returns the neutral of the multiplicative group&#34;&#34;&#34;
+    return self(1)</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.PrimeField.zero"><code class="name">var <span class="ident">zero</span></code></dt>
+<dd>
+<section class="desc"><p>returns the neutral of the additive group</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def zero(self) -&gt; &#39;PFElement&#39;:
+    &#34;&#34;&#34;returns the neutral of the additive group&#34;&#34;&#34;
+    return self(0)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pyimath.finitefield.PrimeField.add"><code class="name flex">
+<span>def <span class="ident">add</span></span>(<span>self, a, b)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Addition in the field</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add(self, a: &#39;PFElement&#39;, b: &#39;PFElement&#39;) -&gt; &#39;PFElement&#39;:
+    &#34;&#34;&#34;Addition in the field&#34;&#34;&#34;
+    return self(self._pf_add(a.value, b.value, self.additive_group))</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.PrimeField.additive_inverse"><code class="name flex">
+<span>def <span class="ident">additive_inverse</span></span>(<span>self, a)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns -a</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def additive_inverse(self, a: &#39;PFElement&#39;) -&gt; &#39;PFElement&#39;:
+    &#34;&#34;&#34;Returns -a &#34;&#34;&#34;
+    return self(self._pf_additive_inverse(a.value, self.additive_group))</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.PrimeField.div"><code class="name flex">
+<span>def <span class="ident">div</span></span>(<span>self, a, b)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Exact division in the field</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def div(self, a: &#39;PFElement&#39;, b: &#39;PFElement&#39;) -&gt; &#39;PFElement&#39;:
+    &#34;&#34;&#34;Exact division in the field&#34;&#34;&#34;
+    return self(self._pf_div(a.value, b.value, self.multiplicative_group))</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.PrimeField.divmod"><code class="name flex">
+<span>def <span class="ident">divmod</span></span>(<span>self, a, b)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def divmod(self, a: &#39;PFElement&#39;, b: &#39;PFElement&#39;) -&gt; Tuple[&#39;PFElement&#39;, &#39;PFElement&#39;]:
+    return self.div(a, b), self.mod(a, b)</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.PrimeField.element"><code class="name flex">
+<span>def <span class="ident">element</span></span>(<span>self, n)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Casts an integer into an element of the field</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def element(self, n: Any) -&gt; &#39;PFElement&#39;:
+    &#34;&#34;&#34;Casts an integer into an element of the field&#34;&#34;&#34;
+    if not int(n) in self.additive_group:
+        raise ValueError(f&#39;{n} does not belong to the additive group of {self}&#39;)
+    return PFElement(self, int(n))</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.PrimeField.ext_mul"><code class="name flex">
+<span>def <span class="ident">ext_mul</span></span>(<span>self, n, a)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Multiplication of a by integer n &lt;=&gt; a+&hellip;+a n times</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def ext_mul(self, n: int, a: &#39;PFElement&#39;) -&gt; &#39;PFElement&#39;:
+    &#34;&#34;&#34;Multiplication of a by integer n &lt;=&gt; a+...+a n times&#34;&#34;&#34;
+    return self(self._pf_ext_mul(n, a.value, self.additive_group))</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.PrimeField.floor_div"><code class="name flex">
+<span>def <span class="ident">floor_div</span></span>(<span>self, a, b)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def floor_div(self, a: &#39;PFElement&#39;, b: &#39;PFElement&#39;) -&gt; &#39;PFElement&#39;:
+    return self.div(a, b)</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.PrimeField.frobenius_reciprocal"><code class="name flex">
+<span>def <span class="ident">frobenius_reciprocal</span></span>(<span>self, a)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns the Frobenius reciprocal of a. As a remainder, the Frobenius automorphism is:
+a -&gt; a^q where q is the characteristic of the field. In prime fields, it is the identity</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def frobenius_reciprocal(self, a: &#39;PFElement&#39;) -&gt; &#39;PFElement&#39;:
+    &#34;&#34;&#34;Returns the Frobenius reciprocal of a. As a remainder, the Frobenius automorphism is:
+    a -&gt; a^q where q is the characteristic of the field. In prime fields, it is the identity&#34;&#34;&#34;
+    assert a in self
+    return a</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.PrimeField.generate_irreducible_polynomial"><code class="name flex">
+<span>def <span class="ident">generate_irreducible_polynomial</span></span>(<span>self, degree, max_retries=15)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns an irreducible polynomial over the base field.
+This algorithm is not deterministic and may raise exceptions
+:param degree: the degree of the irreducible polynomial
+:param max_retries: the maximum number of attempts
+:return: an irreducible polynomial of a given degree</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_irreducible_polynomial(self, degree: int, max_retries: int = 15) -&gt; Polynomial:
+    &#34;&#34;&#34;
+    Returns an irreducible polynomial over the base field.
+    This algorithm is not deterministic and may raise exceptions
+    :param degree: the degree of the irreducible polynomial
+    :param max_retries: the maximum number of attempts
+    :return: an irreducible polynomial of a given degree
+    &#34;&#34;&#34;
+    max_retries = max(degree // 2, max_retries)
+    tries = 0
+    retries = 0
+    while retries &lt;= max_retries:
+        while tries &lt;= degree:
+            coefficients = [self.rand_element() for _ in range(degree)]
+            p = self.polynomial(coefficients)
+            p += p.monic(degree)
+
+            if p.is_irreducible:
+                return p
+            tries += 1
+        retries += 1
+    err_msg = f&#39;Could not find an irreducible polynomial of degree {degree} over {self} in {tries*retries} attempts&#39;
+    raise RuntimeError(err_msg)</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.PrimeField.linear_polynomial"><code class="name flex">
+<span>def <span class="ident">linear_polynomial</span></span>(<span>self, e)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns the polynomial X + (-e)</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def linear_polynomial(self, e: &#39;PFElement&#39;) -&gt; Polynomial:
+    &#34;&#34;&#34;Returns the polynomial X + (-e)&#34;&#34;&#34;
+    poly = self.polynomial(-e)
+    poly += poly.monic(1)
+    return poly</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.PrimeField.mod"><code class="name flex">
+<span>def <span class="ident">mod</span></span>(<span>self, *_)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def mod(self, *_) -&gt; &#39;PFElement&#39;:
+    return self.zero</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.PrimeField.mul"><code class="name flex">
+<span>def <span class="ident">mul</span></span>(<span>self, a, b)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Multiplication in the field</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def mul(self, a: &#39;PFElement&#39;, b: &#39;PFElement&#39;) -&gt; &#39;PFElement&#39;:
+    &#34;&#34;&#34;Multiplication in the field&#34;&#34;&#34;
+    return self(self._pf_mul(a.value, b.value, self.multiplicative_group))</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.PrimeField.multiplicative_inverse"><code class="name flex">
+<span>def <span class="ident">multiplicative_inverse</span></span>(<span>self, a)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns 1/a</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def multiplicative_inverse(self, a: &#39;PFElement&#39;) -&gt; &#39;PFElement&#39;:
+    &#34;&#34;&#34;Returns 1/a&#34;&#34;&#34;
+    return self(self._pf_multiplicative_inverse(a.value, self.multiplicative_group))</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.PrimeField.parse_poly"><code class="name flex">
+<span>def <span class="ident">parse_poly</span></span>(<span>self, expr)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns a polynomial from its symbolic expression</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def parse_poly(self, expr: str) -&gt; Polynomial:
+    &#34;&#34;&#34;Returns a polynomial from its symbolic expression&#34;&#34;&#34;
+    return symbolic_polynomial(expr, self)</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.PrimeField.polynomial"><code class="name flex">
+<span>def <span class="ident">polynomial</span></span>(<span>self, *args, indeterminate='X')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Polynomial factory</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def polynomial(self, *args, indeterminate: str = &#39;X&#39;) -&gt; Polynomial:
+    &#34;&#34;&#34;Polynomial factory&#34;&#34;&#34;
+    return Polynomial([self.element(c) for c in args], base_field=self, indeterminate=indeterminate)</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.PrimeField.pow"><code class="name flex">
+<span>def <span class="ident">pow</span></span>(<span>self, a, e)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns a**e using rapid exponentiation</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def pow(self, a: &#39;PFElement&#39;, e: int) -&gt; &#39;PFElement&#39;:
+    &#34;&#34;&#34;Returns a**e using rapid exponentiation&#34;&#34;&#34;
+    res = power(a, e)
+    if not isinstance(res, PFElement):
+        return self(res)
+    else:
+        return res</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.PrimeField.rand_element"><code class="name flex">
+<span>def <span class="ident">rand_element</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns an element of the field at random</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def rand_element(self) -&gt; &#39;PFElement&#39;:
+    &#34;&#34;&#34;Returns an element of the field at random&#34;&#34;&#34;
+    return random.choice(list(iter(self)))</code></pre>
+</details>
+</dd>
+<dt id="pyimath.finitefield.PrimeField.random_polynomial"><code class="name flex">
+<span>def <span class="ident">random_polynomial</span></span>(<span>self, degree)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns a random polynomial of a given degree</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def random_polynomial(self, degree: int) -&gt; Polynomial:
+    &#34;&#34;&#34;Returns a random polynomial of a given degree&#34;&#34;&#34;
+    p = self.polynomial(*[self.rand_element() for _ in range(0, degree)])
+    p += p.monic(degree)
+    return p</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pyimath" href="index.html">pyimath</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pyimath.finitefield.finite_field" href="#pyimath.finitefield.finite_field">finite_field</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="pyimath.finitefield.FFElement" href="#pyimath.finitefield.FFElement">FFElement</a></code></h4>
+<ul class="">
+<li><code><a title="pyimath.finitefield.FFElement.is_scalar" href="#pyimath.finitefield.FFElement.is_scalar">is_scalar</a></code></li>
+<li><code><a title="pyimath.finitefield.FFElement.null" href="#pyimath.finitefield.FFElement.null">null</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyimath.finitefield.FiniteField" href="#pyimath.finitefield.FiniteField">FiniteField</a></code></h4>
+<ul class="">
+<li><code><a title="pyimath.finitefield.FiniteField.add" href="#pyimath.finitefield.FiniteField.add">add</a></code></li>
+<li><code><a title="pyimath.finitefield.FiniteField.additive_inverse" href="#pyimath.finitefield.FiniteField.additive_inverse">additive_inverse</a></code></li>
+<li><code><a title="pyimath.finitefield.FiniteField.basis" href="#pyimath.finitefield.FiniteField.basis">basis</a></code></li>
+<li><code><a title="pyimath.finitefield.FiniteField.characteristic" href="#pyimath.finitefield.FiniteField.characteristic">characteristic</a></code></li>
+<li><code><a title="pyimath.finitefield.FiniteField.check_irreducible_polynomial" href="#pyimath.finitefield.FiniteField.check_irreducible_polynomial">check_irreducible_polynomial</a></code></li>
+<li><code><a title="pyimath.finitefield.FiniteField.div" href="#pyimath.finitefield.FiniteField.div">div</a></code></li>
+<li><code><a title="pyimath.finitefield.FiniteField.divmod" href="#pyimath.finitefield.FiniteField.divmod">divmod</a></code></li>
+<li><code><a title="pyimath.finitefield.FiniteField.element" href="#pyimath.finitefield.FiniteField.element">element</a></code></li>
+<li><code><a title="pyimath.finitefield.FiniteField.element_from_polynomial" href="#pyimath.finitefield.FiniteField.element_from_polynomial">element_from_polynomial</a></code></li>
+<li><code><a title="pyimath.finitefield.FiniteField.element_order" href="#pyimath.finitefield.FiniteField.element_order">element_order</a></code></li>
+<li><code><a title="pyimath.finitefield.FiniteField.ext_mul" href="#pyimath.finitefield.FiniteField.ext_mul">ext_mul</a></code></li>
+<li><code><a title="pyimath.finitefield.FiniteField.find_generator" href="#pyimath.finitefield.FiniteField.find_generator">find_generator</a></code></li>
+<li><code><a title="pyimath.finitefield.FiniteField.floor_div" href="#pyimath.finitefield.FiniteField.floor_div">floor_div</a></code></li>
+<li><code><a title="pyimath.finitefield.FiniteField.format_element" href="#pyimath.finitefield.FiniteField.format_element">format_element</a></code></li>
+<li><code><a title="pyimath.finitefield.FiniteField.frobenius_map" href="#pyimath.finitefield.FiniteField.frobenius_map">frobenius_map</a></code></li>
+<li><code><a title="pyimath.finitefield.FiniteField.frobenius_reciprocal" href="#pyimath.finitefield.FiniteField.frobenius_reciprocal">frobenius_reciprocal</a></code></li>
+<li><code><a title="pyimath.finitefield.FiniteField.has_valid_generator" href="#pyimath.finitefield.FiniteField.has_valid_generator">has_valid_generator</a></code></li>
+<li><code><a title="pyimath.finitefield.FiniteField.linear_polynomial" href="#pyimath.finitefield.FiniteField.linear_polynomial">linear_polynomial</a></code></li>
+<li><code><a title="pyimath.finitefield.FiniteField.mod" href="#pyimath.finitefield.FiniteField.mod">mod</a></code></li>
+<li><code><a title="pyimath.finitefield.FiniteField.mul" href="#pyimath.finitefield.FiniteField.mul">mul</a></code></li>
+<li><code><a title="pyimath.finitefield.FiniteField.multiplicative_inverse" href="#pyimath.finitefield.FiniteField.multiplicative_inverse">multiplicative_inverse</a></code></li>
+<li><code><a title="pyimath.finitefield.FiniteField.neutral" href="#pyimath.finitefield.FiniteField.neutral">neutral</a></code></li>
+<li><code><a title="pyimath.finitefield.FiniteField.null" href="#pyimath.finitefield.FiniteField.null">null</a></code></li>
+<li><code><a title="pyimath.finitefield.FiniteField.one" href="#pyimath.finitefield.FiniteField.one">one</a></code></li>
+<li><code><a title="pyimath.finitefield.FiniteField.order" href="#pyimath.finitefield.FiniteField.order">order</a></code></li>
+<li><code><a title="pyimath.finitefield.FiniteField.parse_poly" href="#pyimath.finitefield.FiniteField.parse_poly">parse_poly</a></code></li>
+<li><code><a title="pyimath.finitefield.FiniteField.polynomial" href="#pyimath.finitefield.FiniteField.polynomial">polynomial</a></code></li>
+<li><code><a title="pyimath.finitefield.FiniteField.polynomial_from_element" href="#pyimath.finitefield.FiniteField.polynomial_from_element">polynomial_from_element</a></code></li>
+<li><code><a title="pyimath.finitefield.FiniteField.pow" href="#pyimath.finitefield.FiniteField.pow">pow</a></code></li>
+<li><code><a title="pyimath.finitefield.FiniteField.prime_field" href="#pyimath.finitefield.FiniteField.prime_field">prime_field</a></code></li>
+<li><code><a title="pyimath.finitefield.FiniteField.zero" href="#pyimath.finitefield.FiniteField.zero">zero</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyimath.finitefield.PFElement" href="#pyimath.finitefield.PFElement">PFElement</a></code></h4>
+<ul class="">
+<li><code><a title="pyimath.finitefield.PFElement.is_one" href="#pyimath.finitefield.PFElement.is_one">is_one</a></code></li>
+<li><code><a title="pyimath.finitefield.PFElement.is_zero" href="#pyimath.finitefield.PFElement.is_zero">is_zero</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyimath.finitefield.Polynomial" href="#pyimath.finitefield.Polynomial">Polynomial</a></code></h4>
+<ul class="">
+<li><code><a title="pyimath.finitefield.Polynomial.add" href="#pyimath.finitefield.Polynomial.add">add</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.add_constant" href="#pyimath.finitefield.Polynomial.add_constant">add_constant</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.check_irreducibility" href="#pyimath.finitefield.Polynomial.check_irreducibility">check_irreducibility</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.coefficients" href="#pyimath.finitefield.Polynomial.coefficients">coefficients</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.constant" href="#pyimath.finitefield.Polynomial.constant">constant</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.copy" href="#pyimath.finitefield.Polynomial.copy">copy</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.degree" href="#pyimath.finitefield.Polynomial.degree">degree</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.evaluate" href="#pyimath.finitefield.Polynomial.evaluate">evaluate</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.formal_derivative" href="#pyimath.finitefield.Polynomial.formal_derivative">formal_derivative</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.frobenius_reciprocal" href="#pyimath.finitefield.Polynomial.frobenius_reciprocal">frobenius_reciprocal</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.gcd" href="#pyimath.finitefield.Polynomial.gcd">gcd</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.internal" href="#pyimath.finitefield.Polynomial.internal">internal</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.is_abs_unit" href="#pyimath.finitefield.Polynomial.is_abs_unit">is_abs_unit</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.is_constant" href="#pyimath.finitefield.Polynomial.is_constant">is_constant</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.is_irreducible" href="#pyimath.finitefield.Polynomial.is_irreducible">is_irreducible</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.is_monic" href="#pyimath.finitefield.Polynomial.is_monic">is_monic</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.is_null" href="#pyimath.finitefield.Polynomial.is_null">is_null</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.is_unit" href="#pyimath.finitefield.Polynomial.is_unit">is_unit</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.leading" href="#pyimath.finitefield.Polynomial.leading">leading</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.long_division" href="#pyimath.finitefield.Polynomial.long_division">long_division</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.long_division_reversed" href="#pyimath.finitefield.Polynomial.long_division_reversed">long_division_reversed</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.make_monic" href="#pyimath.finitefield.Polynomial.make_monic">make_monic</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.monic" href="#pyimath.finitefield.Polynomial.monic">monic</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.mul" href="#pyimath.finitefield.Polynomial.mul">mul</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.mul_constant" href="#pyimath.finitefield.Polynomial.mul_constant">mul_constant</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.null" href="#pyimath.finitefield.Polynomial.null">null</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.parse" href="#pyimath.finitefield.Polynomial.parse">parse</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.pow" href="#pyimath.finitefield.Polynomial.pow">pow</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.set_term" href="#pyimath.finitefield.Polynomial.set_term">set_term</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.sub" href="#pyimath.finitefield.Polynomial.sub">sub</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.trailing" href="#pyimath.finitefield.Polynomial.trailing">trailing</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.unit" href="#pyimath.finitefield.Polynomial.unit">unit</a></code></li>
+<li><code><a title="pyimath.finitefield.Polynomial.valuation" href="#pyimath.finitefield.Polynomial.valuation">valuation</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyimath.finitefield.PrimeField" href="#pyimath.finitefield.PrimeField">PrimeField</a></code></h4>
+<ul class="">
+<li><code><a title="pyimath.finitefield.PrimeField.add" href="#pyimath.finitefield.PrimeField.add">add</a></code></li>
+<li><code><a title="pyimath.finitefield.PrimeField.additive_group_representation" href="#pyimath.finitefield.PrimeField.additive_group_representation">additive_group_representation</a></code></li>
+<li><code><a title="pyimath.finitefield.PrimeField.additive_inverse" href="#pyimath.finitefield.PrimeField.additive_inverse">additive_inverse</a></code></li>
+<li><code><a title="pyimath.finitefield.PrimeField.div" href="#pyimath.finitefield.PrimeField.div">div</a></code></li>
+<li><code><a title="pyimath.finitefield.PrimeField.divmod" href="#pyimath.finitefield.PrimeField.divmod">divmod</a></code></li>
+<li><code><a title="pyimath.finitefield.PrimeField.element" href="#pyimath.finitefield.PrimeField.element">element</a></code></li>
+<li><code><a title="pyimath.finitefield.PrimeField.ext_mul" href="#pyimath.finitefield.PrimeField.ext_mul">ext_mul</a></code></li>
+<li><code><a title="pyimath.finitefield.PrimeField.floor_div" href="#pyimath.finitefield.PrimeField.floor_div">floor_div</a></code></li>
+<li><code><a title="pyimath.finitefield.PrimeField.frobenius_reciprocal" href="#pyimath.finitefield.PrimeField.frobenius_reciprocal">frobenius_reciprocal</a></code></li>
+<li><code><a title="pyimath.finitefield.PrimeField.generate_irreducible_polynomial" href="#pyimath.finitefield.PrimeField.generate_irreducible_polynomial">generate_irreducible_polynomial</a></code></li>
+<li><code><a title="pyimath.finitefield.PrimeField.linear_polynomial" href="#pyimath.finitefield.PrimeField.linear_polynomial">linear_polynomial</a></code></li>
+<li><code><a title="pyimath.finitefield.PrimeField.mod" href="#pyimath.finitefield.PrimeField.mod">mod</a></code></li>
+<li><code><a title="pyimath.finitefield.PrimeField.mul" href="#pyimath.finitefield.PrimeField.mul">mul</a></code></li>
+<li><code><a title="pyimath.finitefield.PrimeField.multiplicative_group_representation" href="#pyimath.finitefield.PrimeField.multiplicative_group_representation">multiplicative_group_representation</a></code></li>
+<li><code><a title="pyimath.finitefield.PrimeField.multiplicative_inverse" href="#pyimath.finitefield.PrimeField.multiplicative_inverse">multiplicative_inverse</a></code></li>
+<li><code><a title="pyimath.finitefield.PrimeField.neutral" href="#pyimath.finitefield.PrimeField.neutral">neutral</a></code></li>
+<li><code><a title="pyimath.finitefield.PrimeField.null" href="#pyimath.finitefield.PrimeField.null">null</a></code></li>
+<li><code><a title="pyimath.finitefield.PrimeField.one" href="#pyimath.finitefield.PrimeField.one">one</a></code></li>
+<li><code><a title="pyimath.finitefield.PrimeField.parse_poly" href="#pyimath.finitefield.PrimeField.parse_poly">parse_poly</a></code></li>
+<li><code><a title="pyimath.finitefield.PrimeField.polynomial" href="#pyimath.finitefield.PrimeField.polynomial">polynomial</a></code></li>
+<li><code><a title="pyimath.finitefield.PrimeField.pow" href="#pyimath.finitefield.PrimeField.pow">pow</a></code></li>
+<li><code><a title="pyimath.finitefield.PrimeField.rand_element" href="#pyimath.finitefield.PrimeField.rand_element">rand_element</a></code></li>
+<li><code><a title="pyimath.finitefield.PrimeField.random_polynomial" href="#pyimath.finitefield.PrimeField.random_polynomial">random_polynomial</a></code></li>
+<li><code><a title="pyimath.finitefield.PrimeField.zero" href="#pyimath.finitefield.PrimeField.zero">zero</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

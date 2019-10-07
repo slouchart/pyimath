@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.1" />
+<title>pyimath.polyparse API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pyimath.polyparse</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import operator
+from collections import namedtuple
+from enum import Enum
+from re import finditer
+from typing import Optional, Iterator, TypeVar
+
+
+Polynomial = TypeVar(&#39;Polynomial&#39;)
+
+
+def symbolic_polynomial(expression: str, base_field, indeterminate: Optional[str] = &#39;X&#39;):
+    &#34;&#34;&#34;Returns a polynomial from its algebraic expression
+    :param expression: an algebraic expression in the indeterminate
+    :param base_field: the field (or the ring) that coefficients are to be drawn from
+    :param indeterminate: a single digit string in the range [a-zA-Z]
+    :return: a polynomial&#34;&#34;&#34;
+    return PolynomialParser.parse(expression, base_field, indeterminate=indeterminate)
+
+
+__all__ = [&#39;symbolic_polynomial&#39;]
+
+
+&#34;&#34;&#34;Lexer et Parser code follows, should not be exported&#34;&#34;&#34;
+
+
+class Lexer:
+    INDETERMINATE = &#39;INDETERMINATE&#39;
+    INTEGER = &#39;INTEGER&#39;
+    OPERATOR = &#39;OPERATOR&#39;
+    EXPONENT = &#39;EXPONENT&#39;
+    SUBEXPR = &#39;SUBEXPR&#39;
+    EOF = &#39;EOF&#39;
+    IGNORE = &#39;IGNORE&#39;
+    MISMATCH = &#39;MISMATCH&#39;
+
+    class Token(namedtuple(&#39;Token&#39;, &#39;type, value, position&#39;)):
+        __slots__ = ()
+
+    def __init__(self, indeterminate: Optional[str] = &#39;X&#39;, root_symbol: Optional[str] = &#39;j&#39;):
+        self.indeterminate = indeterminate
+        self.root_symbol = root_symbol
+
+        self.symbols = [
+            (Lexer.INDETERMINATE, r&#39;[%s]&#39; % self.indeterminate),
+            (Lexer.INTEGER, r&#39;[1-9][0-9]*&#39;),
+            (Lexer.OPERATOR, r&#39;[+-]&#39;),
+            (Lexer.EXPONENT, r&#39;[\^]&#39;),
+            (Lexer.SUBEXPR, r&#39;\([^)]+\)&#39;),
+            (Lexer.EOF, r&#39;$&#39;),
+            (Lexer.IGNORE, r&#39;\s&#39;),  # must stay before the last item
+            (Lexer.MISMATCH, r&#39;.&#39;)  # must stay the last item
+        ]
+        self.tokens_re = &#39;|&#39;.join([f&#39;(?P&lt;{tok}&gt;{re})&#39; for tok, re in self.symbols])
+
+    def lex(self, expression: str) -&gt; Iterator[&#39;Lexer.Token&#39;]:
+
+        for tok in finditer(self.tokens_re, expression):
+            token = Lexer.Token(tok.lastgroup, tok.group(), tok.start())
+
+            if token.type == Lexer.IGNORE:
+                continue
+            elif token.type == Lexer.SUBEXPR:
+                # remove left and right parentheses
+                lexer = Lexer(indeterminate=self.root_symbol, root_symbol=&#39;&#39;)
+                yield Lexer.Token(token.type, lexer.lex(token.value[1:-1], ), token.position)
+
+            elif token.type == Lexer.INTEGER:
+                yield Lexer.Token(token.type, int(token.value), token.position)
+
+            elif token.type == Lexer.OPERATOR:
+                if token.value == &#39;+&#39;:
+                    yield Lexer.Token(token.type, operator.add, token.position)
+                elif token.value == &#39;-&#39;:
+                    yield Lexer.Token(token.type, operator.sub, token.position)
+
+            else:
+                yield token
+
+
+class ParsingContext:
+    def __init__(self, base_field, indeterminate: str):
+        self.base_field = base_field
+        self.indeterminate = indeterminate
+
+        self._stack = []
+        self._stack.append(self.base_field.polynomial(self.base_field.zero, indeterminate=self.indeterminate))
+
+    def accumulate_neutral(self, *_):
+        self._stack.append(self.base_field.neutral)
+
+    def accumulate_token(self, tok, *_):
+        self._stack.append(tok.value)
+
+    def accumulate_element(self, tok, *_):
+        self._stack.append(self.base_field(tok.value))
+
+    def accumulate_literal(self, _, v):
+        self._stack.append(v)
+
+    def accumulate_subexpression(self, tok, *_):
+        def convert_subexpr(subexpr):
+            ctx = ParsingContext(self.base_field.prime_field, indeterminate=self.base_field.root_symbol)
+            return self.base_field.element_from_polynomial(PolynomialParser.start(subexpr, ctx))
+
+        self._stack.append(convert_subexpr(tok.value))
+
+    def reduce(self, *_):
+        try:
+            (result, op, coefficient, degree), self._stack = self._stack[-4:], self._stack[:-4]
+            self._stack.append(op(result, result.monic(degree).mul_constant(coefficient)))
+        except BaseException as e:
+            raise RuntimeError(e)
+
+    def get_result(self) -&gt; &#39;Polynomial&#39;:
+        return self._stack.pop()
+
+
+class PolynomialParser:
+
+    @staticmethod
+    def parse(expression: str, base_field, indeterminate: Optional[str] = &#39;X&#39;):
+        &#34;&#34;&#34;Main parsing utility&#34;&#34;&#34;
+        if hasattr(base_field, &#39;root_symbol&#39;):
+            lexer = Lexer(indeterminate=indeterminate, root_symbol=base_field.root_symbol)
+        else:
+            lexer = Lexer(indeterminate=indeterminate, root_symbol=&#39;&#39;)
+
+        ctx = ParsingContext(base_field, indeterminate)
+        return PolynomialParser.start(lexer.lex(expression), ctx)
+
+    @staticmethod
+    def start(lexer: Iterator, context: ParsingContext) -&gt; Polynomial:
+
+        def format_syntax_error(s, t):
+            return f&#39;Syntax error at {t.position}: unexpected {t} in state {s}&#39;
+
+        state = PolynomialParser.States.starting
+
+        for token in lexer:
+            if (state, token.type) in PolynomialParser.transitions:
+                transition = PolynomialParser.transitions[(state, token.type)]
+                for op, args in transition.actions:
+                    op(context, token, *args)
+                state = transition.next_state
+            else:
+                raise SyntaxError(format_syntax_error(state, token))
+
+        assert state == PolynomialParser.States.complete
+        return context.get_result()
+
+    &#34;&#34;&#34;Internals&#34;&#34;&#34;
+    Transition = namedtuple(&#39;Transition&#39;, &#39;actions next_state&#39;)
+
+    class States(Enum):
+        starting = 0
+        coefficient = 1
+        indeterminate = 2
+        exponent = 3
+        sub_expression = 4
+        operator = 5
+        complete = 6
+        init = 7
+
+    transitions = {
+        (States.starting, Lexer.INTEGER):
+            Transition([
+                (ParsingContext.accumulate_literal, (operator.add,)),
+                (ParsingContext.accumulate_element, (),)
+            ], States.coefficient),
+
+        (States.starting, Lexer.SUBEXPR):
+            Transition([
+                (ParsingContext.accumulate_literal, (operator.add,)),
+                (ParsingContext.accumulate_subexpression, ())
+            ], States.coefficient),
+
+        (States.starting, Lexer.OPERATOR):
+            Transition([
+                (ParsingContext.accumulate_token, ())
+            ], States.operator),
+
+        (States.starting, Lexer.INDETERMINATE):
+            Transition([
+                (ParsingContext.accumulate_literal, (operator.add,)),
+                (ParsingContext.accumulate_neutral, (),)
+            ], States.indeterminate),
+
+        (States.starting, Lexer.EOF):
+            Transition([], States.complete),
+
+        (States.coefficient, Lexer.INDETERMINATE):
+            Transition([], States.indeterminate),
+
+        (States.coefficient, Lexer.OPERATOR):
+            Transition([
+                (ParsingContext.accumulate_literal, (0,)),
+                (ParsingContext.reduce, ()),
+                (ParsingContext.accumulate_token, ()),
+            ], States.operator),
+
+        (States.coefficient, Lexer.EOF):
+            Transition([
+                (ParsingContext.accumulate_literal, (0,)),
+                (ParsingContext.reduce, ())
+            ], States.complete),
+
+        (States.operator, Lexer.INTEGER):
+            Transition([
+                (ParsingContext.accumulate_element, ())
+            ], States.coefficient),
+
+        (States.operator, Lexer.SUBEXPR):
+            Transition([
+                (ParsingContext.accumulate_subexpression, ())
+            ], States.coefficient),
+
+        (States.operator, Lexer.INDETERMINATE):
+            Transition([
+                (ParsingContext.accumulate_neutral, ())
+            ], States.indeterminate),
+
+        (States.indeterminate, Lexer.EXPONENT):
+            Transition([], States.exponent),
+
+        (States.indeterminate, Lexer.OPERATOR):
+            Transition([
+                (ParsingContext.accumulate_literal, (1,)),
+                (ParsingContext.reduce, ()),
+                (ParsingContext.accumulate_token, ())
+            ], States.operator),
+
+        (States.indeterminate, Lexer.EOF):
+            Transition([
+                (ParsingContext.accumulate_literal, (1,)),
+                (ParsingContext.reduce, ())
+            ], States.complete),
+
+        (States.exponent, Lexer.INTEGER):
+            Transition([
+                (ParsingContext.accumulate_token, ()),
+                (ParsingContext.reduce, ())
+            ], States.init),
+
+        (States.init, Lexer.OPERATOR):
+            Transition([
+                (ParsingContext.accumulate_token, ())
+            ], States.operator),
+
+        (States.init, Lexer.EOF):
+            Transition([], States.complete)
+    }</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pyimath.polyparse.symbolic_polynomial"><code class="name flex">
+<span>def <span class="ident">symbolic_polynomial</span></span>(<span>expression, base_field, indeterminate='X')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns a polynomial from its algebraic expression
+:param expression: an algebraic expression in the indeterminate
+:param base_field: the field (or the ring) that coefficients are to be drawn from
+:param indeterminate: a single digit string in the range [a-zA-Z]
+:return: a polynomial</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def symbolic_polynomial(expression: str, base_field, indeterminate: Optional[str] = &#39;X&#39;):
+    &#34;&#34;&#34;Returns a polynomial from its algebraic expression
+    :param expression: an algebraic expression in the indeterminate
+    :param base_field: the field (or the ring) that coefficients are to be drawn from
+    :param indeterminate: a single digit string in the range [a-zA-Z]
+    :return: a polynomial&#34;&#34;&#34;
+    return PolynomialParser.parse(expression, base_field, indeterminate=indeterminate)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pyimath" href="index.html">pyimath</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pyimath.polyparse.symbolic_polynomial" href="#pyimath.polyparse.symbolic_polynomial">symbolic_polynomial</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

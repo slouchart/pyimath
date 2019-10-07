@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.1" />
+<title>pyimath.functions API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pyimath.functions</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from random import randrange
+from typing import Union, List, Tuple
+
+__all__ = [&#39;comb&#39;, &#39;bincoeff&#39;, &#39;primes&#39;, &#39;factor&#39;, &#39;gcd&#39;, &#39;rgcd&#39;, &#39;power&#39;, &#39;maybe_prime&#39;]
+
+
+def comb(n: int, k: int) -&gt; int:
+    &#34;&#34;&#34;Defines C(n, k) as the number of ways to pick k items among n&#34;&#34;&#34;
+    if k &gt; n:
+        raise ValueError
+
+    result = 1
+    for i in range(n - k + 1, n + 1):
+        result *= i
+    for i in range(2, k + 1):
+        result /= i
+
+    return int(result)
+
+
+def bincoeff(n: int, k: int = None) -&gt; Union[int, List[int]]:
+    &#34;&#34;&#34;Computes the binomial coefficients of (1 + x)^n or returns the k-th coefficient&#34;&#34;&#34;
+    if k is not None:
+        return comb(n, k)
+    else:
+        result = []
+        for i in range(0, n + 1):
+            result.append(comb(n, i))
+        return result
+
+
+def primes(n_max: int = 100) -&gt; List[int]:
+    &#34;&#34;&#34;Eratosthene&#39;s sieve&#34;&#34;&#34;
+    if n_max &lt; 2:
+        raise ValueError
+
+    t = list(range(2, n_max + 1))
+    for i in t:
+        for j in (k for k in t if k &gt; i):
+            if j % i == 0:
+                t.remove(j)
+
+    return sorted(t)
+
+
+def factor(n: int) -&gt; List[Tuple[int, int]]:
+    &#34;&#34;&#34;Computes the prime factorization of an integer the hard way&#34;&#34;&#34;
+    if n &lt;= 1:
+        raise ValueError
+
+    factors = list()
+
+    ml = 0
+    p = 2
+    while n % p == 0:
+        n //= p
+        ml += 1
+    if ml &gt; 0:
+        factors.append((p, ml,))
+
+    p = 3
+    while p ** 2 &lt;= n:
+        ml = 0
+        while n % p == 0:
+            n //= p
+            ml += 1
+        if ml &gt; 0:
+            factors.append((p, ml,))
+        p += 2
+
+    if n &gt; 2:
+        factors.append((n, 1,))
+
+    return factors
+
+
+def mul_factor(factors: List[Tuple[int, int]]) -&gt; int:
+    &#34;&#34;&#34;Computes an integer whose prime factorization is given&#34;&#34;&#34;
+    n = 1
+    for f in factors:
+        n *= f[0] ** f[1]
+    return n
+
+
+small_primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43]
+
+
+def maybe_prime(n, k=3):
+    &#34;&#34;&#34;Return True if n passes k rounds of the Miller-Rabin primality
+    test (and is probably prime). Return False if n is proved to be
+    composite.
+
+    &#34;&#34;&#34;
+    if n &lt; 2:
+        return False
+    for p in small_primes:
+        if n &lt; p * p:
+            return True
+        if n % p == 0:
+            return False
+    r, s = 0, n - 1
+    while s % 2 == 0:
+        r += 1
+        s //= 2
+    for _ in range(k):
+        a = randrange(2, n - 1)
+        x = pow(a, s, n)
+        if x == 1 or x == n - 1:
+            continue
+        for _ in range(r - 1):
+            x = pow(x, 2, n)
+            if x == n - 1:
+                break
+        else:
+            return False
+    return True
+
+
+def gcd(a, b):
+    &#34;&#34;&#34; Computes the GCD of two operands recursively
+    a and b shall be of the same type or of compatible types&#34;&#34;&#34;
+    if a == 0 or b == 0:
+        raise ValueError(&#39;gcd(a, b) is only defined for a and b non zero operands&#39;)
+
+    def _gcd(g, r):
+        if r == 0:
+            return g
+        else:
+            return _gcd(r, g % r)
+
+    return _gcd(a, b)
+
+
+def rgcd(it):
+    &#34;&#34;&#34; Computes the GCD of all the items from an iterable
+    :param it: an iterable containing elements of GCD-able type
+    :return: their GCD
+    &#34;&#34;&#34;
+    itor = iter(it)
+    a = next(itor)
+    while True:
+        try:
+            a = gcd(a, next(itor))
+        except StopIteration:
+            break
+    return a
+
+
+def power(a, e: int):
+    &#34;&#34;&#34; Exponentiation by squaring i.e square and multiply
+    :param a: a number to exponentiate (can be a polynomial)
+    :param e: the exponent
+    :return: the result of a^e
+    &#34;&#34;&#34;
+    # Shortcuts are evaluated here to avoid code duplication
+
+    if a == 0:
+        if e &gt; 0:
+            return 0  # 0^n = 0 for n &gt; 0
+
+    if e == 0:
+        return 1  # a^0 = 1 (0^0 = 1 is a convention in number theory)
+
+    if e == 1:
+        return a  # a^1 = a
+
+    if a == 1:
+        return a  # 1^n = 1, n integer
+
+    def sqr_mul(x, n):
+        if n == 1:
+            return x
+        elif n % 2 == 0:
+            return sqr_mul(x * x, n // 2)
+        elif n % 2 != 0 and n &gt; 2:
+            return x * sqr_mul(x * x, (n - 1) // 2)
+
+    return sqr_mul(a, e)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pyimath.functions.bincoeff"><code class="name flex">
+<span>def <span class="ident">bincoeff</span></span>(<span>n, k=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Computes the binomial coefficients of (1 + x)^n or returns the k-th coefficient</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bincoeff(n: int, k: int = None) -&gt; Union[int, List[int]]:
+    &#34;&#34;&#34;Computes the binomial coefficients of (1 + x)^n or returns the k-th coefficient&#34;&#34;&#34;
+    if k is not None:
+        return comb(n, k)
+    else:
+        result = []
+        for i in range(0, n + 1):
+            result.append(comb(n, i))
+        return result</code></pre>
+</details>
+</dd>
+<dt id="pyimath.functions.comb"><code class="name flex">
+<span>def <span class="ident">comb</span></span>(<span>n, k)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Defines C(n, k) as the number of ways to pick k items among n</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def comb(n: int, k: int) -&gt; int:
+    &#34;&#34;&#34;Defines C(n, k) as the number of ways to pick k items among n&#34;&#34;&#34;
+    if k &gt; n:
+        raise ValueError
+
+    result = 1
+    for i in range(n - k + 1, n + 1):
+        result *= i
+    for i in range(2, k + 1):
+        result /= i
+
+    return int(result)</code></pre>
+</details>
+</dd>
+<dt id="pyimath.functions.factor"><code class="name flex">
+<span>def <span class="ident">factor</span></span>(<span>n)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Computes the prime factorization of an integer the hard way</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def factor(n: int) -&gt; List[Tuple[int, int]]:
+    &#34;&#34;&#34;Computes the prime factorization of an integer the hard way&#34;&#34;&#34;
+    if n &lt;= 1:
+        raise ValueError
+
+    factors = list()
+
+    ml = 0
+    p = 2
+    while n % p == 0:
+        n //= p
+        ml += 1
+    if ml &gt; 0:
+        factors.append((p, ml,))
+
+    p = 3
+    while p ** 2 &lt;= n:
+        ml = 0
+        while n % p == 0:
+            n //= p
+            ml += 1
+        if ml &gt; 0:
+            factors.append((p, ml,))
+        p += 2
+
+    if n &gt; 2:
+        factors.append((n, 1,))
+
+    return factors</code></pre>
+</details>
+</dd>
+<dt id="pyimath.functions.gcd"><code class="name flex">
+<span>def <span class="ident">gcd</span></span>(<span>a, b)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Computes the GCD of two operands recursively
+a and b shall be of the same type or of compatible types</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def gcd(a, b):
+    &#34;&#34;&#34; Computes the GCD of two operands recursively
+    a and b shall be of the same type or of compatible types&#34;&#34;&#34;
+    if a == 0 or b == 0:
+        raise ValueError(&#39;gcd(a, b) is only defined for a and b non zero operands&#39;)
+
+    def _gcd(g, r):
+        if r == 0:
+            return g
+        else:
+            return _gcd(r, g % r)
+
+    return _gcd(a, b)</code></pre>
+</details>
+</dd>
+<dt id="pyimath.functions.maybe_prime"><code class="name flex">
+<span>def <span class="ident">maybe_prime</span></span>(<span>n, k=3)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Return True if n passes k rounds of the Miller-Rabin primality
+test (and is probably prime). Return False if n is proved to be
+composite.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def maybe_prime(n, k=3):
+    &#34;&#34;&#34;Return True if n passes k rounds of the Miller-Rabin primality
+    test (and is probably prime). Return False if n is proved to be
+    composite.
+
+    &#34;&#34;&#34;
+    if n &lt; 2:
+        return False
+    for p in small_primes:
+        if n &lt; p * p:
+            return True
+        if n % p == 0:
+            return False
+    r, s = 0, n - 1
+    while s % 2 == 0:
+        r += 1
+        s //= 2
+    for _ in range(k):
+        a = randrange(2, n - 1)
+        x = pow(a, s, n)
+        if x == 1 or x == n - 1:
+            continue
+        for _ in range(r - 1):
+            x = pow(x, 2, n)
+            if x == n - 1:
+                break
+        else:
+            return False
+    return True</code></pre>
+</details>
+</dd>
+<dt id="pyimath.functions.power"><code class="name flex">
+<span>def <span class="ident">power</span></span>(<span>a, e)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Exponentiation by squaring i.e square and multiply
+:param a: a number to exponentiate (can be a polynomial)
+:param e: the exponent
+:return: the result of a^e</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def power(a, e: int):
+    &#34;&#34;&#34; Exponentiation by squaring i.e square and multiply
+    :param a: a number to exponentiate (can be a polynomial)
+    :param e: the exponent
+    :return: the result of a^e
+    &#34;&#34;&#34;
+    # Shortcuts are evaluated here to avoid code duplication
+
+    if a == 0:
+        if e &gt; 0:
+            return 0  # 0^n = 0 for n &gt; 0
+
+    if e == 0:
+        return 1  # a^0 = 1 (0^0 = 1 is a convention in number theory)
+
+    if e == 1:
+        return a  # a^1 = a
+
+    if a == 1:
+        return a  # 1^n = 1, n integer
+
+    def sqr_mul(x, n):
+        if n == 1:
+            return x
+        elif n % 2 == 0:
+            return sqr_mul(x * x, n // 2)
+        elif n % 2 != 0 and n &gt; 2:
+            return x * sqr_mul(x * x, (n - 1) // 2)
+
+    return sqr_mul(a, e)</code></pre>
+</details>
+</dd>
+<dt id="pyimath.functions.primes"><code class="name flex">
+<span>def <span class="ident">primes</span></span>(<span>n_max=100)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Eratosthene's sieve</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def primes(n_max: int = 100) -&gt; List[int]:
+    &#34;&#34;&#34;Eratosthene&#39;s sieve&#34;&#34;&#34;
+    if n_max &lt; 2:
+        raise ValueError
+
+    t = list(range(2, n_max + 1))
+    for i in t:
+        for j in (k for k in t if k &gt; i):
+            if j % i == 0:
+                t.remove(j)
+
+    return sorted(t)</code></pre>
+</details>
+</dd>
+<dt id="pyimath.functions.rgcd"><code class="name flex">
+<span>def <span class="ident">rgcd</span></span>(<span>it)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Computes the GCD of all the items from an iterable
+:param it: an iterable containing elements of GCD-able type
+:return: their GCD</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def rgcd(it):
+    &#34;&#34;&#34; Computes the GCD of all the items from an iterable
+    :param it: an iterable containing elements of GCD-able type
+    :return: their GCD
+    &#34;&#34;&#34;
+    itor = iter(it)
+    a = next(itor)
+    while True:
+        try:
+            a = gcd(a, next(itor))
+        except StopIteration:
+            break
+    return a</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pyimath" href="index.html">pyimath</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="two-column">
+<li><code><a title="pyimath.functions.bincoeff" href="#pyimath.functions.bincoeff">bincoeff</a></code></li>
+<li><code><a title="pyimath.functions.comb" href="#pyimath.functions.comb">comb</a></code></li>
+<li><code><a title="pyimath.functions.factor" href="#pyimath.functions.factor">factor</a></code></li>
+<li><code><a title="pyimath.functions.gcd" href="#pyimath.functions.gcd">gcd</a></code></li>
+<li><code><a title="pyimath.functions.maybe_prime" href="#pyimath.functions.maybe_prime">maybe_prime</a></code></li>
+<li><code><a title="pyimath.functions.power" href="#pyimath.functions.power">power</a></code></li>
+<li><code><a title="pyimath.functions.primes" href="#pyimath.functions.primes">primes</a></code></li>
+<li><code><a title="pyimath.functions.rgcd" href="#pyimath.functions.rgcd">rgcd</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>
