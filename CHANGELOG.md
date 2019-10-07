@@ -6,6 +6,8 @@ changes) for each release of python-vagrant.
 ## 0.0.5
 
 - Fixing a bug in the definition of multiplication and multiplicative inverse operations in `FiniteField` when a generator is defined
+- Removing the `polyparse` module because of cross references with `polynomial`
+- Adding a module for `annotations` and type hints definition
 
 ## 0.0.4
 
