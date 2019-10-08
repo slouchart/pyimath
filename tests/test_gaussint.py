@@ -10,6 +10,8 @@ class TestGaussInt(TestCase):
         self.fg = GaussianIntegerRing()
 
     def testAddSub(self):
+        """Check addition and subtraction in the ring of gaussian integers
+        """
         fg = self.fg
         elt = fg.element(1, 1)
         z0 = fg(0, 0)
@@ -24,12 +26,16 @@ class TestGaussInt(TestCase):
         self.assertTrue(fg(2, 3) - fg(1, 0) == -(1 - fg(2, 3)) == fg(1, 3))
 
     def testStr(self):
+        """Check printable representation of a gaussian integer
+        """
         fg = self.fg
         elt2 = fg(2, 3)
         self.assertEqual(str(elt2), '2 + 3i')
         self.assertEqual(str(fg(0, -1)), '-i')
 
     def testParse(self):
+        """Check parsing of the printable representation of a gaussian integer
+        """
         elt = self.fg.parse('-1 - 3i')
         self.assertEqual(elt, self.fg(-1, -3))
 
@@ -42,6 +48,8 @@ class TestGaussInt(TestCase):
             self.fg.parse('-6 + 87i^2')
 
     def testMul(self):
+        """Check multiplication in the ring of gaussian integers
+        """
         fg = self.fg
 
         elt2 = fg(2, 3)
@@ -51,6 +59,8 @@ class TestGaussInt(TestCase):
         self.assertTrue(elt2 == 1 * fg(2, 3) == fg(2, 3) * 1)
 
     def testRepr(self):
+        """Check evaluable representation of a gaussian integer
+        """
         elt2 = self.fg(2, 3)
 
         try:
@@ -61,11 +71,15 @@ class TestGaussInt(TestCase):
         self.assertEqual(elt, elt2)
 
     def testConjugate(self):
+        """Check the complex conjugate of a gaussian integer
+        """
         fg = self.fg
         self.assertTrue(fg(1, 0).conjugate == fg.one == ~fg(1, 0))
         self.assertTrue(fg(0, 1).conjugate == fg(0, -1))
 
     def testDiv(self):
+        """Check integer division and modulo
+        """
         fg = self.fg
         n = fg(4, 2)
         d = fg(2, 2)
@@ -78,6 +92,8 @@ class TestGaussInt(TestCase):
             _ = n / d
 
     def testPow(self):
+        """Check exponentation
+        """
         fg = self.fg
         n = fg(3, 0)
         assert n**2 == fg(9, 0)

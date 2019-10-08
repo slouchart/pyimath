@@ -24,7 +24,7 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from typing import Tuple, Iterator
+<pre><code class="python">from typing import Tuple, Iterator, Optional
 
 from pyimath.polynomial import Polynomial
 
@@ -45,7 +45,7 @@ class IntegerRing:
         return int(n)
 
     @property
-    def characteristic(self):
+    def characteristic(self) -&gt; int:
         return 0
 
     @property
@@ -57,11 +57,11 @@ class IntegerRing:
         return 1
 
     @property
-    def null(self):
+    def null(self) -&gt; int:
         return self.zero
 
     @property
-    def neutral(self):
+    def neutral(self) -&gt; int:
         return self.one
 
     @staticmethod
@@ -111,11 +111,11 @@ class IntegerRing:
     def __repr__(self) -&gt; str:
         return f&#39;{self.__class__.__name__}()&#39;
 
-    def polynomial(self, *args, indeterminate=&#39;X&#39;):
+    def polynomial(self, *args, indeterminate: Optional[str] = &#39;X&#39;) -&gt; Polynomial:
         coefficients = [c for c in args]
         return Polynomial(coefficients, base_field=self, indeterminate=indeterminate)
 
-    def linear_polynomial(self, e: int):
+    def linear_polynomial(self, e: int) -&gt; Polynomial:
         return self.polynomial(-e, 1)</code></pre>
 </details>
 </section>
@@ -152,7 +152,7 @@ used to define polynomials from Z[X]</p></section>
         return int(n)
 
     @property
-    def characteristic(self):
+    def characteristic(self) -&gt; int:
         return 0
 
     @property
@@ -164,11 +164,11 @@ used to define polynomials from Z[X]</p></section>
         return 1
 
     @property
-    def null(self):
+    def null(self) -&gt; int:
         return self.zero
 
     @property
-    def neutral(self):
+    def neutral(self) -&gt; int:
         return self.one
 
     @staticmethod
@@ -218,11 +218,11 @@ used to define polynomials from Z[X]</p></section>
     def __repr__(self) -&gt; str:
         return f&#39;{self.__class__.__name__}()&#39;
 
-    def polynomial(self, *args, indeterminate=&#39;X&#39;):
+    def polynomial(self, *args, indeterminate: Optional[str] = &#39;X&#39;) -&gt; Polynomial:
         coefficients = [c for c in args]
         return Polynomial(coefficients, base_field=self, indeterminate=indeterminate)
 
-    def linear_polynomial(self, e: int):
+    def linear_polynomial(self, e: int) -&gt; Polynomial:
         return self.polynomial(-e, 1)</code></pre>
 </details>
 <h3>Static methods</h3>
@@ -364,7 +364,7 @@ def pow(a: int, e: int) -&gt; int:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def characteristic(self):
+def characteristic(self) -&gt; int:
     return 0</code></pre>
 </details>
 </dd>
@@ -376,7 +376,7 @@ def characteristic(self):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def neutral(self):
+def neutral(self) -&gt; int:
     return self.one</code></pre>
 </details>
 </dd>
@@ -388,7 +388,7 @@ def neutral(self):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def null(self):
+def null(self) -&gt; int:
     return self.zero</code></pre>
 </details>
 </dd>
@@ -428,7 +428,7 @@ def zero(self) -&gt; int:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def linear_polynomial(self, e: int):
+<pre><code class="python">def linear_polynomial(self, e: int) -&gt; Polynomial:
     return self.polynomial(-e, 1)</code></pre>
 </details>
 </dd>
@@ -441,7 +441,7 @@ def zero(self) -&gt; int:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def polynomial(self, *args, indeterminate=&#39;X&#39;):
+<pre><code class="python">def polynomial(self, *args, indeterminate: Optional[str] = &#39;X&#39;) -&gt; Polynomial:
     coefficients = [c for c in args]
     return Polynomial(coefficients, base_field=self, indeterminate=indeterminate)</code></pre>
 </details>

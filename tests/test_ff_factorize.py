@@ -10,7 +10,8 @@ from pyimath.factorize import factorize
 class TestFiniteFieldFactorization(TestCase):
 
     def testFiniteFieldF4(self):
-
+        """Check full Cantor-Zassenhaus factorization over F4
+        """
         f4 = finite_field(4)
 
         p1 = f4.polynomial(1, f4(1, 1), 1)
@@ -26,7 +27,8 @@ class TestFiniteFieldFactorization(TestCase):
                 self.assertTrue(p == factorize(p).factors_product(factors) * c)
 
     def testFiniteFieldF9(self):
-
+        """Check full Cantor-Zassenhaus factorization over F9
+        """
         f9 = finite_field(9)
 
         p1 = f9.polynomial(1, f9(1, 1), 1)
@@ -43,7 +45,8 @@ class TestFiniteFieldFactorization(TestCase):
                 self.assertTrue(p == factorize(p).factors_product(factors) * c)
 
     def testFiniteFieldF8(self):
-
+        """Check full Cantor-Zassenhaus factorization over F8
+        """
         f8 = finite_field(8)
 
         p1 = f8.polynomial(1, f8(1, 1), 1)

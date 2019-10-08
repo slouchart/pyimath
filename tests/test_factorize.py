@@ -9,6 +9,8 @@ from pyimath.polynomial import symbolic_polynomial
 class TestSquareFreeFactorization(TestCase):
 
     def test1(self):
+        """Check square free factorization of an irreducible polynomial over F2
+        """
         f2 = PrimeField(2)
         p1 = f2.polynomial(1, 0, 1, 1)
 
@@ -19,6 +21,8 @@ class TestSquareFreeFactorization(TestCase):
         self.assertTrue(sqf == p1)
 
     def test2(self):
+        """Check square free factorization over F2
+        """
         f2 = PrimeField(2)
         p1 = f2.polynomial(1, 0, 1, 0, 1)
 
@@ -30,6 +34,8 @@ class TestSquareFreeFactorization(TestCase):
         self.assertTrue(factors[0].value == f2.polynomial(1, 1, 1))
 
     def test3(self):
+        """Check square free factorization of a quadratic polynomial over F2
+        """
         f2 = PrimeField(2)
         p1 = f2.polynomial(1, 1, 1, 1, 1, 1)
 
@@ -42,6 +48,8 @@ class TestSquareFreeFactorization(TestCase):
         self.assertTrue(factors[0].value ** 2 * sqf == p1)
 
     def test4(self):
+        """Check square free factorization of a cubic polynomial over F2
+        """
         f2 = PrimeField(2)
         p0 = f2.polynomial(1, 1, 1)
         p0 **= 3
@@ -55,6 +63,8 @@ class TestSquareFreeFactorization(TestCase):
         self.assertTrue(factors[0].value == f2.polynomial(1, 1, 1) and factors[0].multiplicity == 3)
 
     def test5(self):
+        """Check square free factorization over F3
+        """
         f3 = PrimeField(3)
         p0 = f3.polynomial(1, -1, 0, 0, -1, 0, 0, 1, 1)
         p1 = f3.polynomial(-1, 1, -1, -1, 1)
@@ -67,12 +77,16 @@ class TestSquareFreeFactorization(TestCase):
         self.assertTrue(sqf == p)
 
     def test6(self):
+        """Check square free factorization over F5
+        """
         f5 = PrimeField(5)
         p = f5.polynomial(-1, 2, 1, 1)
         sqf, factors = factorize(p).square_free()
         self.assertTrue(sqf == p)
 
     def test7(self):
+        """Check square free factorization of a quadratic polynomial over F2
+        """
         f5 = PrimeField(5)
         p = f5.polynomial(1, 1)**2 * f5.polynomial(2, 1)
         sqf, factors = factorize(p).square_free()
@@ -83,6 +97,8 @@ class TestSquareFreeFactorization(TestCase):
         self.assertTrue(fact.value == f5.polynomial(1, 1))
 
     def test8(self):
+        """Check square free factorization of a cubic polynomial over F3
+        """
         f3 = PrimeField(3)
         p = f3.polynomial(1, 1)**3 * f3.polynomial(-1, 1)
         sqf, factors = factorize(p).square_free()
@@ -93,6 +109,8 @@ class TestSquareFreeFactorization(TestCase):
         self.assertTrue(fact.value == f3.polynomial(1, 1))
 
     def test9(self):
+        """Check square free factorization of a polynomial of degree 9 over F3
+        """
         f3 = PrimeField(3)
         p = f3.polynomial(-1, 1)**3 * f3.polynomial(1, 1)**2 * f3.polynomial(-1, 1, 1)
         sqf, factors = factorize(p).square_free()
@@ -105,6 +123,8 @@ class TestSquareFreeFactorization(TestCase):
 
 class TestDistinctDegree(TestCase):
     def test1(self):
+        """Check distinct degree factorization over F2
+        """
         f2 = PrimeField(2)
         p0 = f2.polynomial(1, 1)
         p1 = f2.polynomial(1, 1, 1)
@@ -116,6 +136,8 @@ class TestDistinctDegree(TestCase):
         self.assertTrue(p == factors[0].value * factors[1].value)
 
     def test2(self):
+        """Check distinct degree factorization of a non square free polynomial over F2
+        """
         f2 = PrimeField(2)
         p = f2.polynomial(1, 0, 1)  # non square free
         factors = factorize(p).distinct_degree()
@@ -125,6 +147,8 @@ class TestDistinctDegree(TestCase):
         self.assertTrue(factors[0].value == factors[1].value)
 
     def test3(self):
+        """Check distinct degree factorization of a square free equal degree polynomial over F3
+        """
         f3 = PrimeField(3)
         p1 = f3.polynomial(1, 1)
         p2 = f3.polynomial(-1, 1)
@@ -134,6 +158,8 @@ class TestDistinctDegree(TestCase):
         self.assertTrue(factors[0].value == p)
 
     def test4(self):
+        """Check distinct degree factorization over F3
+        """
         f3 = PrimeField(3)
         p1 = f3.polynomial(1, 1)
         p2 = f3.polynomial(-1, 1, 1)
@@ -146,6 +172,8 @@ class TestDistinctDegree(TestCase):
         self.assertTrue(factors[0].value.degree != factors[1].value.degree)
 
     def test5(self):
+        """Check distinct degree factorization of a equal degree polynomial over F5
+        """
         f5 = PrimeField(5)
         p1 = f5.polynomial(2, 0, 1)
         p2 = f5.polynomial(1, 1, 1)
@@ -156,6 +184,8 @@ class TestDistinctDegree(TestCase):
         self.assertTrue(factors[0].value == p)
 
     def test6(self):
+        """Check distinct degree factorization over F5
+        """
         f5 = PrimeField(5)
         p1 = f5.polynomial(2, 0, 1)
         p2 = f5.polynomial(1, 1, 0, 1)
@@ -167,9 +197,11 @@ class TestDistinctDegree(TestCase):
         self.assertTrue(factors[1].max_degree == factors[1].value.degree)
 
     def test7(self):
+        """Check distinct degree factorization over F5 with:
+        - two irreducible factors of the same degree
+        - one irreducible factor of distinct degree
+        """
         f5 = PrimeField(5)
-        # two irreducible factors of the same degree
-        # one irreducible factor of distinct degree
         p1 = f5.polynomial(2, 0, 1)
         p2 = f5.polynomial(1, -1, 1)
         p3 = f5.polynomial(1, 1, 0, 1)
@@ -190,6 +222,9 @@ class TestDistinctDegree(TestCase):
 
 class TestEqualDegree(TestCase):
     def test1(self):
+        """Check equal degree factorization over F5
+        (non-deterministic, might be skipped)
+        """
         f5 = PrimeField(5)
         p = f5.polynomial(1, 1) * f5.polynomial(2, 1)
 
@@ -202,6 +237,9 @@ class TestEqualDegree(TestCase):
             self.skipTest(f'Non-deterministic factorization failed: {e}')
 
     def test2(self):
+        """Check equal degree factorization over F2
+        (non-deterministic, might be skipped)
+        """
         f2 = PrimeField(2)
         p = f2.polynomial(0, 1, 1)
 
@@ -214,6 +252,9 @@ class TestEqualDegree(TestCase):
             self.skipTest(f'Non-deterministic factorization failed: {e}')
 
     def test3(self):
+        """Check equal degree factorization over F3
+        (non-deterministic, might be skipped)
+        """
         f3 = PrimeField(3)
         p1 = f3.polynomial(-1, 1, 1)
         p2 = f3.polynomial(1, 0, 1)
@@ -228,6 +269,8 @@ class TestEqualDegree(TestCase):
             self.skipTest(f'Non-deterministic factorization failed: {e}')
 
     def test4(self):
+        """Check equal degree factorization over F3: parameter mismatch
+        """
         f3 = PrimeField(3)
         p1 = f3.polynomial(-1, 1, 1)
         p2 = f3.polynomial(1, 0, 1)
@@ -239,6 +282,8 @@ class TestEqualDegree(TestCase):
         self.assertEqual(str(a_exc.exception), f'Degree of {str(p)} mismatches input parameters 3, 2')
 
     def test5(self):
+        """Check equal degree factorization over F2: parameter mismatch
+        """
         f2 = PrimeField(2)
         p = f2.polynomial(1, 1, 1)
 
@@ -249,6 +294,8 @@ class TestEqualDegree(TestCase):
         self.assertEqual(str(a_exc.exception), 'unable to find 2 degree 1 factors for 1 + X + X^2')
 
     def test6(self):
+        """Check equal degree factorization over F2: non square free polynomial
+        """
         f2 = PrimeField(2)
         p = f2.polynomial(1, 1)
         p **= 3
@@ -260,14 +307,15 @@ class TestEqualDegree(TestCase):
         self.assertEqual(str(a_exc.exception), 'unable to find 3 degree 1 factors for 1 + X + X^2 + X^3')
 
     def test7(self):
+        """Check equal degree factorization over F3: non equal degree
+        Raises most of the time but due to the non-deterministic nature of the Cantor-Zassenhaus algorithm, it might find a factor anyway
+        """
         f3 = PrimeField(3)
         p1 = f3.polynomial(1, 1)
         p2 = f3.polynomial(1, -1, 0, 1)
 
         p = p1 * p2
-        # non equal degree
-        # raises most of the time but due to the non-deterministic nature
-        # of the Cantor-Zassenhaus algorithm, it might find a factor anyway
+
         try:
             factors = factorize(p).equal_degree(2, 2)
             self.assertTrue(len(factors) == 2)
@@ -278,6 +326,8 @@ class TestEqualDegree(TestCase):
 
 class TestFullFactorization(TestCase):
     def test1(self):
+        """Check full factorization over F3
+        """
         f3 = PrimeField(3)
 
         c0 = f3.polynomial(1, 1)  # irred deg 1
@@ -293,6 +343,8 @@ class TestFullFactorization(TestCase):
         self.assertEqual(factorize(p).factors_product(factors), p)
 
     def test2(self):
+        """Check full factorization over F5
+        """
         f5 = PrimeField(5)
         p = f5.polynomial(1, 2, 0, 2, -1, 1)
 
@@ -304,6 +356,8 @@ class TestFullFactorization(TestCase):
             self.skipTest(f'Non-deterministic factorization failed: {e}')
 
     def test3(self):
+        """Check full factorization over F2, square of degree 8
+        """
         f2 = PrimeField(2)
         p = symbolic_polynomial('1 + X^2 + X^4 + X^8', f2)
 
@@ -313,6 +367,8 @@ class TestFullFactorization(TestCase):
         self.assertTrue(factorize(p).factors_product(factors) == p)
 
     def test4(self):
+        """Check full factorization over F3, non monic
+        """
         f3 = PrimeField(3)
         p = symbolic_polynomial('-X^3 - X^2 + X + 1', f3)
 
@@ -320,6 +376,8 @@ class TestFullFactorization(TestCase):
         self.assertTrue(factorize(p).factors_product(factors) * c == p)
 
     def test5(self):
+        """Check full factorization over F7, non monic
+        """
         f7 = PrimeField(7)
         p = symbolic_polynomial('-3X^3 - 2X^2 + X + 3', f7)
 

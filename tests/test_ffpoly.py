@@ -1,7 +1,8 @@
 from unittest import TestCase
 from unittest import main as run_tests
 
-from pyimath.finitefield import FiniteField, PrimeField
+from pyimath.finitefield import FiniteField
+from pyimath.primefield import PrimeField
 from pyimath.functions import gcd
 from pyimath.polynomial import symbolic_polynomial
 from pyimath.finitefield import FFElement  # needed to test eval(repr())
@@ -10,6 +11,8 @@ from pyimath.finitefield import FFElement  # needed to test eval(repr())
 class TestStr(TestCase):
 
     def testF4Str(self):
+        """Check printable representation of a polynomial over F4
+        """
         f2 = PrimeField(2)
         p_gen = f2.polynomial(1, 1, 1)
         f4 = FiniteField(2, 2, p_gen)
@@ -21,6 +24,8 @@ class TestStr(TestCase):
         self.assertTrue(str(p) == '(1+j) + (j)X + X^2')
 
     def testF25Repr(self):
+        """Check equivalence of symbolic representation and printable representation of a polynomial over F25
+        """
         f5 = PrimeField(5)
         f25 = FiniteField(5, 2, f5.polynomial(2, 0, 1))
 
@@ -31,6 +36,8 @@ class TestStr(TestCase):
 class TestAdd(TestCase):
 
     def testF8Add(self):
+        """Check addition of polynomials over F8
+        """
         f2 = PrimeField(2)
         p = f2.polynomial(1, 1, 0, 1)
         f8 = FiniteField(2, 3, p, root_symbol='w')
@@ -43,6 +50,8 @@ class TestAdd(TestCase):
 
 class TestMul(TestCase):
     def testF9Product(self):
+        """Check product of polynomials over F9
+        """
         f3 = PrimeField(3)
         p = f3.polynomial(1, 0, 1)
         f9 = FiniteField(3, 2, p)
@@ -54,6 +63,8 @@ class TestMul(TestCase):
 
 class TestDiv(TestCase):
     def testF16Div(self):
+        """Check long division of polynomials over F16
+        """
         f2 = PrimeField(2)
         p = f2.polynomial(1, 1, 0, 0, 1)
         f16 = FiniteField(2, 4, p)
@@ -68,6 +79,8 @@ class TestDiv(TestCase):
         self.assertEqual(r, a.unit)
 
     def testF16gcd(self):
+        """Check GCD of polynomials over F16
+        """
         f2 = PrimeField(2)
         p = f2.polynomial(1, 1, 0, 0, 1)
         f16 = FiniteField(2, 4, p)

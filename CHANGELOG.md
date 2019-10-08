@@ -1,13 +1,13 @@
 # Changelog
 
-This document lists the changes (and individuals who contributed to those
-changes) for each release of python-vagrant.
+This document lists the changes (and individuals who contributed to those changes) for each release of `pyimath`.
 
 ## 0.0.5
 
 - Fixing a bug in the definition of multiplication and multiplicative inverse operations in `FiniteField` when a generator is defined
 - Removing the `polyparse` module because of cross references with `polynomial`
-- Adding a module for `annotations` and type hints definition
+- Adding the `annotations` module for type hints definition
+- Making the pre-instantiation of finite fields dynamic
 
 ## 0.0.4
 
@@ -28,4 +28,4 @@ changes) for each release of python-vagrant.
 
 ## 0.0.1
 
-Initial revision
+- Initial revision
