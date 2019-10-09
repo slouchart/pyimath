@@ -25,7 +25,7 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">from collections import namedtuple
-from typing import Collection, Tuple
+from typing import Sequence, Tuple
 
 from pyimath.polynomial import Polynomial
 from pyimath.functions import gcd
@@ -73,7 +73,7 @@ class Factorization:
         self.base_field = base_field
         self.poly = poly
 
-    def factors_product(self, factors: Collection[Factor]) -&gt; Polynomial:
+    def factors_product(self, factors: Sequence[Factor]) -&gt; Polynomial:
         &#34;&#34;&#34;
         Converts a list of factors into a polynomial
         :param factors: an iterable of `Factor`
@@ -89,7 +89,7 @@ class Factorization:
 
         return res
 
-    def square_free(self) -&gt; Tuple[Polynomial, Collection[Factor]]:
+    def square_free(self) -&gt; Tuple[Polynomial, Sequence[Factor]]:
         &#34;&#34;&#34;Square free factorization of a monic polynomial over a finite field of prime characteristic.
            Returns the square free part and a partial (or complete factorization)&#34;&#34;&#34;
 
@@ -135,7 +135,7 @@ class Factorization:
 
         return sqf, factors
 
-    def distinct_degree(self) -&gt; Collection[Factor]:
+    def distinct_degree(self) -&gt; Sequence[Factor]:
         &#34;&#34;&#34;Distinct degree factorisation of a square free monic polynomial.
         Returns a list of Factors with a multiplicity of 1 and the maximum degree of any irreducible factor&#34;&#34;&#34;
         f = self.poly.copy.make_monic()
@@ -158,7 +158,7 @@ class Factorization:
 
         return factors
 
-    def equal_degree(self, nb_factors: int, max_degree: int) -&gt; Collection[Factor]:
+    def equal_degree(self, nb_factors: int, max_degree: int) -&gt; Sequence[Factor]:
         &#34;&#34;&#34;Cantor–Zassenhaus factorization algorithm.
         Input: Over a finite field Fq of odd order q,
                p is a monic square free polynomial in Fq[x] of degree n = rd,
@@ -199,7 +199,7 @@ class Factorization:
 
         return [Factor(g, 1, 0) for g in factors]
 
-    def cantor_zassenhaus(self) -&gt; Tuple[Collection[Factor], BaseNumber]:
+    def cantor_zassenhaus(self) -&gt; Tuple[Sequence[Factor], BaseNumber]:
         &#34;&#34;&#34;Full factorisation algorithm
            input: any polynomial over a finite field
            output : a constant term and a list of factors with their multiplicity&#34;&#34;&#34;

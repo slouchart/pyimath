@@ -26,12 +26,10 @@
 </summary>
 <pre><code class="python">from random import randrange
 from functools import reduce
-from typing import Union, List, Tuple, Iterator, TypeVar, Any
+from math import gcd as __internal_gcd
+from typing import Union, List, Tuple, Iterator
 
 __all__ = [&#39;comb&#39;, &#39;bincoeff&#39;, &#39;primes&#39;, &#39;factor&#39;, &#39;gcd&#39;, &#39;reduce_to_gcd&#39;, &#39;power&#39;, &#39;maybe_prime&#39;]
-
-
-T = TypeVar(&#39;T&#39;, Any, int)
 
 
 def bincoeff(n: int, k: int = None) -&gt; Union[int, List[int]]:
@@ -93,20 +91,24 @@ def factor(n: int) -&gt; List[Tuple[int, int]]:
     return factors
 
 
-def gcd(a: T, b: T) -&gt; T:
+def gcd(a, b):
     &#34;&#34;&#34;Computes the GCD of two operands recursively.
     `a` and `b` shall be of the same type or of compatible types.
-    Mimic the behavior of `math.gcd` for zero operands.&#34;&#34;&#34;
+    Mimic the behavior of `math.gcd` for zero operands.
+    &#34;&#34;&#34;
     if a == 0:
         return b
     if b == 0:
         return a
 
-    def _gcd(g, r):
-        if r == 0:
-            return g
-        else:
-            return _gcd(r, g % r)
+    if isinstance(a, int) and isinstance(b, int):
+        _gcd = __internal_gcd
+    else:
+        def _gcd(g, r):
+            if r == 0:
+                return g
+            else:
+                return _gcd(r, g % r)
 
     return _gcd(a, b)
 
@@ -115,7 +117,6 @@ def maybe_prime(n: int, k: int = 3) -&gt; bool:
     &#34;&#34;&#34;Return `True` if `n` passes `k` rounds of the Miller-Rabin primality
     test (and is probably prime). Return `False` if `n` is proved to be
     composite.
-
     &#34;&#34;&#34;
     if n &lt; 2:
         return False
@@ -151,7 +152,7 @@ def mul_factor(factors: List[Tuple[int, int]]) -&gt; int:
     return n
 
 
-def power(a: T, n: int) -&gt; T:
+def power(a, n: int):
     &#34;&#34;&#34;Return a to the n-th power, uses exponentiation by squaring i.e square and multiply
     &#34;&#34;&#34;
     # Shortcuts are evaluated here to avoid code duplication
@@ -195,11 +196,10 @@ def primes(n_max: int = 100) -&gt; List[int]:
     return sorted(t)
 
 
-def reduce_to_gcd(it: Iterator[T]) -&gt; T:
+def reduce_to_gcd(it: Iterator):
     &#34;&#34;&#34; Computes the GCD of all the items from an iterable
     &#34;&#34;&#34;
     return reduce(gcd, it, next(it))
-
 
 
 small_primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43]</code></pre>
@@ -309,20 +309,24 @@ Mimic the behavior of <code>math.gcd</code> for zero operands.</p></section>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def gcd(a: T, b: T) -&gt; T:
+<pre><code class="python">def gcd(a, b):
     &#34;&#34;&#34;Computes the GCD of two operands recursively.
     `a` and `b` shall be of the same type or of compatible types.
-    Mimic the behavior of `math.gcd` for zero operands.&#34;&#34;&#34;
+    Mimic the behavior of `math.gcd` for zero operands.
+    &#34;&#34;&#34;
     if a == 0:
         return b
     if b == 0:
         return a
 
-    def _gcd(g, r):
-        if r == 0:
-            return g
-        else:
-            return _gcd(r, g % r)
+    if isinstance(a, int) and isinstance(b, int):
+        _gcd = __internal_gcd
+    else:
+        def _gcd(g, r):
+            if r == 0:
+                return g
+            else:
+                return _gcd(r, g % r)
 
     return _gcd(a, b)</code></pre>
 </details>
@@ -342,7 +346,6 @@ composite.</p></section>
     &#34;&#34;&#34;Return `True` if `n` passes `k` rounds of the Miller-Rabin primality
     test (and is probably prime). Return `False` if `n` is proved to be
     composite.
-
     &#34;&#34;&#34;
     if n &lt; 2:
         return False
@@ -378,7 +381,7 @@ composite.</p></section>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def power(a: T, n: int) -&gt; T:
+<pre><code class="python">def power(a, n: int):
     &#34;&#34;&#34;Return a to the n-th power, uses exponentiation by squaring i.e square and multiply
     &#34;&#34;&#34;
     # Shortcuts are evaluated here to avoid code duplication
@@ -440,7 +443,7 @@ composite.</p></section>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def reduce_to_gcd(it: Iterator[T]) -&gt; T:
+<pre><code class="python">def reduce_to_gcd(it: Iterator):
     &#34;&#34;&#34; Computes the GCD of all the items from an iterable
     &#34;&#34;&#34;
     return reduce(gcd, it, next(it))</code></pre>
