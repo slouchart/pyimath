@@ -1,4 +1,4 @@
-from unittest import TestCase, skip
+from unittest import TestCase
 from unittest import main as run_tests
 
 from pyimath.factorize import factorize
@@ -308,7 +308,8 @@ class TestEqualDegree(TestCase):
 
     def test7(self):
         """Check equal degree factorization over F3: non equal degree
-        Raises most of the time but due to the non-deterministic nature of the Cantor-Zassenhaus algorithm, it might find a factor anyway
+        Raises most of the time but due to the non-deterministic nature of the Cantor-Zassenhaus algorithm,
+        it might find a factor anyway
         """
         f3 = PrimeField(3)
         p1 = f3.polynomial(1, 1)

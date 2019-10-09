@@ -83,7 +83,7 @@ class TestGaussInt(TestCase):
         fg = self.fg
         n = fg(4, 2)
         d = fg(2, 2)
-        q, r = divmod(n, d)
+        q, r = GaussianIntegerRing().divmod(n, d)
 
         self.assertTrue(q == fg(2, -1) == n // d)
         self.assertTrue(r == fg(-2, 0) == n % d)

@@ -1,7 +1,7 @@
 from random import randrange
 from functools import reduce
 from math import gcd as __internal_gcd
-from typing import Union, List, Tuple, Iterator, TypeVar, Any
+from typing import Union, List, Tuple, Iterator
 
 __all__ = ['comb', 'bincoeff', 'primes', 'factor', 'gcd', 'reduce_to_gcd', 'power', 'maybe_prime']
 
@@ -174,7 +174,6 @@ def reduce_to_gcd(it: Iterator):
     """ Computes the GCD of all the items from an iterable
     """
     return reduce(gcd, it, next(it))
-
 
 
 small_primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43]

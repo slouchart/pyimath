@@ -1,11 +1,10 @@
 from unittest import TestCase
 from unittest import main as run_tests
 
-from pyimath.finitefield import FiniteField
+from pyimath.finitefield import FiniteField, FFElement
 from pyimath.primefield import PrimeField
 from pyimath.functions import gcd
 from pyimath.polynomial import symbolic_polynomial
-from pyimath.finitefield import FFElement  # needed to test eval(repr())
 
 
 class TestStr(TestCase):
@@ -44,6 +43,8 @@ class TestAdd(TestCase):
 
         a = symbolic_polynomial('1 + X + (1+w^2)X^3', f8)
         b = symbolic_polynomial('(1+w)X^2 + X^3', f8)
+
+        self.assertEqual(b.trailing, FFElement(f8, (1, 1, 0)))
 
         self.assertTrue(a+b == f8.polynomial(1, 1, f8(1, 1, 0), f8(0, 0, 1)))
 

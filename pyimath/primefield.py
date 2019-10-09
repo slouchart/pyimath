@@ -504,5 +504,3 @@ class PFElement:
 
     def __truediv__(self, other: Any) -> 'PFElement':
         return self.__floordiv__(other)
-
-

@@ -2,8 +2,7 @@ from unittest import TestCase
 from unittest import main as run_tests
 
 
-from pyimath.finitefield import FiniteField, finite_field
-from pyimath.primefield import PrimeField
+from pyimath.finitefield import finite_field
 from pyimath.factorize import factorize
 
 

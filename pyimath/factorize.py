@@ -1,5 +1,5 @@
 from collections import namedtuple
-from typing import Collection, Tuple
+from typing import Sequence, Tuple
 
 from pyimath.polynomial import Polynomial
 from pyimath.functions import gcd
@@ -47,7 +47,7 @@ class Factorization:
         self.base_field = base_field
         self.poly = poly
 
-    def factors_product(self, factors: Collection[Factor]) -> Polynomial:
+    def factors_product(self, factors: Sequence[Factor]) -> Polynomial:
         """
         Converts a list of factors into a polynomial
         :param factors: an iterable of `Factor`
@@ -63,7 +63,7 @@ class Factorization:
 
         return res
 
-    def square_free(self) -> Tuple[Polynomial, Collection[Factor]]:
+    def square_free(self) -> Tuple[Polynomial, Sequence[Factor]]:
         """Square free factorization of a monic polynomial over a finite field of prime characteristic.
            Returns the square free part and a partial (or complete factorization)"""
 
@@ -109,7 +109,7 @@ class Factorization:
 
         return sqf, factors
 
-    def distinct_degree(self) -> Collection[Factor]:
+    def distinct_degree(self) -> Sequence[Factor]:
         """Distinct degree factorisation of a square free monic polynomial.
         Returns a list of Factors with a multiplicity of 1 and the maximum degree of any irreducible factor"""
         f = self.poly.copy.make_monic()
@@ -132,7 +132,7 @@ class Factorization:
 
         return factors
 
-    def equal_degree(self, nb_factors: int, max_degree: int) -> Collection[Factor]:
+    def equal_degree(self, nb_factors: int, max_degree: int) -> Sequence[Factor]:
         """Cantor–Zassenhaus factorization algorithm.
         Input: Over a finite field Fq of odd order q,
                p is a monic square free polynomial in Fq[x] of degree n = rd,
@@ -173,7 +173,7 @@ class Factorization:
 
         return [Factor(g, 1, 0) for g in factors]
 
-    def cantor_zassenhaus(self) -> Tuple[Collection[Factor], BaseNumber]:
+    def cantor_zassenhaus(self) -> Tuple[Sequence[Factor], BaseNumber]:
         """Full factorisation algorithm
            input: any polynomial over a finite field
            output : a constant term and a list of factors with their multiplicity"""
