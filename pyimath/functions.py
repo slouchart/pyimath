@@ -1,11 +1,26 @@
 from random import randrange
-from typing import Union, List, Tuple
+from functools import reduce
+from math import gcd as __internal_gcd
+from typing import Union, List, Tuple, Iterator, TypeVar, Any
 
-__all__ = ['comb', 'bincoeff', 'primes', 'factor', 'gcd', 'rgcd', 'power', 'maybe_prime']
+__all__ = ['comb', 'bincoeff', 'primes', 'factor', 'gcd', 'reduce_to_gcd', 'power', 'maybe_prime']
+
+
+def bincoeff(n: int, k: int = None) -> Union[int, List[int]]:
+    """Computes the binomial coefficients of (1 + x)^n or returns the k-th coefficient
+    """
+    if k is not None:
+        return comb(n, k)
+    else:
+        result = []
+        for i in range(0, n + 1):
+            result.append(comb(n, i))
+        return result
 
 
 def comb(n: int, k: int) -> int:
-    """Defines C(n, k) as the number of ways to pick k items among n"""
+    """Defines C(n, k) as the number of ways to pick k items among n
+    """
     if k > n:
         raise ValueError
 
@@ -18,33 +33,9 @@ def comb(n: int, k: int) -> int:
     return int(result)
 
 
-def bincoeff(n: int, k: int = None) -> Union[int, List[int]]:
-    """Computes the binomial coefficients of (1 + x)^n or returns the k-th coefficient"""
-    if k is not None:
-        return comb(n, k)
-    else:
-        result = []
-        for i in range(0, n + 1):
-            result.append(comb(n, i))
-        return result
-
-
-def primes(n_max: int = 100) -> List[int]:
-    """Eratosthene's sieve"""
-    if n_max < 2:
-        raise ValueError
-
-    t = list(range(2, n_max + 1))
-    for i in t:
-        for j in (k for k in t if k > i):
-            if j % i == 0:
-                t.remove(j)
-
-    return sorted(t)
-
-
 def factor(n: int) -> List[Tuple[int, int]]:
-    """Computes the prime factorization of an integer the hard way"""
+    """Computes the prime factorization of an integer the hard way
+    """
     if n <= 1:
         raise ValueError
 
@@ -74,22 +65,32 @@ def factor(n: int) -> List[Tuple[int, int]]:
     return factors
 
 
-def mul_factor(factors: List[Tuple[int, int]]) -> int:
-    """Computes an integer whose prime factorization is given"""
-    n = 1
-    for f in factors:
-        n *= f[0] ** f[1]
-    return n
+def gcd(a, b):
+    """Computes the GCD of two operands recursively.
+    `a` and `b` shall be of the same type or of compatible types.
+    Mimic the behavior of `math.gcd` for zero operands.
+    """
+    if a == 0:
+        return b
+    if b == 0:
+        return a
+
+    if isinstance(a, int) and isinstance(b, int):
+        _gcd = __internal_gcd
+    else:
+        def _gcd(g, r):
+            if r == 0:
+                return g
+            else:
+                return _gcd(r, g % r)
+
+    return _gcd(a, b)
 
 
-small_primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43]
-
-
-def maybe_prime(n, k=3):
-    """Return True if n passes k rounds of the Miller-Rabin primality
-    test (and is probably prime). Return False if n is proved to be
+def maybe_prime(n: int, k: int = 3) -> bool:
+    """Return `True` if `n` passes `k` rounds of the Miller-Rabin primality
+    test (and is probably prime). Return `False` if `n` is proved to be
     composite.
-
     """
     if n < 2:
         return False
@@ -116,63 +117,64 @@ def maybe_prime(n, k=3):
     return True
 
 
-def gcd(a, b):
-    """ Computes the GCD of two operands recursively
-    a and b shall be of the same type or of compatible types"""
-    if a == 0 or b == 0:
-        raise ValueError('gcd(a, b) is only defined for a and b non zero operands')
-
-    def _gcd(g, r):
-        if r == 0:
-            return g
-        else:
-            return _gcd(r, g % r)
-
-    return _gcd(a, b)
-
-
-def rgcd(it):
-    """ Computes the GCD of all the items from an iterable
-    :param it: an iterable containing elements of GCD-able type
-    :return: their GCD
+def mul_factor(factors: List[Tuple[int, int]]) -> int:
+    """Computes an integer whose prime factorization is given
     """
-    itor = iter(it)
-    a = next(itor)
-    while True:
-        try:
-            a = gcd(a, next(itor))
-        except StopIteration:
-            break
-    return a
+    n = 1
+    for f in factors:
+        n *= f[0] ** f[1]
+    return n
 
 
-def power(a, e: int):
-    """ Exponentiation by squaring i.e square and multiply
-    :param a: a number to exponentiate (can be a polynomial)
-    :param e: the exponent
-    :return: the result of a^e
+def power(a, n: int):
+    """Return a to the n-th power, uses exponentiation by squaring i.e square and multiply
     """
     # Shortcuts are evaluated here to avoid code duplication
 
     if a == 0:
-        if e > 0:
+        if n > 0:
             return 0  # 0^n = 0 for n > 0
 
-    if e == 0:
+    if n == 0:
         return 1  # a^0 = 1 (0^0 = 1 is a convention in number theory)
 
-    if e == 1:
+    if n == 1:
         return a  # a^1 = a
 
     if a == 1:
         return a  # 1^n = 1, n integer
 
-    def sqr_mul(x, n):
-        if n == 1:
+    def sqr_mul(x, e):
+        if e == 1:
             return x
-        elif n % 2 == 0:
-            return sqr_mul(x * x, n // 2)
-        elif n % 2 != 0 and n > 2:
-            return x * sqr_mul(x * x, (n - 1) // 2)
+        elif e % 2 == 0:
+            return sqr_mul(x * x, e // 2)
+        elif e % 2 != 0 and e > 2:
+            return x * sqr_mul(x * x, (e - 1) // 2)
 
-    return sqr_mul(a, e)
+    return sqr_mul(a, n)
+
+
+def primes(n_max: int = 100) -> List[int]:
+    """Implements the Eratosthene's sieve
+    """
+    if n_max < 2:
+        raise ValueError
+
+    t = list(range(2, n_max + 1))
+    for i in t:
+        for j in (k for k in t if k > i):
+            if j % i == 0:
+                t.remove(j)
+
+    return sorted(t)
+
+
+def reduce_to_gcd(it: Iterator):
+    """ Computes the GCD of all the items from an iterable
+    """
+    return reduce(gcd, it, next(it))
+
+
+
+small_primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43]

@@ -10,47 +10,31 @@ __all__ = ['GaussianIntegerRing', 'GaussInt']
 
 
 class GaussianIntegerRing:
+    """Set of numbers of the form `x + i*y` where `i^2 = -1`. Also defined as `Z[X]/<X^2+1>`
+    """
     def __init__(self):
         self.root_symbol = 'i'
         self.base_polynomial = Polynomial([1, 0, 1], IntegerRing())  # X2 + 1 irreducible over Z
 
-    @property
-    def characteristic(self) -> int:
-        return 0
-
-    @staticmethod
-    def element(*args) -> 'GaussInt':
-        return GaussInt(*args)
-
-    @property
-    def zero(self) -> 'GaussInt':
-        return GaussInt(0, 0)
-
-    @property
-    def one(self) -> 'GaussInt':
-        return GaussInt(1, 0)
-
-    @property
-    def null(self) -> 'GaussInt':
-        return self.zero
-
-    @property
-    def neutral(self) -> 'GaussInt':
-        return self.one
-
     def add(self, a: 'GaussInt', b: 'GaussInt') -> 'GaussInt':
+        """Returns the sum of two gaussian integers
+        """
         return self(a.x + b.x, a.y + b.y)
 
     def additive_inverse(self, a: 'GaussInt') -> 'GaussInt':
+        """Returns the additive inverse of a gaussian integer
+        """
         return self(-a.x, -a.y)
 
-    def mul(self, a: 'GaussInt', b: 'GaussInt') -> 'GaussInt':
-        return self(a.x * b.x - a.y * b.y, a.x * b.y + a.y * b.x)
-
-    def ext_mul(self, n: int, a: 'GaussInt') -> 'GaussInt':
-        return self.mul(self(n, 0), a)
+    @property
+    def characteristic(self) -> int:
+        """Returns the ring characteristic which is always zero.
+        """
+        return 0
 
     def divmod(self, a: 'GaussInt', b: 'GaussInt') -> Tuple['GaussInt', 'GaussInt']:
+        """Returns the quotient and the remainder of the euclidean division of two gaussian integers
+        """
         p_a = Polynomial([a.x, a.y], IntegerRing())
         p_b = Polynomial([b.x, b.y], IntegerRing())
         q, r = p_a.long_division_reversed(p_b)
@@ -60,43 +44,15 @@ class GaussianIntegerRing:
 
         return self.element_from_polynomial(q), self.element_from_polynomial(r)
 
-    def floor_div(self, a: 'GaussInt', b: 'GaussInt') -> 'GaussInt':
-        q, _ = self.divmod(a, b)
-        return q
-
-    def mod(self, a: 'GaussInt', b: 'GaussInt') -> 'GaussInt':
-        _, r = self.divmod(a, b)
-        return r
-
     @staticmethod
-    def pow(a: 'GaussInt', e: int) -> 'GaussInt':
-        return power(a, e)
-
-    def __call__(self, *args) -> 'GaussInt':
-        return self.element(*args)
-
-    def __iter__(self) -> Iterator:
-        raise ValueError('Infinite sets are not iterable')
-
-    def __str__(self) -> str:
-        return "Field of Gauss's integers"
-
-    def __repr__(self) -> str:
-        return f'{self.__class__.__name__}()'
-
-    def format_element(self, e: 'GaussInt') -> str:
-        return str(self.polynomial_from_element(e))
-
-    def polynomial(self, coefficients: Sequence, indeterminate='z') -> Polynomial:
-        return Polynomial(coefficients, self, indeterminate)
-
-    def linear_polynomial(self, e: 'GaussInt') -> Polynomial:
-        return self.polynomial([e, self.one])
-
-    def polynomial_from_element(self, e: 'GaussInt') -> Polynomial:
-        return Polynomial([e.x, e.y], IntegerRing(), indeterminate=self.root_symbol)
+    def element(*args) -> 'GaussInt':
+        """Returns a gaussian integer from a tuple of integers
+        """
+        return GaussInt(*args)
 
     def element_from_polynomial(self, p: Polynomial) -> 'GaussInt':
+        """Returns the element `(a, b)` from the linear integer polynomial `a + bZ`
+        """
         assert p.base_field == IntegerRing()
         assert p.degree < 2
         if p.degree == 0:
@@ -104,31 +60,133 @@ class GaussianIntegerRing:
         else:
             return self(*tuple(p.coefficients))
 
+    def ext_mul(self, n: int, a: 'GaussInt') -> 'GaussInt':
+        """Returns the product of a gaussian integer and a regular integer
+        """
+        return self.mul(self(n, 0), a)
+
+    def floor_div(self, a: 'GaussInt', b: 'GaussInt') -> 'GaussInt':
+        """Returns the quotient of the euclidean division of two gaussian integers
+        """
+        q, _ = self.divmod(a, b)
+        return q
+
+    def format_element(self, e: 'GaussInt') -> str:
+        """Returns a printable representation of a gaussian integer
+        """
+        return str(self.polynomial_from_element(e))
+
+    def linear_polynomial(self, e: 'GaussInt') -> Polynomial:
+        """Returns the polynomial `X - e`
+        """
+        return self.polynomial([e, self.one])
+
+    def mod(self, a: 'GaussInt', b: 'GaussInt') -> 'GaussInt':
+        """Returns the remainder of the division of two gaussian integers
+        """
+        _, r = self.divmod(a, b)
+        return r
+
+    def mul(self, a: 'GaussInt', b: 'GaussInt') -> 'GaussInt':
+        """Returns the product of two gaussian integers
+        """
+        return self(a.x * b.x - a.y * b.y, a.x * b.y + a.y * b.x)
+
+    @property
+    def neutral(self) -> 'GaussInt':
+        """Same as `self.one`
+        """
+        return self.one
+
+    @property
+    def null(self) -> 'GaussInt':
+        """Same as `self.zero`
+        """
+        return self.zero
+
+    def polynomial(self, coefficients: Sequence, indeterminate='z') -> Polynomial:
+        """Returns a polynomial from its coefficients
+        """
+        return Polynomial(coefficients, self, indeterminate)
+
+    def polynomial_from_element(self, e: 'GaussInt') -> Polynomial:
+        """Returns the polynomial `yZ + x` from the element `'(x, y)`
+         """
+        return Polynomial([e.x, e.y], IntegerRing(), indeterminate=self.root_symbol)
+
+    @property
+    def one(self) -> 'GaussInt':
+        """Returns the multiplicative neutral
+        """
+        return GaussInt(1, 0)
+
     def parse(self, expr: str) -> 'GaussInt':
+        """Returns a gaussian integer from its symbolic expression
+        """
         p = symbolic_polynomial(expr, IntegerRing(), indeterminate=self.root_symbol)
         if p.degree > 1:
             raise ValueError(f'{expr} is not a valid gaussian integer')
         return self(p[0], p[1])
+
+    @staticmethod
+    def pow(a: 'GaussInt', n: int) -> 'GaussInt':
+        """Returns the n-th power of a gaussian integer
+        """
+        return power(a, n)
+
+    @property
+    def zero(self) -> 'GaussInt':
+        """Returns the additive neutral
+        """
+        return GaussInt(0, 0)
+
+    def __call__(self, *args) -> 'GaussInt':
+        """Returns a gausian integer from its arguments. Syntactic sugar for `self.element`
+        """
+        return self.element(*args)
+
+    def __iter__(self) -> Iterator:
+        """Kept for interface purposes
+        """
+        raise ValueError('Infinite sets are not iterable')
+
+    def __repr__(self) -> str:
+        """Returns an evaluable representation of the ring of gaussian integers
+        """
+        return f'{self.__class__.__name__}()'
+
+    def __str__(self) -> str:
+        """Returns a printable representation of the ring of gaussian integer
+        """
+        return "Field of Gauss's integers"
 
 
 CompatibleType = Union[int, Tuple[int, int]]
 
 
 class GaussInt:
+    """Represents a Gaussian Integer
+    """
     def __init__(self, x: int = 0, y: int = 0):
         self.vector = [x, y]
         self.ring = GaussianIntegerRing()
 
     @property
     def x(self) -> int:
+        """Return the integer component of a gaussian integer
+        """
         return self.vector[0]
 
     @property
     def y(self) -> int:
+        """Returns the complex component of a gaussian integer
+        """
         return self.vector[1]
 
     @property
     def conjugate(self) -> 'GaussInt':
+        """Returns the complex conjugate of a gaussian integer
+        """
         return self.ring(self.x, -self.y)
 
     def __add__(self, other: Union['GaussInt', CompatibleType]) -> 'GaussInt':

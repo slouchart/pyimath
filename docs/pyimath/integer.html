@@ -25,6 +25,7 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">from typing import Tuple, Iterator, Optional
+import operator
 
 from pyimath.polynomial import Polynomial
 
@@ -33,90 +34,90 @@ __all__ = [&#39;IntegerRing&#39;]
 
 class IntegerRing:
     &#34;&#34;&#34;
-    Mimic a Field as defined in primefield or finitefield modules
-    used to define polynomials from Z[X]
+    Mimic a Field as defined in `primefield` or `finitefield` modules
+    used to define polynomials from `Z[X]`
     &#34;&#34;&#34;
 
     def __init__(self):
         ...
 
     @staticmethod
-    def element(n: int) -&gt; int:
-        return int(n)
+    def add(a: int, b: int) -&gt; int:
+        return operator.add(a, b)
+
+    @staticmethod
+    def additive_inverse(a: int) -&gt; int:
+        return operator.neg(a)
 
     @property
     def characteristic(self) -&gt; int:
         return 0
 
-    @property
-    def zero(self) -&gt; int:
-        return 0
-
-    @property
-    def one(self) -&gt; int:
-        return 1
-
-    @property
-    def null(self) -&gt; int:
-        return self.zero
-
-    @property
-    def neutral(self) -&gt; int:
-        return self.one
-
     @staticmethod
-    def add(a: int, b: int) -&gt; int:
-        return a + b
-
-    @staticmethod
-    def additive_inverse(a: int) -&gt; int:
-        return -a
-
-    @staticmethod
-    def mul(a: int, b: int) -&gt; int:
-        return a * b
+    def element(n: int) -&gt; int:
+        return int(n)
 
     @staticmethod
     def ext_mul(n: int, a: int) -&gt; int:
-        return n * a
-
-    @staticmethod
-    def floor_div(a: int, b: int) -&gt; int:
-        return a // b
-
-    @staticmethod
-    def mod(a: int, b: int) -&gt; int:
-        return a % b
+        return operator.mul(n, a)
 
     @staticmethod
     def divmod(a: int, b: int) -&gt; Tuple[int, int]:
         return divmod(a, b)
 
     @staticmethod
-    def pow(a: int, e: int) -&gt; int:
-        return a ** e
+    def floor_div(a: int, b: int) -&gt; int:
+        return operator.floordiv(a, b)
 
-    def __eq__(self, other: &#39;IntegerRing&#39;) -&gt; bool:
-        return isinstance(other, self.__class__)
+    def linear_polynomial(self, e: int) -&gt; Polynomial:
+        return self.polynomial(-e, 1)
 
-    def __call__(self, n: int) -&gt; int:
-        return self.element(n)
+    @staticmethod
+    def mod(a: int, b: int) -&gt; int:
+        return operator.mod(a, b)
 
-    def __iter__(self) -&gt; Iterator:
-        raise NotImplementedError(&#34;Iteration over infinite number sets is undefined&#34;)
+    @staticmethod
+    def mul(a: int, b: int) -&gt; int:
+        return operator.mul(a, b)
 
-    def __str__(self) -&gt; str:
-        return f&#39;Ring of integers&#39;
+    @property
+    def neutral(self) -&gt; int:
+        return self.one
 
-    def __repr__(self) -&gt; str:
-        return f&#39;{self.__class__.__name__}()&#39;
+    @property
+    def null(self) -&gt; int:
+        return self.zero
+
+    @property
+    def one(self) -&gt; int:
+        return 1
 
     def polynomial(self, *args, indeterminate: Optional[str] = &#39;X&#39;) -&gt; Polynomial:
         coefficients = [c for c in args]
         return Polynomial(coefficients, base_field=self, indeterminate=indeterminate)
 
-    def linear_polynomial(self, e: int) -&gt; Polynomial:
-        return self.polynomial(-e, 1)</code></pre>
+    @staticmethod
+    def pow(a: int, e: int) -&gt; int:
+        return a ** e
+
+    @property
+    def zero(self) -&gt; int:
+        return 0
+
+    def __call__(self, n: int) -&gt; int:
+        return self.element(n)
+
+    def __eq__(self, other: &#39;IntegerRing&#39;) -&gt; bool:
+        return isinstance(other, self.__class__)
+
+    def __iter__(self) -&gt; Iterator:
+        raise NotImplementedError(&#34;Iteration over infinite number sets is undefined&#34;)
+
+    def __repr__(self) -&gt; str:
+        return f&#39;{self.__class__.__name__}()&#39;
+
+    def __str__(self) -&gt; str:
+        return f&#39;Ring of integers&#39;</code></pre>
 </details>
 </section>
 <section>
@@ -132,98 +133,98 @@ class IntegerRing:
 <span>class <span class="ident">IntegerRing</span></span>
 </code></dt>
 <dd>
-<section class="desc"><p>Mimic a Field as defined in primefield or finitefield modules
-used to define polynomials from Z[X]</p></section>
+<section class="desc"><p>Mimic a Field as defined in <code>primefield</code> or <code>finitefield</code> modules
+used to define polynomials from <code>Z[X]</code></p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class IntegerRing:
     &#34;&#34;&#34;
-    Mimic a Field as defined in primefield or finitefield modules
-    used to define polynomials from Z[X]
+    Mimic a Field as defined in `primefield` or `finitefield` modules
+    used to define polynomials from `Z[X]`
     &#34;&#34;&#34;
 
     def __init__(self):
         ...
 
     @staticmethod
-    def element(n: int) -&gt; int:
-        return int(n)
+    def add(a: int, b: int) -&gt; int:
+        return operator.add(a, b)
+
+    @staticmethod
+    def additive_inverse(a: int) -&gt; int:
+        return operator.neg(a)
 
     @property
     def characteristic(self) -&gt; int:
         return 0
 
-    @property
-    def zero(self) -&gt; int:
-        return 0
-
-    @property
-    def one(self) -&gt; int:
-        return 1
-
-    @property
-    def null(self) -&gt; int:
-        return self.zero
-
-    @property
-    def neutral(self) -&gt; int:
-        return self.one
-
     @staticmethod
-    def add(a: int, b: int) -&gt; int:
-        return a + b
-
-    @staticmethod
-    def additive_inverse(a: int) -&gt; int:
-        return -a
-
-    @staticmethod
-    def mul(a: int, b: int) -&gt; int:
-        return a * b
+    def element(n: int) -&gt; int:
+        return int(n)
 
     @staticmethod
     def ext_mul(n: int, a: int) -&gt; int:
-        return n * a
-
-    @staticmethod
-    def floor_div(a: int, b: int) -&gt; int:
-        return a // b
-
-    @staticmethod
-    def mod(a: int, b: int) -&gt; int:
-        return a % b
+        return operator.mul(n, a)
 
     @staticmethod
     def divmod(a: int, b: int) -&gt; Tuple[int, int]:
         return divmod(a, b)
 
     @staticmethod
-    def pow(a: int, e: int) -&gt; int:
-        return a ** e
+    def floor_div(a: int, b: int) -&gt; int:
+        return operator.floordiv(a, b)
 
-    def __eq__(self, other: &#39;IntegerRing&#39;) -&gt; bool:
-        return isinstance(other, self.__class__)
+    def linear_polynomial(self, e: int) -&gt; Polynomial:
+        return self.polynomial(-e, 1)
 
-    def __call__(self, n: int) -&gt; int:
-        return self.element(n)
+    @staticmethod
+    def mod(a: int, b: int) -&gt; int:
+        return operator.mod(a, b)
 
-    def __iter__(self) -&gt; Iterator:
-        raise NotImplementedError(&#34;Iteration over infinite number sets is undefined&#34;)
+    @staticmethod
+    def mul(a: int, b: int) -&gt; int:
+        return operator.mul(a, b)
 
-    def __str__(self) -&gt; str:
-        return f&#39;Ring of integers&#39;
+    @property
+    def neutral(self) -&gt; int:
+        return self.one
 
-    def __repr__(self) -&gt; str:
-        return f&#39;{self.__class__.__name__}()&#39;
+    @property
+    def null(self) -&gt; int:
+        return self.zero
+
+    @property
+    def one(self) -&gt; int:
+        return 1
 
     def polynomial(self, *args, indeterminate: Optional[str] = &#39;X&#39;) -&gt; Polynomial:
         coefficients = [c for c in args]
         return Polynomial(coefficients, base_field=self, indeterminate=indeterminate)
 
-    def linear_polynomial(self, e: int) -&gt; Polynomial:
-        return self.polynomial(-e, 1)</code></pre>
+    @staticmethod
+    def pow(a: int, e: int) -&gt; int:
+        return a ** e
+
+    @property
+    def zero(self) -&gt; int:
+        return 0
+
+    def __call__(self, n: int) -&gt; int:
+        return self.element(n)
+
+    def __eq__(self, other: &#39;IntegerRing&#39;) -&gt; bool:
+        return isinstance(other, self.__class__)
+
+    def __iter__(self) -&gt; Iterator:
+        raise NotImplementedError(&#34;Iteration over infinite number sets is undefined&#34;)
+
+    def __repr__(self) -&gt; str:
+        return f&#39;{self.__class__.__name__}()&#39;
+
+    def __str__(self) -&gt; str:
+        return f&#39;Ring of integers&#39;</code></pre>
 </details>
 <h3>Static methods</h3>
 <dl>
@@ -238,7 +239,7 @@ used to define polynomials from Z[X]</p></section>
 </summary>
 <pre><code class="python">@staticmethod
 def add(a: int, b: int) -&gt; int:
-    return a + b</code></pre>
+    return operator.add(a, b)</code></pre>
 </details>
 </dd>
 <dt id="pyimath.integer.IntegerRing.additive_inverse"><code class="name flex">
@@ -252,7 +253,7 @@ def add(a: int, b: int) -&gt; int:
 </summary>
 <pre><code class="python">@staticmethod
 def additive_inverse(a: int) -&gt; int:
-    return -a</code></pre>
+    return operator.neg(a)</code></pre>
 </details>
 </dd>
 <dt id="pyimath.integer.IntegerRing.divmod"><code class="name flex">
@@ -294,7 +295,7 @@ def element(n: int) -&gt; int:
 </summary>
 <pre><code class="python">@staticmethod
 def ext_mul(n: int, a: int) -&gt; int:
-    return n * a</code></pre>
+    return operator.mul(n, a)</code></pre>
 </details>
 </dd>
 <dt id="pyimath.integer.IntegerRing.floor_div"><code class="name flex">
@@ -308,7 +309,7 @@ def ext_mul(n: int, a: int) -&gt; int:
 </summary>
 <pre><code class="python">@staticmethod
 def floor_div(a: int, b: int) -&gt; int:
-    return a // b</code></pre>
+    return operator.floordiv(a, b)</code></pre>
 </details>
 </dd>
 <dt id="pyimath.integer.IntegerRing.mod"><code class="name flex">
@@ -322,7 +323,7 @@ def floor_div(a: int, b: int) -&gt; int:
 </summary>
 <pre><code class="python">@staticmethod
 def mod(a: int, b: int) -&gt; int:
-    return a % b</code></pre>
+    return operator.mod(a, b)</code></pre>
 </details>
 </dd>
 <dt id="pyimath.integer.IntegerRing.mul"><code class="name flex">
@@ -336,7 +337,7 @@ def mod(a: int, b: int) -&gt; int:
 </summary>
 <pre><code class="python">@staticmethod
 def mul(a: int, b: int) -&gt; int:
-    return a * b</code></pre>
+    return operator.mul(a, b)</code></pre>
 </details>
 </dd>
 <dt id="pyimath.integer.IntegerRing.pow"><code class="name flex">

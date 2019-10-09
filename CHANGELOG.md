@@ -5,9 +5,11 @@ This document lists the changes (and individuals who contributed to those change
 ## 0.0.5
 
 - Fixing a bug in the definition of multiplication and multiplicative inverse operations in `FiniteField` when a generator is defined
-- Removing the `polyparse` module because of cross references with `polynomial`
+- Removal of the `polyparse` module because of cross references with `polynomial`
 - Adding the `annotations` module for type hints definition
 - Making the pre-instantiation of finite fields dynamic
+- Removal of several unused magic methods
+- Code beautification
 
 ## 0.0.4
 

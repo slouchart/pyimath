@@ -14,142 +14,71 @@ __all__ = ['PrimeField', 'PFElement']
 
 
 class PrimeField:
-    """Prime field definition of characteristic P
-       The representation of the field elements are not integer modulo P
-       but rather relative integers in the range -(P-1)/2..(P-1)/2"""
+    """Prime field definition of characteristic P.
+
+       The field elements are not represented by integer modulo P
+       but rather relative integers in the range `-(P-1)/2..(P-1)/2`
+       """
     def __init__(self, prime: int):
         self.characteristic = prime
-        self.additive_group = self.additive_group_representation(prime)
-        self.multiplicative_group = self.multiplicative_group_representation(self.additive_group)
+        self.additive_group = self._additive_group_representation(prime)
+        self.multiplicative_group = self._multiplicative_group_representation(self.additive_group)
+
+    def add(self, a: 'PFElement', b: 'PFElement') -> 'PFElement':
+        """Returns the sum of two elements
+        """
+        return self(self._pf_add(a.value, b.value, self.additive_group))
+
+    def additive_inverse(self, a: 'PFElement') -> 'PFElement':
+        """Returns the additive inverse of an element
+        """
+        return self(self._pf_additive_inverse(a.value, self.additive_group))
+
+    def div(self, a: 'PFElement', b: 'PFElement') -> 'PFElement':
+        """Returns the quotient of two elements
+        """
+        return self(self._pf_div(a.value, b.value, self.multiplicative_group))
+
+    def divmod(self, a: 'PFElement', b: 'PFElement') -> Tuple['PFElement', 'PFElement']:
+        """Kept for interface purposes. Always returns `(a / b, self.zero)`
+        """
+        return self.div(a, b), self.mod(a, b)
 
     def element(self, n: Any) -> 'PFElement':
-        """Casts an integer into an element of the field"""
+        """Casts an integer into an element of the field
+        """
         if not int(n) in self.additive_group:
             raise ValueError(f'{n} does not belong to the additive group of {self}')
         return PFElement(self, int(n))
 
-    @property
-    def zero(self) -> 'PFElement':
-        """returns the neutral of the additive group"""
-        return self(0)
-
-    @property
-    def null(self) -> 'PFElement':
-        """Same as self.zero"""
-        return self.zero
-
-    @property
-    def one(self) -> 'PFElement':
-        """returns the neutral of the multiplicative group"""
-        return self(1)
-
-    @property
-    def neutral(self) -> 'PFElement':
-        """Same as self.one"""
-        return self.one
-
-    def add(self, a: 'PFElement', b: 'PFElement') -> 'PFElement':
-        """Addition in the field"""
-        return self(self._pf_add(a.value, b.value, self.additive_group))
-
-    def additive_inverse(self, a: 'PFElement') -> 'PFElement':
-        """Returns -a """
-        return self(self._pf_additive_inverse(a.value, self.additive_group))
-
-    def mul(self, a: 'PFElement', b: 'PFElement') -> 'PFElement':
-        """Multiplication in the field"""
-        return self(self._pf_mul(a.value, b.value, self.multiplicative_group))
-
     def ext_mul(self, n: int, a: 'PFElement') -> 'PFElement':
-        """Multiplication of a by integer n <=> a+...+a n times"""
+        """Returns the n-th iterated sum of an element
+        i.e  `a + ... + a, n times`"""
         return self(self._pf_ext_mul(n, a.value, self.additive_group))
 
-    def multiplicative_inverse(self, a: 'PFElement') -> 'PFElement':
-        """Returns 1/a"""
-        return self(self._pf_multiplicative_inverse(a.value, self.multiplicative_group))
-
     def floor_div(self, a: 'PFElement', b: 'PFElement') -> 'PFElement':
+        """Same as `self.div`
+        """
         return self.div(a, b)
 
-    def mod(self, *_) -> 'PFElement':
-        return self.zero
-
-    def divmod(self, a: 'PFElement', b: 'PFElement') -> Tuple['PFElement', 'PFElement']:
-        return self.div(a, b), self.mod(a, b)
-
-    def div(self, a: 'PFElement', b: 'PFElement') -> 'PFElement':
-        """Exact division in the field"""
-        return self(self._pf_div(a.value, b.value, self.multiplicative_group))
-
-    def pow(self, a: 'PFElement', e: int) -> 'PFElement':
-        """Returns a**e using rapid exponentiation"""
-        res = power(a, e)
-        if not isinstance(res, PFElement):
-            return self(res)
-        else:
-            return res
-
-    def __eq__(self, other: 'PrimeField') -> bool:
-        assert isinstance(other, self.__class__)
-        return other.characteristic == self.characteristic
-
-    def __call__(self, n: int) -> 'PFElement':
-        """Syntactic sugar for self.element(e)"""
-        return self.element(n)
-
-    def __iter__(self) -> Iterator['PFElement']:
-        """Allows iteration over all the elements"""
-        return (self(n) for n in self.additive_group)
-
-    def __contains__(self, item: Union['PFElement', int]) -> bool:
-        if isinstance(item, PFElement):
-            assert item.field == self
-            return True
-        elif isinstance(item, int):
-            return self(item) in self.additive_group
-        else:
-            return False
-
-    def __str__(self) -> str:
-        return f'Prime field of characteristic {self.characteristic}'
-
-    def __repr__(self) -> str:
-        return f'{self.__class__.__name__}({self.characteristic})'
-
-    def rand_element(self) -> 'PFElement':
-        """Returns an element of the field at random"""
-        return random.choice(list(iter(self)))
-
-    def polynomial(self, *args, indeterminate: str = 'X') -> Polynomial:
-        """Polynomial factory"""
-        return Polynomial([self.element(c) for c in args], base_field=self, indeterminate=indeterminate)
-
-    def random_polynomial(self, degree: int) -> Polynomial:
-        """Returns a random polynomial of a given degree"""
-        p = self.polynomial(*[self.rand_element() for _ in range(0, degree)])
-        p += p.monic(degree)
-        return p
-
-    def linear_polynomial(self, e: 'PFElement') -> Polynomial:
-        """Returns the polynomial X + (-e)"""
-        poly = self.polynomial(-e)
-        poly += poly.monic(1)
-        return poly
+    def frobenius_reciprocal(self, a: 'PFElement') -> 'PFElement':
+        """Returns the Frobenius reciprocal of an element. As a remainder, the Frobenius automorphism is `a -> a^q`
+        where `q` is the characteristic of the field. In prime fields, it is the identity
+        """
+        assert a in self
+        return a
 
     def generate_irreducible_polynomial(self, degree: int, max_retries: int = 15) -> Polynomial:
-        """
-        Returns an irreducible polynomial over the base field.
-        This algorithm is not deterministic and may raise exceptions
-        :param degree: the degree of the irreducible polynomial
-        :param max_retries: the maximum number of attempts
-        :return: an irreducible polynomial of a given degree
+        """Returns an irreducible polynomial of a given degree over the base field. This algorithm is not deterministic
+        and may raise exceptions. `degree` is the degree of the irreducible polynomial and `max_retries` sets
+        the maximum number of attempts
         """
         max_retries = max(degree // 2, max_retries)
         tries = 0
         retries = 0
         while retries <= max_retries:
             while tries <= degree:
-                coefficients = [self.rand_element() for _ in range(degree)]
+                coefficients = [self.random_element() for _ in range(degree)]
                 p = self.polynomial(coefficients)
                 p += p.monic(degree)
 
@@ -160,20 +89,116 @@ class PrimeField:
         err_msg = f'Could not find an irreducible polynomial of degree {degree} over {self} in {tries*retries} attempts'
         raise RuntimeError(err_msg)
 
-    def frobenius_reciprocal(self, a: 'PFElement') -> 'PFElement':
-        """Returns the Frobenius reciprocal of a. As a remainder, the Frobenius automorphism is:
-        a -> a^q where q is the characteristic of the field. In prime fields, it is the identity"""
-        assert a in self
-        return a
+    def linear_polynomial(self, e: 'PFElement') -> Polynomial:
+        """Returns the polynomial `X + (-e)`
+        """
+        poly = self.polynomial(-e)
+        poly += poly.monic(1)
+        return poly
+
+    def mul(self, a: 'PFElement', b: 'PFElement') -> 'PFElement':
+        """Returns the product of two elements
+        """
+        return self(self._pf_mul(a.value, b.value, self.multiplicative_group))
+
+    def multiplicative_inverse(self, a: 'PFElement') -> 'PFElement':
+        """Returns the multiplicative inverse of an element
+        """
+        return self(self._pf_multiplicative_inverse(a.value, self.multiplicative_group))
+
+    def mod(self, *_) -> 'PFElement':
+        """Kept for interface purposes. Always return `self.zero`
+        """
+        return self.zero
+
+    @property
+    def neutral(self) -> 'PFElement':
+        """Same as `self.one`
+        """
+        return self.one
+
+    @property
+    def null(self) -> 'PFElement':
+        """Same as `self.zero`
+        """
+        return self.zero
+
+    @property
+    def one(self) -> 'PFElement':
+        """Returns the neutral of the multiplicative group
+        """
+        return self(1)
 
     def parse_poly(self, expr: str) -> Polynomial:
-        """Returns a polynomial from its symbolic expression"""
+        """Returns a polynomial from its symbolic expression
+        """
         return symbolic_polynomial(expr, self)
+
+    def polynomial(self, *args, indeterminate: str = 'X') -> Polynomial:
+        """Returns a polynomial from the arguments
+        """
+        return Polynomial([self.element(c) for c in args], base_field=self, indeterminate=indeterminate)
+
+    def pow(self, a: 'PFElement', n: int) -> 'PFElement':
+        """Return the n-th power of an element
+        """
+        res = power(a, n)
+        if not isinstance(res, PFElement):
+            return self.element(res)
+        else:
+            return res
+
+    def random_element(self) -> 'PFElement':
+        """Returns an element of the field at random
+        """
+        return random.choice(list(iter(self)))
+
+    def random_polynomial(self, degree: int) -> Polynomial:
+        """Returns a random polynomial of a given degree
+        """
+        p = self.polynomial(*[self.random_element() for _ in range(0, degree)])
+        p += p.monic(degree)
+        return p
+
+    @property
+    def zero(self) -> 'PFElement':
+        """Returns the neutral of the additive group
+        """
+        return self(0)
+
+    def __call__(self, n: int) -> 'PFElement':
+        """Syntactic sugar for self.element(e)
+        """
+        return self.element(n)
+
+    def __contains__(self, item: Union['PFElement', int]) -> bool:
+        if isinstance(item, PFElement):
+            assert item.field == self
+            return True
+        elif isinstance(item, int):
+            return self(item) in self.additive_group
+        else:
+            return False
+
+    def __eq__(self, other: 'PrimeField') -> bool:
+        assert isinstance(other, self.__class__)
+        return other.characteristic == self.characteristic
+
+    def __iter__(self) -> Iterator['PFElement']:
+        """Allows iteration over all the elements
+        """
+        return (self(n) for n in self.additive_group)
+
+    def __repr__(self) -> str:
+        return f'{self.__class__.__name__}({self.characteristic})'
+
+    def __str__(self) -> str:
+        return f'Prime field of characteristic {self.characteristic}'
 
     """LOW LEVEL FIELD OPERATIONS"""
 
     @staticmethod
-    def additive_group_representation(p: int) -> AdditiveGroup:
+    def _additive_group_representation(p: int) -> AdditiveGroup:
         assert p >= 2  # indeed, p must be a prime
         assert maybe_prime(p, 3)
         res = [0, 1]
@@ -228,7 +253,7 @@ class PrimeField:
             return -n
 
     @staticmethod
-    def multiplicative_group_representation(gr: AdditiveGroup) -> MultiplicativeGroup:
+    def _multiplicative_group_representation(gr: AdditiveGroup) -> MultiplicativeGroup:
         def uni_deg_one_poly(elt):
             return [elt - 1]
 
@@ -338,18 +363,27 @@ class PrimeField:
 
 
 class PFElement:
-    """Generic class that duck-types an integer
-       Represents a single element from a prime field"""
+    """Represents a single element from a prime field by, basically, duck-typing an integer
+    """
     def __init__(self, field: PrimeField, n: int):
         self.field = field
         self.value = n
         assert self.value in self.field.additive_group, f'{self.value} is not a field element'
 
-    def __pos__(self) -> 'PFElement':
-        return self.field(self.value)
+    @property
+    def is_one(self) -> bool:
+        """Return `True` if the element is the multiplicative neutral of its field, `False` otherwise
+        """
+        return self.field.one == self
 
-    def __neg__(self) -> 'PFElement':
-        return self.field.additive_inverse(self)
+    @property
+    def is_zero(self) -> bool:
+        """Returns `True` if the element is the additive neutral of its field, `False` otherwise
+        """
+        return self.field.zero == self
+
+    def __abs__(self) -> 'PFElement':
+        return self.field(abs(self.value))
 
     def __add__(self, other: Any) -> 'PFElement':
         if isinstance(other, self.__class__):
@@ -359,41 +393,8 @@ class PFElement:
         else:
             return operator.add(other, self)
 
-    def __radd__(self, other: Any) -> 'PFElement':
-        return self.__add__(other)
-
-    def __iadd__(self, other: Any) -> 'PFElement':
-        self.value = int(self.__add__(other))
-        return self
-
-    def __sub__(self, other: Any) -> 'PFElement':
-        return self.__add__(-other)
-
-    def __rsub__(self, other: Any) -> 'PFElement':
-        if isinstance(other, int):
-            other = self.field(other)
-        return self.field.add(other, -self)
-
-    def __isub__(self, other: Any) -> 'PFElement':
-        if isinstance(other, int):
-            other = self.field(other)
-        self.value = int(self - other)
-        return self
-
-    def __mul__(self, other: Any) -> 'PFElement':
-        if isinstance(other, self.__class__):
-            return self.field.mul(self, other)
-        elif isinstance(other, (int, float)):
-            return self.field.ext_mul(other, self)
-        else:
-            return operator.mul(other, self)
-
-    def __rmul__(self, other: Any) -> 'PFElement':
-        return self.__mul__(other)
-
-    def __imul__(self, other: Any) -> 'PFElement':
-        self.value = int(self.__mul__(other))
-        return self
+    def __divmod__(self, other: Any) -> Tuple['PFElement', 'PFElement']:
+        return self.__truediv__(other), self.field.zero
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, self.__class__):
@@ -403,25 +404,89 @@ class PFElement:
         else:
             return other == self
 
-    def __lt__(self, other: Any) -> bool:
-        return int(self.value) < int(other)
-
-    def __gt__(self, other: Any) -> bool:
-        return int(self.value) > int(other)
-
-    def __int__(self) -> int:
-        return self.value
-
-    def __pow__(self, e: int, modulo=None) -> 'PFElement':
-        return self.field.pow(self, e)
-
     def __floordiv__(self, other: Any) -> 'PFElement':
         if isinstance(other, int):
             other = self.field(other)
         return self.field.div(self, other)
 
-    def __truediv__(self, other: Any) -> 'PFElement':
-        return self.__floordiv__(other)
+    def __format__(self, format_spec: str = '') -> str:
+        try:
+            return format(int(self.value), format_spec)
+        except ValueError:
+            # invalid format specifier
+            return format(int(self.value))
+
+    def __gt__(self, other: Any) -> bool:
+        return int(self.value) > int(other)
+
+    def __hash__(self) -> int:
+        return self.value
+
+    def __iadd__(self, other: Any) -> 'PFElement':
+        self.value = int(self.__add__(other))
+        return self
+
+    def __ifloordiv__(self, other: Any) -> 'PFElement':
+        if isinstance(other, int):
+            other = self.field(other)
+        self.value = int(self // other)
+        return self
+
+    def __int__(self) -> int:
+        return self.value
+
+    def __invert__(self) -> 'PFElement':
+        return self.field.frobenius_reciprocal(self)
+
+    def __isub__(self, other: Any) -> 'PFElement':
+        if isinstance(other, int):
+            other = self.field(other)
+        self.value = int(self - other)
+        return self
+
+    def __itruediv__(self, other: Any) -> 'PFElement':
+        return self.__ifloordiv__(other)
+
+    def __imul__(self, other: Any) -> 'PFElement':
+        self.value = int(self.__mul__(other))
+        return self
+
+    def __lt__(self, other: Any) -> bool:
+        return int(self.value) < int(other)
+
+    def __mod__(self, other: Any) -> 'PFElement':
+        return self.field.zero  # element of a field always has a mult. inv.
+
+    def __mul__(self, other: Any) -> 'PFElement':
+        if isinstance(other, self.__class__):
+            return self.field.mul(self, other)
+        elif isinstance(other, (int, float)):
+            return self.field.ext_mul(other, self)
+        else:
+            return operator.mul(other, self)
+
+    def __neg__(self) -> 'PFElement':
+        return self.field.additive_inverse(self)
+
+    def __pos__(self) -> 'PFElement':
+        return self.field(self.value)
+
+    def __pow__(self, e: int, modulo=None) -> 'PFElement':
+        return self.field.pow(self, e)
+
+    def __radd__(self, other: Any) -> 'PFElement':
+        return self.__add__(other)
+
+    def __repr__(self) -> str:
+        return repr(int(self))
+
+    def __rmul__(self, other: Any) -> 'PFElement':
+        return self.__mul__(other)
+
+    def __rsub__(self, other: Any) -> 'PFElement':
+        if isinstance(other, int):
+            other = self.field(other)
+        return self.field.add(other, -self)
 
     def __rfloordiv__(self, other: Any) -> 'PFElement':
         if isinstance(other, int):
@@ -431,47 +496,13 @@ class PFElement:
     def __rtruediv__(self, other: Any) -> 'PFElement':
         return self.__rfloordiv__(other)
 
-    def __ifloordiv__(self, other: Any) -> 'PFElement':
-        if isinstance(other, int):
-            other = self.field(other)
-        self.value = int(self // other)
-        return self
-
-    def __itruediv__(self, other: Any) -> 'PFElement':
-        return self.__ifloordiv__(other)
-
-    def __mod__(self, other: Any) -> 'PFElement':
-        return self.field.zero  # element of a field always has a mult. inv.
-
-    def __divmod__(self, other: Any) -> Tuple['PFElement', 'PFElement']:
-        return self.__truediv__(other), self.field.zero
-
-    def __repr__(self) -> str:
-        return repr(int(self))
-
     def __str__(self) -> str:
         return str(int(self))
 
-    def __format__(self, format_spec: str = '') -> str:
-        try:
-            return format(int(self.value), format_spec)
-        except ValueError:
-            # invalid format specifier
-            return format(int(self.value))
+    def __sub__(self, other: Any) -> 'PFElement':
+        return self.__add__(-other)
 
-    def __abs__(self) -> 'PFElement':
-        return self.field(abs(self.value))
+    def __truediv__(self, other: Any) -> 'PFElement':
+        return self.__floordiv__(other)
 
-    def __hash__(self) -> int:
-        return self.value
 
-    @property
-    def is_zero(self) -> bool:
-        return self.field.zero == self
-
-    @property
-    def is_one(self) -> bool:
-        return self.field.one == self
-
-    def __invert__(self) -> 'PFElement':
-        return self.field.frobenius_reciprocal(self)

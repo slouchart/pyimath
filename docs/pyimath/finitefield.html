@@ -43,23 +43,23 @@ Vector = Union[List[BaseAtom], MutableSequence[BaseAtom], Sequence[BaseAtom], Co
 
 
 class FiniteField:
-    &#34;&#34;&#34;Represents a non-prime finite field&#34;&#34;&#34;
+    &#34;&#34;&#34;Represents a non-prime finite field
+    &#34;&#34;&#34;
     def __init__(self,
                  prime: int,
                  dimension: int,
-                 poly: Polynomial,
+                 ideal: Polynomial,
                  generator: Optional[Sequence[int]] = None,
                  root_symbol: Optional[str] = &#39;j&#39;):
-        &#34;&#34;&#34;
-        :param prime: the order of the prime field Fprime
-        :param dimension: the dimension of the finite field seen as a vector space over its prime field
-        :param poly: the minimal polynomial of the adjunct root j, must be irreducible over Fprime
-        :param generator: an element of the field that generates the multiplicative group (tuple of int)
-        :param root_symbol: for formatting elements
+        &#34;&#34;&#34;`prime` is the order of the base prime field
+        `dimension` is the dimension of the finite field seen as a vector space over its prime field
+        `ideal` is the minimal polynomial of the adjunct root j, must be irreducible over the prime field
+        `generator` must be an element of the field that generates the multiplicative group
+        `root_symbol` a one-character string to represent the adjunct root
         &#34;&#34;&#34;
         self._prime_field = PrimeField(prime)
         self.dimension = dimension
-        self.base_polynomial = poly
+        self.base_polynomial = ideal
         self.generator = generator
         self.root_symbol = root_symbol
 
@@ -80,18 +80,72 @@ class FiniteField:
 
         self._frobenius_map = self._compute_frobenius_map()
 
-    def _compute_frobenius_map(self) -&gt; MutableSequence[&#39;FFElement&#39;]:
-        &#34;&#34;&#34;The Frobenius automorphisme is defined by a -&gt; a^p where p is the prime field characteristic
-        This methods computes the inverse map of the automorphisme&#34;&#34;&#34;
-        p_th_roots = []
-        for b in self.basis:
-            for e in self:
-                if e ** self.characteristic == b:
-                    p_th_roots.append(e)
-        return p_th_roots
+    def add(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Adds two elements
+        &#34;&#34;&#34;
+        assert a.field == b.field == self
+        s = [self.prime_field.zero] * self.dimension
+        for i in range(0, self.dimension):
+            s[i] = a[i] + b[i]
+        return self.element(s)
+
+    def additive_inverse(self, a: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns the additive inverse of an element
+        &#34;&#34;&#34;
+        return self.element([-e for e in a.vector])
+
+    @property
+    def basis(self) -&gt; Iterator[&#39;FFElement&#39;]:
+        &#34;&#34;&#34;Returns the basis of field elements for the field seen as a vector space
+        &#34;&#34;&#34;
+        return (self(0, 1) ** e for e in range(0, self.dimension))
+
+    @property
+    def characteristic(self) -&gt; int:
+        &#34;&#34;&#34;Returns the characteristic of the field
+        &#34;&#34;&#34;
+        return self._prime_field.characteristic
+
+    def check_irreducible_polynomial(self, p: Polynomial) -&gt; bool:
+        &#34;&#34;&#34;Returns `True` if the polynomial is irreducible, `False` otherwise
+        &#34;&#34;&#34;
+        assert p.base_field == self
+        return p.is_irreducible
+
+    def div(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns the true division of two elements
+        &#34;&#34;&#34;
+        if b.null:
+            raise ZeroDivisionError
+        if a.null:
+            return self.zero
+
+        return a * self.multiplicative_inverse(b)
+
+    def divmod(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; Tuple[&#39;FFElement&#39;, &#39;FFElement&#39;]:
+        &#34;&#34;&#34;Kept for interface purpose, returns always `(a / b, self.zero)`
+        &#34;&#34;&#34;
+        return self.div(a, b), self.mod(a, b)
+
+    def element(self, v: Union[Vector, &#39;FFElement&#39;]) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns an instance of a `FFElement` from a vector
+        &#34;&#34;&#34;
+        return FFElement(self, self._safe_convert_vector(v))
+
+    def element_from_polynomial(self, p: Polynomial) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Return an element whose basis components are the coefficients of a given polynomial over the field
+        e.g. The polynomial `1 + X + X^2` would yield `(1+j+j^2)`
+        &#34;&#34;&#34;
+        assert p.base_field == self.prime_field
+        assert p.degree &lt;= self.dimension - 1
+        v = p.coefficients
+        if p.degree &lt; self.dimension - 1:
+            v += [self.prime_field.zero] * (self.dimension - (1 + p.degree))
+        return self.element(v)
 
     def element_order(self, e: &#39;FFElement&#39;) -&gt; int:
-        &#34;&#34;&#34;Returns the order of an element, that is the minimal integer k such as e^k = 1&#34;&#34;&#34;
+        &#34;&#34;&#34;Returns the order of an element, that is the minimal integer k such as e^k = 1
+        &#34;&#34;&#34;
         if self.has_valid_generator:
             return self.generator_powers[e]
         else:
@@ -103,156 +157,100 @@ class FiniteField:
                 order += 1
             return order
 
+    def ext_mul(self, n: int, a: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns the n-th iterated addition of an element with itself
+        &#34;&#34;&#34;
+        assert a.field == self
+        r = self.zero
+        for _ in range(0, n):
+            r += a
+        return r
+
+    def find_generator(self, set_generator=False) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns a valid generator of the multiplicative group of the field
+        &#34;&#34;&#34;
+        if self.has_valid_generator:
+            g = self.generator
+        elif maybe_prime(self.order - 1):
+            # if the order of the multiplicative group is prime, any element but 1 and -1 is a generator
+            p = self.base_polynomial.monic(self.dimension - 1)
+            p += self.base_polynomial.monic(0)
+            g = self.element_from_polynomial(p)
+        else:
+            # find it the hard way
+            g = None
+            for elt in iter(self):
+                if elt != self.one and elt != self.zero:
+                    o = self.element_order(elt)
+                    if o == self.order - 1:
+                        g = elt
+                        break
+            if g is None:
+                raise ValueError(f&#39;Unable to find a generator for {self}. Please check the field definition&#39;)
+        if not self.has_valid_generator and set_generator:
+            self.generator = g
+            self._check_generator_order()
+        return g
+
+    def format_element(self, e: &#39;FFElement&#39;, format_spec: str = &#39;&#39;) -&gt; str:
+        &#34;&#34;&#34;Returns a printable representation of an element
+        &#34;&#34;&#34;
+        if format_spec == &#39;short&#39;:
+            s = &#39;&#39;
+            if e.is_scalar:
+                s = str(e.vector[0])
+            else:
+                for c in str(self.polynomial_from_element(e)):
+                    if c != &#39; &#39;:
+                        s += c
+                return f&#39;({s})&#39;
+        else:
+            s = str(self.polynomial_from_element(e))
+        return s
+
     @property
     def frobenius_map(self) -&gt; MutableSequence[&#39;FFElement&#39;]:
-        &#34;&#34;&#34;It&#39;s actually the linear map of the inverse function of Frobenius automorphism (see MISCELLANEOUS.md)&#34;&#34;&#34;
+        &#34;&#34;&#34;Returns what is actually the linear map of the inverse function of Frobenius automorphism (see MISCELLANEOUS.md)
+        &#34;&#34;&#34;
         return self._frobenius_map[:]
 
-    def _check_generator_order(self):
-        &#34;&#34;&#34;computes the powers of the wanna-be generator and checks
-        if the results form the multiplicative group. This method can be
-        computer-intensive for large finite fields&#34;&#34;&#34;
-        expected_order = self.order - 1  # the order of the multiplicative group
-        order = 1
-        g = self.generator
-        powers = dict()
-        powers[order] = g
+    def frobenius_reciprocal(self, a: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns the bijective inverse of an element through the Frobenius automorphism. This is
+        equivalent of taking the p-th root of an element where p is the field characteristic
+        &#34;&#34;&#34;
+        assert isinstance(a, FFElement)
+        assert a in self
+        r = self.zero
+        for i, e in enumerate(a.vector):
+            b = self._frobenius_map[i]
+            r += self(e) * b
+        return r
 
-        while g != self.one and order &lt;= expected_order:
-            g *= self.generator
-            order += 1
-            powers[order] = g
-
-        if order != expected_order:
-            raise ValueError(f&#39;Element {self.generator} is not a generator for {self}&#39;)
-        else:
-            self.generator_powers = powers
-
-        if self.has_valid_generator:
-            for (o, e) in self.generator_powers.items():
-                if e != self.zero:
-                    self.element_as_powers[e] = o  # reverse map
+    def linear_polynomial(self, e: &#39;FFElement&#39;) -&gt; Polynomial:
+        &#34;&#34;&#34;Returns the polynomial `X - e`
+        &#34;&#34;&#34;
+        p = self.polynomial(-e)
+        p += p.monic(1)
+        return p
 
     @property
     def has_valid_generator(self) -&gt; bool:
+        &#34;&#34;&#34;Returns True if the field was set with a valid generator i.e. an element whose order is equal
+        to the order of the field
+        &#34;&#34;&#34;
         return len(self.generator_powers) &gt; 0 and self.generator is not None
 
-    @property
-    def prime_field(self) -&gt; PrimeField:
-        return self._prime_field
-
-    @property
-    def basis(self) -&gt; Iterator[&#39;FFElement&#39;]:
-        return (self(0, 1) ** e for e in range(0, self.dimension))
-
-    def _compute_root_powers(self):
-        p = self.base_polynomial
-        f = self.prime_field
-        pr = p - p.monic(p.degree)
-        p_neutral = f.polynomial(f.one)
-        r = -pr
-        e = self.dimension
-        self.root_powers[e] = r
-        while r != p_neutral and e &lt; self.order - 1:
-            r *= r.monic(1)
-            e += 1
-            if r.degree == p.degree:
-                r -= p.monic(p.degree)
-                r += -pr
-            self.root_powers[e] = r
-
-    def _safe_convert_vector(self, v: Vector) -&gt; List[PFElement]:
-
-        if isinstance(v, FFElement):
-            assert v.field == self
-            o = v.vector[:]
-        else:
-            o = []
-            if not isinstance(v, (list, tuple)):
-                v = [v]
-
-            for c in v:
-                if isinstance(c, int):
-                    o.append(self.prime_field(c))
-                else:
-                    assert isinstance(c, PFElement)
-                    o.append(c)
-
-            for _ in range(self.dimension - len(v)):
-                o.append(self.prime_field.zero)
-
-        return o
-
-    @property
-    def order(self) -&gt; int:
+    def mod(self, _, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Kept for interface purpose, returns always `self.zero`
         &#34;&#34;&#34;
-        :return: The order of the field
-        &#34;&#34;&#34;
-        return self.prime_field.characteristic ** self.dimension
+        if b.null:
+            raise ZeroDivisionError
 
-    def element(self, v: Union[Vector, &#39;FFElement&#39;]) -&gt; &#39;FFElement&#39;:
-        return FFElement(self, self._safe_convert_vector(v))
-
-    @property
-    def zero(self) -&gt; &#39;FFElement&#39;:
-        return self.element([self.prime_field.zero] * self.dimension)
-
-    @property
-    def one(self) -&gt; &#39;FFElement&#39;:
-        return self.element([self.prime_field.one] + [self.prime_field.zero] * (self.dimension - 1))
-
-    @property
-    def characteristic(self) -&gt; int:
-        return self._prime_field.characteristic
-
-    @property
-    def null(self) -&gt; &#39;FFElement&#39;:
         return self.zero
 
-    @property
-    def neutral(self) -&gt; &#39;FFElement&#39;:
-        return self.one
-
-    def __call__(self, *args) -&gt; &#39;FFElement&#39;:
-        return self.element([self.prime_field(c) for c in args])
-
-    def __eq__(self, other: &#39;FiniteField&#39;) -&gt; bool:
-        assert isinstance(other, self.__class__)
-        return other.prime_field == self.prime_field and other.dimension == self.dimension
-
-    def __iter__(self) -&gt; Iterator[&#39;FFElement&#39;]:
-        &#34;&#34;&#34;
-        Iterates over all the elements
-        :return: an iterator
-        &#34;&#34;&#34;
-        iterables = [self.prime_field] * self.dimension
-        return iter((self.element(list(v)) for v in cartesian_product(*iterables)))
-
-    def __str__(self) -&gt; str:
-        return f&#39;Finite field of order {self.prime_field.characteristic}^{self.dimension}&#39;
-
-    def __repr__(self) -&gt; str:
-        s = f&#39;{self.__class__.__name__}(&#39;
-        s += f&#39;{self.prime_field.characteristic}, &#39;
-        s += f&#39;{self.dimension}, &#39;
-        s += f&#39;{repr(self.base_polynomial)}, &#39;
-        if self.has_valid_generator:
-            s += f&#39; generator={repr(self.generator.vector)})&#39;
-        else:
-            s += &#39;)&#39;
-        return s
-
-    def add(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
-        assert a.field == b.field == self
-        s = [self.prime_field.zero] * self.dimension
-        for i in range(0, self.dimension):
-            s[i] = a[i] + b[i]
-        return self.element(s)
-
-    def additive_inverse(self, a: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
-        return self.element([-e for e in a.vector])
-
     def mul(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns the product of two elements
+        &#34;&#34;&#34;
         assert a.field == b.field == self
 
         if self.has_valid_generator:
@@ -276,24 +274,9 @@ class FiniteField:
 
             return self.element_from_polynomial(p)
 
-    def ext_mul(self, n: int, a: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
-        assert a.field == self
-        r = self.zero
-        for _ in range(0, n):
-            r += a
-        return r
-
-    def pow(self, a: &#39;FFElement&#39;, e: int) -&gt; &#39;FFElement&#39;:
-        assert a.field == self
-        assert e &gt;= 0
-        res = power(a, e)
-        if not isinstance(res, FFElement):
-            return self(res)
-        else:
-            return res
-
     def multiplicative_inverse(self, a: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
-
+        &#34;&#34;&#34;Returns the multiplicative inverse of an element
+        &#34;&#34;&#34;
         if self.has_valid_generator:
             p = self.element_as_powers[a]
             if self.order - 1 - p == 0:
@@ -322,42 +305,26 @@ class FiniteField:
             # Either p is not irreducible over the base_field or p_a is a multiple of p
             return self.element_from_polynomial((neutral / r) * t)
 
-    def div(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
-        if b.null:
-            raise ZeroDivisionError
-        if a.null:
-            return self.zero
+    @property
+    def neutral(self) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Same as `self.one`, returns the multiplicative neutral element of the field
+        &#34;&#34;&#34;
+        return self.one
 
-        return a * self.multiplicative_inverse(b)
-
-    def floor_div(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
-        return self.div(a, b)
-
-    def mod(self, _, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
-        if b.null:
-            raise ZeroDivisionError
-
+    @property
+    def null(self) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Same as `self.zero`, returns the additive neutral element of the field
+        &#34;&#34;&#34;
         return self.zero
 
-    def divmod(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; Tuple[&#39;FFElement&#39;, &#39;FFElement&#39;]:
-        return self.div(a, b), self.mod(a, b)
-
-    def format_element(self, e: &#39;FFElement&#39;, format_spec: str = &#39;&#39;) -&gt; str:
-
-        if format_spec == &#39;short&#39;:
-            s = &#39;&#39;
-            if e.is_scalar:
-                s = str(e.vector[0])
-            else:
-                for c in str(self.polynomial_from_element(e)):
-                    if c != &#39; &#39;:
-                        s += c
-                return f&#39;({s})&#39;
-        else:
-            s = str(self.polynomial_from_element(e))
-        return s
+    def parse_poly(self, expr: str) -&gt; Polynomial:
+        &#34;&#34;&#34;Returns a polynomial from its symbolic expression
+        &#34;&#34;&#34;
+        return symbolic_polynomial(expr, self)
 
     def polynomial(self, *args, indeterminate: Optional[str] = &#39;X&#39;) -&gt; Polynomial:
+        &#34;&#34;&#34;Returns a polynomial from a list of coefficients. The coefficients are converted to `FFElement`
+        &#34;&#34;&#34;
         coefficients = []
         for c in args:
             if isinstance(c, (tuple, list)):
@@ -371,68 +338,167 @@ class FiniteField:
 
         return Polynomial(coefficients, base_field=self, indeterminate=indeterminate)
 
-    def linear_polynomial(self, e: &#39;FFElement&#39;) -&gt; Polynomial:
-        p = self.polynomial(-e)
-        p += p.monic(1)
-        return p
-
-    def check_irreducible_polynomial(self, p: Polynomial) -&gt; bool:
-        assert p.base_field == self
-        return p.is_irreducible
-
-    def frobenius_reciprocal(self, a: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
-
-        assert isinstance(a, FFElement)
-        assert a in self
-        r = self.zero
-        for i, e in enumerate(a.vector):
-            b = self._frobenius_map[i]
-            r += self(e) * b
-        return r
-
     def polynomial_from_element(self, e: &#39;FFElement&#39;) -&gt; Polynomial:
+        &#34;&#34;&#34;Returns a polynomial whose coefficients are those of the element
+        e.g. `(1+j+j^2)` would yield `1 + X + X^2`
+        &#34;&#34;&#34;
         return Polynomial(e.vector, self.prime_field, indeterminate=self.root_symbol)
 
-    def element_from_polynomial(self, p: Polynomial) -&gt; &#39;FFElement&#39;:
-        assert p.base_field == self.prime_field
-        assert p.degree &lt;= self.dimension - 1
-        v = p.coefficients
-        if p.degree &lt; self.dimension - 1:
-            v += [self.prime_field.zero] * (self.dimension - (1 + p.degree))
-        return self.element(v)
+    @property
+    def one(self) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns the multiplicative neutral element of the field
+        &#34;&#34;&#34;
+        return self.element([self.prime_field.one] + [self.prime_field.zero] * (self.dimension - 1))
 
-    def find_generator(self, set_generator=False) -&gt; &#39;FFElement&#39;:
+    @property
+    def order(self) -&gt; int:
+        &#34;&#34;&#34;Returns the order of the field
+        &#34;&#34;&#34;
+        return self.prime_field.characteristic ** self.dimension
+
+    def pow(self, a: &#39;FFElement&#39;, n: int) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns the n-th power of an element
+        &#34;&#34;&#34;
+        assert a.field == self
+        assert n &gt;= 0
+        res = power(a, n)
+        if not isinstance(res, FFElement):
+            return self(res)
+        else:
+            return res
+
+    @property
+    def prime_field(self) -&gt; PrimeField:
+        &#34;&#34;&#34;Returns the instance of the base prime field
+        &#34;&#34;&#34;
+        return self._prime_field
+
+    @property
+    def zero(self) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns the additive neutral element of the field
+        &#34;&#34;&#34;
+        return self.element([self.prime_field.zero] * self.dimension)
+
+    def __call__(self, *args) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Creates an element from a list of arguments, syntactic sugar for `self.element()`
+        &#34;&#34;&#34;
+        return self.element([self.prime_field(c) for c in args])
+
+    def __eq__(self, other: &#39;FiniteField&#39;) -&gt; bool:
+        &#34;&#34;&#34;Compares two finite fields
+        &#34;&#34;&#34;
+        assert isinstance(other, self.__class__)
+        return other.prime_field == self.prime_field and other.dimension == self.dimension
+
+    def __iter__(self) -&gt; Iterator[&#39;FFElement&#39;]:
+        &#34;&#34;&#34;Iterates over all the elements
+        &#34;&#34;&#34;
+        iterables = [self.prime_field] * self.dimension
+        return iter((self.element(list(v)) for v in cartesian_product(*iterables)))
+
+    def __repr__(self) -&gt; str:
+        &#34;&#34;&#34;Returns an evaluable representation of the field
+        &#34;&#34;&#34;
+        s = f&#39;{self.__class__.__name__}(&#39;
+        s += f&#39;{self.prime_field.characteristic}, &#39;
+        s += f&#39;{self.dimension}, &#39;
+        s += f&#39;{repr(self.base_polynomial)}, &#39;
+        if self.has_valid_generator:
+            s += f&#39; generator={repr(self.generator.vector)})&#39;
+        else:
+            s += &#39;)&#39;
+        return s
+
+    def __str__(self) -&gt; str:
+        &#34;&#34;&#34;Returns a printable representation of the finite field
+        &#34;&#34;&#34;
+        return f&#39;Finite field of order {self.prime_field.characteristic}^{self.dimension}&#39;
+
+    def _check_generator_order(self):
+        &#34;&#34;&#34;Computes the powers of the wanna-be generator and checks
+        if the results form the multiplicative group. This method can be
+        computer-intensive for large finite fields
+        &#34;&#34;&#34;
+        expected_order = self.order - 1  # the order of the multiplicative group
+        order = 1
+        g = self.generator
+        powers = dict()
+        powers[order] = g
+
+        while g != self.one and order &lt;= expected_order:
+            g *= self.generator
+            order += 1
+            powers[order] = g
+
+        if order != expected_order:
+            raise ValueError(f&#39;Element {self.generator} is not a generator for {self}&#39;)
+        else:
+            self.generator_powers = powers
 
         if self.has_valid_generator:
-            g = self.generator
-        elif maybe_prime(self.order - 1):
-            # if the order of the multiplicative group is prime, any element but 1 and -1 is a generator
-            p = self.base_polynomial.monic(self.dimension - 1)
-            p += self.base_polynomial.monic(0)
-            g = self.element_from_polynomial(p)
-        else:
-            # find it the hard way
-            g = None
-            for elt in iter(self):
-                if elt != self.one and elt != self.zero:
-                    o = self.element_order(elt)
-                    if o == self.order - 1:
-                        g = elt
-                        break
-            if g is None:
-                raise ValueError(f&#39;Unable to find a generator for {self}. Please check the field definition&#39;)
-        if not self.has_valid_generator and set_generator:
-            self.generator = g
-            self._check_generator_order()
-        return g
+            for (o, e) in self.generator_powers.items():
+                if e != self.zero:
+                    self.element_as_powers[e] = o  # reverse map
 
-    def parse_poly(self, expr: str) -&gt; Polynomial:
-        &#34;&#34;&#34;Returns a polynomial from its symbolic expression&#34;&#34;&#34;
-        return symbolic_polynomial(expr, self)
+    def _compute_frobenius_map(self) -&gt; MutableSequence[&#39;FFElement&#39;]:
+        &#34;&#34;&#34;The Frobenius automorphisme is defined by a -&gt; a^p where p is the prime field characteristic.
+        This methods computes the inverse map of the automorphism
+        &#34;&#34;&#34;
+        p_th_roots = []
+        for b in self.basis:
+            for e in self:
+                if e ** self.characteristic == b:
+                    p_th_roots.append(e)
+        return p_th_roots
+
+    def _compute_root_powers(self):
+        &#34;&#34;&#34;Creates a list of elements j^p where j is the adjunct root and p is an integer
+        in the range `self.dimension..self.order-1`
+        &#34;&#34;&#34;
+        p = self.base_polynomial
+        f = self.prime_field
+        pr = p - p.monic(p.degree)
+        p_neutral = f.polynomial(f.one)
+        r = -pr
+        e = self.dimension
+        self.root_powers[e] = r
+        while r != p_neutral and e &lt; self.order - 1:
+            r *= r.monic(1)
+            e += 1
+            if r.degree == p.degree:
+                r -= p.monic(p.degree)
+                r += -pr
+            self.root_powers[e] = r
+
+    def _safe_convert_vector(self, v: Vector) -&gt; List[PFElement]:
+        &#34;&#34;&#34;Creates an element of the field from a variety of input values
+        &#34;&#34;&#34;
+        if isinstance(v, FFElement):
+            assert v.field == self
+            o = v.vector[:]
+        else:
+            o = []
+            if not isinstance(v, (list, tuple)):
+                v = [v]
+
+            for c in v:
+                if isinstance(c, int):
+                    o.append(self.prime_field(c))
+                else:
+                    assert isinstance(c, PFElement)
+                    o.append(c)
+
+            for _ in range(self.dimension - len(v)):
+                o.append(self.prime_field.zero)
+
+        return o
 
 
 class FFElement:
     def __init__(self, field: FiniteField, v: Vector):
+        &#34;&#34;&#34;Represents an element of a finite field of non-prime order as a vector
+        of element of the base prime field
+        &#34;&#34;&#34;
         self.field = field
         self.vector = v
 
@@ -440,11 +506,9 @@ class FFElement:
         assert len(self.vector) == self.field.dimension
 
     @property
-    def null(self) -&gt; bool:
-        return self == self.field.zero
-
-    @property
     def is_scalar(self) -&gt; bool:
+        &#34;&#34;&#34;Returns `True` if the element belongs to the base prime field, `False` otherwise
+        &#34;&#34;&#34;
         r = True
         for c in self.vector[1:]:
             if not c.is_zero:
@@ -452,23 +516,15 @@ class FFElement:
                 break
         return r
 
-    def __str__(self) -&gt; str:
-        return self.field.format_element(self)
-
-    def __format__(self, format_spec: str) -&gt; str:
-        return self.field.format_element(self, format_spec)
-
-    def __repr__(self) -&gt; str:
-        s = f&#39;{self.__class__.__name__}(&#39;
-        s += f&#39;{repr(self.field)}, &#39;
-        s += str(self.vector)
-        s += &#39;)&#39;
-        return s
-
-    def __getitem__(self, item: int) -&gt; PFElement:
-        return self.vector[item]
+    @property
+    def null(self) -&gt; bool:
+        &#34;&#34;&#34;Returns `True` if the element is the additive neutral of the field
+        &#34;&#34;&#34;
+        return self == self.field.zero
 
     def __add__(self, other: Any) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns the sum of two elements
+        &#34;&#34;&#34;
         if isinstance(other, self.__class__):
             return self.field.add(self, other)
         elif isinstance(other, PFElement):
@@ -479,6 +535,8 @@ class FFElement:
             return operator.add(other, self)
 
     def __eq__(self, other: Any) -&gt; bool:
+        &#34;&#34;&#34;Returns `True` if two elements are equal, `False` otherwise
+        &#34;&#34;&#34;
         if isinstance(other, int):
             other = self.field(self.field.prime_field(other))
 
@@ -491,13 +549,44 @@ class FFElement:
                 return False
         return True
 
-    def __neg__(self) -&gt; &#39;FFElement&#39;:
-        return self.field.additive_inverse(self)
+    def __floordiv__(self, other: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Support for the `//` operator. Same as `self.__truediv__`
+        &#34;&#34;&#34;
+        return self.__truediv__(other)
 
-    def __sub__(self, other: Any) -&gt; &#39;FFElement&#39;:
-        return self.__add__(-other)
+    def __format__(self, format_spec: str) -&gt; str:
+        &#34;&#34;&#34;Returns a customizable printable representation of an element
+        &#34;&#34;&#34;
+        return self.field.format_element(self, format_spec)
+
+    def __getitem__(self, n: int) -&gt; PFElement:
+        &#34;&#34;&#34;Returns the n-th basis component of an element
+        &#34;&#34;&#34;
+        return self.vector[n]
+
+    def __hash__(self) -&gt; int:
+        &#34;&#34;&#34;Returns a hash for map `dict` purposes
+        &#34;&#34;&#34;
+        return hash(tuple(self.vector))
+
+    def __invert__(self) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Support for the `~` operator. Same as `self.field.frobenius_reciprocal`
+        &#34;&#34;&#34;
+        return self.field.frobenius_reciprocal(self)
+
+    def __len__(self) -&gt; int:
+        &#34;&#34;&#34;Returns the length of the element, that is the dimension of the field basis
+        &#34;&#34;&#34;
+        return len(self.vector)
+
+    def __mod__(self, other: Any) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns always `self.field.zero`
+        &#34;&#34;&#34;
+        return self.field.zero
 
     def __mul__(self, other: Any) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns the product of two elements
+        &#34;&#34;&#34;
         if isinstance(other, FFElement):
             return self.field.mul(self, other)
         elif isinstance(other, int):
@@ -507,48 +596,66 @@ class FFElement:
         else:
             return operator.add(other, self)
 
+    def __neg__(self) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns the additive inverse of an element
+        &#34;&#34;&#34;
+        return self.field.additive_inverse(self)
+
+    def __pow__(self, n: int, modulo=None) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns the n-th power of an element
+        &#34;&#34;&#34;
+        return self.field.pow(self, n)
+
+    def __repr__(self) -&gt; str:
+        &#34;&#34;&#34;Returns an evaluable representation of an element
+        &#34;&#34;&#34;
+        s = f&#39;{self.__class__.__name__}(&#39;
+        s += f&#39;{repr(self.field)}, &#39;
+        s += str(self.vector)
+        s += &#39;)&#39;
+        return s
+
     def __rmul__(self, other: Any) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Same as `self.__mul__`, used when adding non-`FFElement` instances to a `FFElement`
+        &#34;&#34;&#34;
         return self.__mul__(other)
 
-    def __pow__(self, e: int, modulo=None) -&gt; &#39;FFElement&#39;:
-        return self.field.pow(self, e)
+    def __str__(self) -&gt; str:
+        &#34;&#34;&#34;Returns a printable representation of an element
+        &#34;&#34;&#34;
+        return self.field.format_element(self)
+
+    def __sub__(self, other: Any) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns the subtraction of two elements
+        &#34;&#34;&#34;
+        return self.__add__(-other)
 
     def __truediv__(self, other: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns the quotient of two elements
+        &#34;&#34;&#34;
         if isinstance(other, FFElement):
             return self.field.div(self, other)
         elif isinstance(other, (int, PFElement)):
-            return self.field.mul(self, self.field(other))
-
-    def __floordiv__(self, other: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
-        return self.__truediv__(other)
-
-    def __mod__(self, other: Any) -&gt; &#39;FFElement&#39;:
-        return self.field.zero
-
-    def __hash__(self) -&gt; int:
-        return hash(tuple(self.vector))
-
-    def __len__(self) -&gt; int:
-        return len(self.vector)
-
-    def __invert__(self) -&gt; &#39;FFElement&#39;:
-        return self.field.frobenius_reciprocal(self)
+            return self.field.mul(self, self.field.multiplicative_inverse(self.field(other)))
 
 
 # Pre-computed finite fields
 class Record:
-
+    &#34;&#34;&#34;Record in the register of pre-instantiated finite field
+    &#34;&#34;&#34;
     def __init__(self, code: str):
         self.code = code
         self.instance = None
-        self.instantiated = False
 
     def instantiate(self):
         if not self.instantiated:
             self.instance = eval(self.code)
-            self.instantiated = True
 
         return self.instance
+
+    @property
+    def instantiated(self) -&gt; bool:
+        return self.instance is not None
 
 
 FINITE_FIELD = {
@@ -571,6 +678,12 @@ FINITE_FIELD = {
 
 
 def finite_field(order):
+    &#34;&#34;&#34;Returns the finite field of the given order. Fields that may be instantiated this way:
+
+    - prime fields of order less then 23
+    - finite fields of non-prime order up to order 27. These finite fields have all a valid generator.
+
+    &#34;&#34;&#34;
     if f&#39;F{order}&#39; in FINITE_FIELD:
         return FINITE_FIELD[f&#39;F{order}&#39;].instantiate()
     else:
@@ -588,12 +701,22 @@ def finite_field(order):
 <span>def <span class="ident">finite_field</span></span>(<span>order)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Returns the finite field of the given order. Fields that may be instantiated this way:</p>
+<ul>
+<li>prime fields of order less then 23</li>
+<li>finite fields of non-prime order up to order 27. These finite fields have all a valid generator.</li>
+</ul></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def finite_field(order):
+    &#34;&#34;&#34;Returns the finite field of the given order. Fields that may be instantiated this way:
+
+    - prime fields of order less then 23
+    - finite fields of non-prime order up to order 27. These finite fields have all a valid generator.
+
+    &#34;&#34;&#34;
     if f&#39;F{order}&#39; in FINITE_FIELD:
         return FINITE_FIELD[f&#39;F{order}&#39;].instantiate()
     else:
@@ -610,13 +733,17 @@ def finite_field(order):
 <span>(</span><span>field, v)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Represents an element of a finite field of non-prime order as a vector
+of element of the base prime field</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class FFElement:
     def __init__(self, field: FiniteField, v: Vector):
+        &#34;&#34;&#34;Represents an element of a finite field of non-prime order as a vector
+        of element of the base prime field
+        &#34;&#34;&#34;
         self.field = field
         self.vector = v
 
@@ -624,11 +751,9 @@ def finite_field(order):
         assert len(self.vector) == self.field.dimension
 
     @property
-    def null(self) -&gt; bool:
-        return self == self.field.zero
-
-    @property
     def is_scalar(self) -&gt; bool:
+        &#34;&#34;&#34;Returns `True` if the element belongs to the base prime field, `False` otherwise
+        &#34;&#34;&#34;
         r = True
         for c in self.vector[1:]:
             if not c.is_zero:
@@ -636,23 +761,15 @@ def finite_field(order):
                 break
         return r
 
-    def __str__(self) -&gt; str:
-        return self.field.format_element(self)
-
-    def __format__(self, format_spec: str) -&gt; str:
-        return self.field.format_element(self, format_spec)
-
-    def __repr__(self) -&gt; str:
-        s = f&#39;{self.__class__.__name__}(&#39;
-        s += f&#39;{repr(self.field)}, &#39;
-        s += str(self.vector)
-        s += &#39;)&#39;
-        return s
-
-    def __getitem__(self, item: int) -&gt; PFElement:
-        return self.vector[item]
+    @property
+    def null(self) -&gt; bool:
+        &#34;&#34;&#34;Returns `True` if the element is the additive neutral of the field
+        &#34;&#34;&#34;
+        return self == self.field.zero
 
     def __add__(self, other: Any) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns the sum of two elements
+        &#34;&#34;&#34;
         if isinstance(other, self.__class__):
             return self.field.add(self, other)
         elif isinstance(other, PFElement):
@@ -663,6 +780,8 @@ def finite_field(order):
             return operator.add(other, self)
 
     def __eq__(self, other: Any) -&gt; bool:
+        &#34;&#34;&#34;Returns `True` if two elements are equal, `False` otherwise
+        &#34;&#34;&#34;
         if isinstance(other, int):
             other = self.field(self.field.prime_field(other))
 
@@ -675,13 +794,44 @@ def finite_field(order):
                 return False
         return True
 
-    def __neg__(self) -&gt; &#39;FFElement&#39;:
-        return self.field.additive_inverse(self)
+    def __floordiv__(self, other: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Support for the `//` operator. Same as `self.__truediv__`
+        &#34;&#34;&#34;
+        return self.__truediv__(other)
 
-    def __sub__(self, other: Any) -&gt; &#39;FFElement&#39;:
-        return self.__add__(-other)
+    def __format__(self, format_spec: str) -&gt; str:
+        &#34;&#34;&#34;Returns a customizable printable representation of an element
+        &#34;&#34;&#34;
+        return self.field.format_element(self, format_spec)
+
+    def __getitem__(self, n: int) -&gt; PFElement:
+        &#34;&#34;&#34;Returns the n-th basis component of an element
+        &#34;&#34;&#34;
+        return self.vector[n]
+
+    def __hash__(self) -&gt; int:
+        &#34;&#34;&#34;Returns a hash for map `dict` purposes
+        &#34;&#34;&#34;
+        return hash(tuple(self.vector))
+
+    def __invert__(self) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Support for the `~` operator. Same as `self.field.frobenius_reciprocal`
+        &#34;&#34;&#34;
+        return self.field.frobenius_reciprocal(self)
+
+    def __len__(self) -&gt; int:
+        &#34;&#34;&#34;Returns the length of the element, that is the dimension of the field basis
+        &#34;&#34;&#34;
+        return len(self.vector)
+
+    def __mod__(self, other: Any) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns always `self.field.zero`
+        &#34;&#34;&#34;
+        return self.field.zero
 
     def __mul__(self, other: Any) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns the product of two elements
+        &#34;&#34;&#34;
         if isinstance(other, FFElement):
             return self.field.mul(self, other)
         elif isinstance(other, int):
@@ -691,44 +841,61 @@ def finite_field(order):
         else:
             return operator.add(other, self)
 
+    def __neg__(self) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns the additive inverse of an element
+        &#34;&#34;&#34;
+        return self.field.additive_inverse(self)
+
+    def __pow__(self, n: int, modulo=None) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns the n-th power of an element
+        &#34;&#34;&#34;
+        return self.field.pow(self, n)
+
+    def __repr__(self) -&gt; str:
+        &#34;&#34;&#34;Returns an evaluable representation of an element
+        &#34;&#34;&#34;
+        s = f&#39;{self.__class__.__name__}(&#39;
+        s += f&#39;{repr(self.field)}, &#39;
+        s += str(self.vector)
+        s += &#39;)&#39;
+        return s
+
     def __rmul__(self, other: Any) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Same as `self.__mul__`, used when adding non-`FFElement` instances to a `FFElement`
+        &#34;&#34;&#34;
         return self.__mul__(other)
 
-    def __pow__(self, e: int, modulo=None) -&gt; &#39;FFElement&#39;:
-        return self.field.pow(self, e)
+    def __str__(self) -&gt; str:
+        &#34;&#34;&#34;Returns a printable representation of an element
+        &#34;&#34;&#34;
+        return self.field.format_element(self)
+
+    def __sub__(self, other: Any) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns the subtraction of two elements
+        &#34;&#34;&#34;
+        return self.__add__(-other)
 
     def __truediv__(self, other: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns the quotient of two elements
+        &#34;&#34;&#34;
         if isinstance(other, FFElement):
             return self.field.div(self, other)
         elif isinstance(other, (int, PFElement)):
-            return self.field.mul(self, self.field(other))
-
-    def __floordiv__(self, other: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
-        return self.__truediv__(other)
-
-    def __mod__(self, other: Any) -&gt; &#39;FFElement&#39;:
-        return self.field.zero
-
-    def __hash__(self) -&gt; int:
-        return hash(tuple(self.vector))
-
-    def __len__(self) -&gt; int:
-        return len(self.vector)
-
-    def __invert__(self) -&gt; &#39;FFElement&#39;:
-        return self.field.frobenius_reciprocal(self)</code></pre>
+            return self.field.mul(self, self.field.multiplicative_inverse(self.field(other)))</code></pre>
 </details>
 <h3>Instance variables</h3>
 <dl>
 <dt id="pyimath.finitefield.FFElement.is_scalar"><code class="name">var <span class="ident">is_scalar</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Returns <code>True</code> if the element belongs to the base prime field, <code>False</code> otherwise</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def is_scalar(self) -&gt; bool:
+    &#34;&#34;&#34;Returns `True` if the element belongs to the base prime field, `False` otherwise
+    &#34;&#34;&#34;
     r = True
     for c in self.vector[1:]:
         if not c.is_zero:
@@ -739,13 +906,15 @@ def is_scalar(self) -&gt; bool:
 </dd>
 <dt id="pyimath.finitefield.FFElement.null"><code class="name">var <span class="ident">null</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Returns <code>True</code> if the element is the additive neutral of the field</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def null(self) -&gt; bool:
+    &#34;&#34;&#34;Returns `True` if the element is the additive neutral of the field
+    &#34;&#34;&#34;
     return self == self.field.zero</code></pre>
 </details>
 </dd>
@@ -753,37 +922,37 @@ def null(self) -&gt; bool:
 </dd>
 <dt id="pyimath.finitefield.FiniteField"><code class="flex name class">
 <span>class <span class="ident">FiniteField</span></span>
-<span>(</span><span>prime, dimension, poly, generator=None, root_symbol='j')</span>
+<span>(</span><span>prime, dimension, ideal, generator=None, root_symbol='j')</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Represents a non-prime finite field</p>
-<p>:param prime: the order of the prime field Fprime
-:param dimension: the dimension of the finite field seen as a vector space over its prime field
-:param poly: the minimal polynomial of the adjunct root j, must be irreducible over Fprime
-:param generator: an element of the field that generates the multiplicative group (tuple of int)
-:param root_symbol: for formatting elements</p></section>
+<p><code>prime</code> is the order of the base prime field
+<code>dimension</code> is the dimension of the finite field seen as a vector space over its prime field
+<code>ideal</code> is the minimal polynomial of the adjunct root j, must be irreducible over the prime field
+<code>generator</code> must be an element of the field that generates the multiplicative group
+<code>root_symbol</code> a one-character string to represent the adjunct root</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class FiniteField:
-    &#34;&#34;&#34;Represents a non-prime finite field&#34;&#34;&#34;
+    &#34;&#34;&#34;Represents a non-prime finite field
+    &#34;&#34;&#34;
     def __init__(self,
                  prime: int,
                  dimension: int,
-                 poly: Polynomial,
+                 ideal: Polynomial,
                  generator: Optional[Sequence[int]] = None,
                  root_symbol: Optional[str] = &#39;j&#39;):
-        &#34;&#34;&#34;
-        :param prime: the order of the prime field Fprime
-        :param dimension: the dimension of the finite field seen as a vector space over its prime field
-        :param poly: the minimal polynomial of the adjunct root j, must be irreducible over Fprime
-        :param generator: an element of the field that generates the multiplicative group (tuple of int)
-        :param root_symbol: for formatting elements
+        &#34;&#34;&#34;`prime` is the order of the base prime field
+        `dimension` is the dimension of the finite field seen as a vector space over its prime field
+        `ideal` is the minimal polynomial of the adjunct root j, must be irreducible over the prime field
+        `generator` must be an element of the field that generates the multiplicative group
+        `root_symbol` a one-character string to represent the adjunct root
         &#34;&#34;&#34;
         self._prime_field = PrimeField(prime)
         self.dimension = dimension
-        self.base_polynomial = poly
+        self.base_polynomial = ideal
         self.generator = generator
         self.root_symbol = root_symbol
 
@@ -804,18 +973,72 @@ def null(self) -&gt; bool:
 
         self._frobenius_map = self._compute_frobenius_map()
 
-    def _compute_frobenius_map(self) -&gt; MutableSequence[&#39;FFElement&#39;]:
-        &#34;&#34;&#34;The Frobenius automorphisme is defined by a -&gt; a^p where p is the prime field characteristic
-        This methods computes the inverse map of the automorphisme&#34;&#34;&#34;
-        p_th_roots = []
-        for b in self.basis:
-            for e in self:
-                if e ** self.characteristic == b:
-                    p_th_roots.append(e)
-        return p_th_roots
+    def add(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Adds two elements
+        &#34;&#34;&#34;
+        assert a.field == b.field == self
+        s = [self.prime_field.zero] * self.dimension
+        for i in range(0, self.dimension):
+            s[i] = a[i] + b[i]
+        return self.element(s)
+
+    def additive_inverse(self, a: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns the additive inverse of an element
+        &#34;&#34;&#34;
+        return self.element([-e for e in a.vector])
+
+    @property
+    def basis(self) -&gt; Iterator[&#39;FFElement&#39;]:
+        &#34;&#34;&#34;Returns the basis of field elements for the field seen as a vector space
+        &#34;&#34;&#34;
+        return (self(0, 1) ** e for e in range(0, self.dimension))
+
+    @property
+    def characteristic(self) -&gt; int:
+        &#34;&#34;&#34;Returns the characteristic of the field
+        &#34;&#34;&#34;
+        return self._prime_field.characteristic
+
+    def check_irreducible_polynomial(self, p: Polynomial) -&gt; bool:
+        &#34;&#34;&#34;Returns `True` if the polynomial is irreducible, `False` otherwise
+        &#34;&#34;&#34;
+        assert p.base_field == self
+        return p.is_irreducible
+
+    def div(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns the true division of two elements
+        &#34;&#34;&#34;
+        if b.null:
+            raise ZeroDivisionError
+        if a.null:
+            return self.zero
+
+        return a * self.multiplicative_inverse(b)
+
+    def divmod(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; Tuple[&#39;FFElement&#39;, &#39;FFElement&#39;]:
+        &#34;&#34;&#34;Kept for interface purpose, returns always `(a / b, self.zero)`
+        &#34;&#34;&#34;
+        return self.div(a, b), self.mod(a, b)
+
+    def element(self, v: Union[Vector, &#39;FFElement&#39;]) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns an instance of a `FFElement` from a vector
+        &#34;&#34;&#34;
+        return FFElement(self, self._safe_convert_vector(v))
+
+    def element_from_polynomial(self, p: Polynomial) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Return an element whose basis components are the coefficients of a given polynomial over the field
+        e.g. The polynomial `1 + X + X^2` would yield `(1+j+j^2)`
+        &#34;&#34;&#34;
+        assert p.base_field == self.prime_field
+        assert p.degree &lt;= self.dimension - 1
+        v = p.coefficients
+        if p.degree &lt; self.dimension - 1:
+            v += [self.prime_field.zero] * (self.dimension - (1 + p.degree))
+        return self.element(v)
 
     def element_order(self, e: &#39;FFElement&#39;) -&gt; int:
-        &#34;&#34;&#34;Returns the order of an element, that is the minimal integer k such as e^k = 1&#34;&#34;&#34;
+        &#34;&#34;&#34;Returns the order of an element, that is the minimal integer k such as e^k = 1
+        &#34;&#34;&#34;
         if self.has_valid_generator:
             return self.generator_powers[e]
         else:
@@ -827,156 +1050,100 @@ def null(self) -&gt; bool:
                 order += 1
             return order
 
+    def ext_mul(self, n: int, a: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns the n-th iterated addition of an element with itself
+        &#34;&#34;&#34;
+        assert a.field == self
+        r = self.zero
+        for _ in range(0, n):
+            r += a
+        return r
+
+    def find_generator(self, set_generator=False) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns a valid generator of the multiplicative group of the field
+        &#34;&#34;&#34;
+        if self.has_valid_generator:
+            g = self.generator
+        elif maybe_prime(self.order - 1):
+            # if the order of the multiplicative group is prime, any element but 1 and -1 is a generator
+            p = self.base_polynomial.monic(self.dimension - 1)
+            p += self.base_polynomial.monic(0)
+            g = self.element_from_polynomial(p)
+        else:
+            # find it the hard way
+            g = None
+            for elt in iter(self):
+                if elt != self.one and elt != self.zero:
+                    o = self.element_order(elt)
+                    if o == self.order - 1:
+                        g = elt
+                        break
+            if g is None:
+                raise ValueError(f&#39;Unable to find a generator for {self}. Please check the field definition&#39;)
+        if not self.has_valid_generator and set_generator:
+            self.generator = g
+            self._check_generator_order()
+        return g
+
+    def format_element(self, e: &#39;FFElement&#39;, format_spec: str = &#39;&#39;) -&gt; str:
+        &#34;&#34;&#34;Returns a printable representation of an element
+        &#34;&#34;&#34;
+        if format_spec == &#39;short&#39;:
+            s = &#39;&#39;
+            if e.is_scalar:
+                s = str(e.vector[0])
+            else:
+                for c in str(self.polynomial_from_element(e)):
+                    if c != &#39; &#39;:
+                        s += c
+                return f&#39;({s})&#39;
+        else:
+            s = str(self.polynomial_from_element(e))
+        return s
+
     @property
     def frobenius_map(self) -&gt; MutableSequence[&#39;FFElement&#39;]:
-        &#34;&#34;&#34;It&#39;s actually the linear map of the inverse function of Frobenius automorphism (see MISCELLANEOUS.md)&#34;&#34;&#34;
+        &#34;&#34;&#34;Returns what is actually the linear map of the inverse function of Frobenius automorphism (see MISCELLANEOUS.md)
+        &#34;&#34;&#34;
         return self._frobenius_map[:]
 
-    def _check_generator_order(self):
-        &#34;&#34;&#34;computes the powers of the wanna-be generator and checks
-        if the results form the multiplicative group. This method can be
-        computer-intensive for large finite fields&#34;&#34;&#34;
-        expected_order = self.order - 1  # the order of the multiplicative group
-        order = 1
-        g = self.generator
-        powers = dict()
-        powers[order] = g
+    def frobenius_reciprocal(self, a: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns the bijective inverse of an element through the Frobenius automorphism. This is
+        equivalent of taking the p-th root of an element where p is the field characteristic
+        &#34;&#34;&#34;
+        assert isinstance(a, FFElement)
+        assert a in self
+        r = self.zero
+        for i, e in enumerate(a.vector):
+            b = self._frobenius_map[i]
+            r += self(e) * b
+        return r
 
-        while g != self.one and order &lt;= expected_order:
-            g *= self.generator
-            order += 1
-            powers[order] = g
-
-        if order != expected_order:
-            raise ValueError(f&#39;Element {self.generator} is not a generator for {self}&#39;)
-        else:
-            self.generator_powers = powers
-
-        if self.has_valid_generator:
-            for (o, e) in self.generator_powers.items():
-                if e != self.zero:
-                    self.element_as_powers[e] = o  # reverse map
+    def linear_polynomial(self, e: &#39;FFElement&#39;) -&gt; Polynomial:
+        &#34;&#34;&#34;Returns the polynomial `X - e`
+        &#34;&#34;&#34;
+        p = self.polynomial(-e)
+        p += p.monic(1)
+        return p
 
     @property
     def has_valid_generator(self) -&gt; bool:
+        &#34;&#34;&#34;Returns True if the field was set with a valid generator i.e. an element whose order is equal
+        to the order of the field
+        &#34;&#34;&#34;
         return len(self.generator_powers) &gt; 0 and self.generator is not None
 
-    @property
-    def prime_field(self) -&gt; PrimeField:
-        return self._prime_field
-
-    @property
-    def basis(self) -&gt; Iterator[&#39;FFElement&#39;]:
-        return (self(0, 1) ** e for e in range(0, self.dimension))
-
-    def _compute_root_powers(self):
-        p = self.base_polynomial
-        f = self.prime_field
-        pr = p - p.monic(p.degree)
-        p_neutral = f.polynomial(f.one)
-        r = -pr
-        e = self.dimension
-        self.root_powers[e] = r
-        while r != p_neutral and e &lt; self.order - 1:
-            r *= r.monic(1)
-            e += 1
-            if r.degree == p.degree:
-                r -= p.monic(p.degree)
-                r += -pr
-            self.root_powers[e] = r
-
-    def _safe_convert_vector(self, v: Vector) -&gt; List[PFElement]:
-
-        if isinstance(v, FFElement):
-            assert v.field == self
-            o = v.vector[:]
-        else:
-            o = []
-            if not isinstance(v, (list, tuple)):
-                v = [v]
-
-            for c in v:
-                if isinstance(c, int):
-                    o.append(self.prime_field(c))
-                else:
-                    assert isinstance(c, PFElement)
-                    o.append(c)
-
-            for _ in range(self.dimension - len(v)):
-                o.append(self.prime_field.zero)
-
-        return o
-
-    @property
-    def order(self) -&gt; int:
+    def mod(self, _, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Kept for interface purpose, returns always `self.zero`
         &#34;&#34;&#34;
-        :return: The order of the field
-        &#34;&#34;&#34;
-        return self.prime_field.characteristic ** self.dimension
+        if b.null:
+            raise ZeroDivisionError
 
-    def element(self, v: Union[Vector, &#39;FFElement&#39;]) -&gt; &#39;FFElement&#39;:
-        return FFElement(self, self._safe_convert_vector(v))
-
-    @property
-    def zero(self) -&gt; &#39;FFElement&#39;:
-        return self.element([self.prime_field.zero] * self.dimension)
-
-    @property
-    def one(self) -&gt; &#39;FFElement&#39;:
-        return self.element([self.prime_field.one] + [self.prime_field.zero] * (self.dimension - 1))
-
-    @property
-    def characteristic(self) -&gt; int:
-        return self._prime_field.characteristic
-
-    @property
-    def null(self) -&gt; &#39;FFElement&#39;:
         return self.zero
 
-    @property
-    def neutral(self) -&gt; &#39;FFElement&#39;:
-        return self.one
-
-    def __call__(self, *args) -&gt; &#39;FFElement&#39;:
-        return self.element([self.prime_field(c) for c in args])
-
-    def __eq__(self, other: &#39;FiniteField&#39;) -&gt; bool:
-        assert isinstance(other, self.__class__)
-        return other.prime_field == self.prime_field and other.dimension == self.dimension
-
-    def __iter__(self) -&gt; Iterator[&#39;FFElement&#39;]:
-        &#34;&#34;&#34;
-        Iterates over all the elements
-        :return: an iterator
-        &#34;&#34;&#34;
-        iterables = [self.prime_field] * self.dimension
-        return iter((self.element(list(v)) for v in cartesian_product(*iterables)))
-
-    def __str__(self) -&gt; str:
-        return f&#39;Finite field of order {self.prime_field.characteristic}^{self.dimension}&#39;
-
-    def __repr__(self) -&gt; str:
-        s = f&#39;{self.__class__.__name__}(&#39;
-        s += f&#39;{self.prime_field.characteristic}, &#39;
-        s += f&#39;{self.dimension}, &#39;
-        s += f&#39;{repr(self.base_polynomial)}, &#39;
-        if self.has_valid_generator:
-            s += f&#39; generator={repr(self.generator.vector)})&#39;
-        else:
-            s += &#39;)&#39;
-        return s
-
-    def add(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
-        assert a.field == b.field == self
-        s = [self.prime_field.zero] * self.dimension
-        for i in range(0, self.dimension):
-            s[i] = a[i] + b[i]
-        return self.element(s)
-
-    def additive_inverse(self, a: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
-        return self.element([-e for e in a.vector])
-
     def mul(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns the product of two elements
+        &#34;&#34;&#34;
         assert a.field == b.field == self
 
         if self.has_valid_generator:
@@ -1000,24 +1167,9 @@ def null(self) -&gt; bool:
 
             return self.element_from_polynomial(p)
 
-    def ext_mul(self, n: int, a: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
-        assert a.field == self
-        r = self.zero
-        for _ in range(0, n):
-            r += a
-        return r
-
-    def pow(self, a: &#39;FFElement&#39;, e: int) -&gt; &#39;FFElement&#39;:
-        assert a.field == self
-        assert e &gt;= 0
-        res = power(a, e)
-        if not isinstance(res, FFElement):
-            return self(res)
-        else:
-            return res
-
     def multiplicative_inverse(self, a: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
-
+        &#34;&#34;&#34;Returns the multiplicative inverse of an element
+        &#34;&#34;&#34;
         if self.has_valid_generator:
             p = self.element_as_powers[a]
             if self.order - 1 - p == 0:
@@ -1046,42 +1198,26 @@ def null(self) -&gt; bool:
             # Either p is not irreducible over the base_field or p_a is a multiple of p
             return self.element_from_polynomial((neutral / r) * t)
 
-    def div(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
-        if b.null:
-            raise ZeroDivisionError
-        if a.null:
-            return self.zero
+    @property
+    def neutral(self) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Same as `self.one`, returns the multiplicative neutral element of the field
+        &#34;&#34;&#34;
+        return self.one
 
-        return a * self.multiplicative_inverse(b)
-
-    def floor_div(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
-        return self.div(a, b)
-
-    def mod(self, _, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
-        if b.null:
-            raise ZeroDivisionError
-
+    @property
+    def null(self) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Same as `self.zero`, returns the additive neutral element of the field
+        &#34;&#34;&#34;
         return self.zero
 
-    def divmod(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; Tuple[&#39;FFElement&#39;, &#39;FFElement&#39;]:
-        return self.div(a, b), self.mod(a, b)
-
-    def format_element(self, e: &#39;FFElement&#39;, format_spec: str = &#39;&#39;) -&gt; str:
-
-        if format_spec == &#39;short&#39;:
-            s = &#39;&#39;
-            if e.is_scalar:
-                s = str(e.vector[0])
-            else:
-                for c in str(self.polynomial_from_element(e)):
-                    if c != &#39; &#39;:
-                        s += c
-                return f&#39;({s})&#39;
-        else:
-            s = str(self.polynomial_from_element(e))
-        return s
+    def parse_poly(self, expr: str) -&gt; Polynomial:
+        &#34;&#34;&#34;Returns a polynomial from its symbolic expression
+        &#34;&#34;&#34;
+        return symbolic_polynomial(expr, self)
 
     def polynomial(self, *args, indeterminate: Optional[str] = &#39;X&#39;) -&gt; Polynomial:
+        &#34;&#34;&#34;Returns a polynomial from a list of coefficients. The coefficients are converted to `FFElement`
+        &#34;&#34;&#34;
         coefficients = []
         for c in args:
             if isinstance(c, (tuple, list)):
@@ -1095,188 +1231,302 @@ def null(self) -&gt; bool:
 
         return Polynomial(coefficients, base_field=self, indeterminate=indeterminate)
 
-    def linear_polynomial(self, e: &#39;FFElement&#39;) -&gt; Polynomial:
-        p = self.polynomial(-e)
-        p += p.monic(1)
-        return p
-
-    def check_irreducible_polynomial(self, p: Polynomial) -&gt; bool:
-        assert p.base_field == self
-        return p.is_irreducible
-
-    def frobenius_reciprocal(self, a: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
-
-        assert isinstance(a, FFElement)
-        assert a in self
-        r = self.zero
-        for i, e in enumerate(a.vector):
-            b = self._frobenius_map[i]
-            r += self(e) * b
-        return r
-
     def polynomial_from_element(self, e: &#39;FFElement&#39;) -&gt; Polynomial:
+        &#34;&#34;&#34;Returns a polynomial whose coefficients are those of the element
+        e.g. `(1+j+j^2)` would yield `1 + X + X^2`
+        &#34;&#34;&#34;
         return Polynomial(e.vector, self.prime_field, indeterminate=self.root_symbol)
 
-    def element_from_polynomial(self, p: Polynomial) -&gt; &#39;FFElement&#39;:
-        assert p.base_field == self.prime_field
-        assert p.degree &lt;= self.dimension - 1
-        v = p.coefficients
-        if p.degree &lt; self.dimension - 1:
-            v += [self.prime_field.zero] * (self.dimension - (1 + p.degree))
-        return self.element(v)
+    @property
+    def one(self) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns the multiplicative neutral element of the field
+        &#34;&#34;&#34;
+        return self.element([self.prime_field.one] + [self.prime_field.zero] * (self.dimension - 1))
 
-    def find_generator(self, set_generator=False) -&gt; &#39;FFElement&#39;:
+    @property
+    def order(self) -&gt; int:
+        &#34;&#34;&#34;Returns the order of the field
+        &#34;&#34;&#34;
+        return self.prime_field.characteristic ** self.dimension
+
+    def pow(self, a: &#39;FFElement&#39;, n: int) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns the n-th power of an element
+        &#34;&#34;&#34;
+        assert a.field == self
+        assert n &gt;= 0
+        res = power(a, n)
+        if not isinstance(res, FFElement):
+            return self(res)
+        else:
+            return res
+
+    @property
+    def prime_field(self) -&gt; PrimeField:
+        &#34;&#34;&#34;Returns the instance of the base prime field
+        &#34;&#34;&#34;
+        return self._prime_field
+
+    @property
+    def zero(self) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Returns the additive neutral element of the field
+        &#34;&#34;&#34;
+        return self.element([self.prime_field.zero] * self.dimension)
+
+    def __call__(self, *args) -&gt; &#39;FFElement&#39;:
+        &#34;&#34;&#34;Creates an element from a list of arguments, syntactic sugar for `self.element()`
+        &#34;&#34;&#34;
+        return self.element([self.prime_field(c) for c in args])
+
+    def __eq__(self, other: &#39;FiniteField&#39;) -&gt; bool:
+        &#34;&#34;&#34;Compares two finite fields
+        &#34;&#34;&#34;
+        assert isinstance(other, self.__class__)
+        return other.prime_field == self.prime_field and other.dimension == self.dimension
+
+    def __iter__(self) -&gt; Iterator[&#39;FFElement&#39;]:
+        &#34;&#34;&#34;Iterates over all the elements
+        &#34;&#34;&#34;
+        iterables = [self.prime_field] * self.dimension
+        return iter((self.element(list(v)) for v in cartesian_product(*iterables)))
+
+    def __repr__(self) -&gt; str:
+        &#34;&#34;&#34;Returns an evaluable representation of the field
+        &#34;&#34;&#34;
+        s = f&#39;{self.__class__.__name__}(&#39;
+        s += f&#39;{self.prime_field.characteristic}, &#39;
+        s += f&#39;{self.dimension}, &#39;
+        s += f&#39;{repr(self.base_polynomial)}, &#39;
+        if self.has_valid_generator:
+            s += f&#39; generator={repr(self.generator.vector)})&#39;
+        else:
+            s += &#39;)&#39;
+        return s
+
+    def __str__(self) -&gt; str:
+        &#34;&#34;&#34;Returns a printable representation of the finite field
+        &#34;&#34;&#34;
+        return f&#39;Finite field of order {self.prime_field.characteristic}^{self.dimension}&#39;
+
+    def _check_generator_order(self):
+        &#34;&#34;&#34;Computes the powers of the wanna-be generator and checks
+        if the results form the multiplicative group. This method can be
+        computer-intensive for large finite fields
+        &#34;&#34;&#34;
+        expected_order = self.order - 1  # the order of the multiplicative group
+        order = 1
+        g = self.generator
+        powers = dict()
+        powers[order] = g
+
+        while g != self.one and order &lt;= expected_order:
+            g *= self.generator
+            order += 1
+            powers[order] = g
+
+        if order != expected_order:
+            raise ValueError(f&#39;Element {self.generator} is not a generator for {self}&#39;)
+        else:
+            self.generator_powers = powers
 
         if self.has_valid_generator:
-            g = self.generator
-        elif maybe_prime(self.order - 1):
-            # if the order of the multiplicative group is prime, any element but 1 and -1 is a generator
-            p = self.base_polynomial.monic(self.dimension - 1)
-            p += self.base_polynomial.monic(0)
-            g = self.element_from_polynomial(p)
-        else:
-            # find it the hard way
-            g = None
-            for elt in iter(self):
-                if elt != self.one and elt != self.zero:
-                    o = self.element_order(elt)
-                    if o == self.order - 1:
-                        g = elt
-                        break
-            if g is None:
-                raise ValueError(f&#39;Unable to find a generator for {self}. Please check the field definition&#39;)
-        if not self.has_valid_generator and set_generator:
-            self.generator = g
-            self._check_generator_order()
-        return g
+            for (o, e) in self.generator_powers.items():
+                if e != self.zero:
+                    self.element_as_powers[e] = o  # reverse map
 
-    def parse_poly(self, expr: str) -&gt; Polynomial:
-        &#34;&#34;&#34;Returns a polynomial from its symbolic expression&#34;&#34;&#34;
-        return symbolic_polynomial(expr, self)</code></pre>
+    def _compute_frobenius_map(self) -&gt; MutableSequence[&#39;FFElement&#39;]:
+        &#34;&#34;&#34;The Frobenius automorphisme is defined by a -&gt; a^p where p is the prime field characteristic.
+        This methods computes the inverse map of the automorphism
+        &#34;&#34;&#34;
+        p_th_roots = []
+        for b in self.basis:
+            for e in self:
+                if e ** self.characteristic == b:
+                    p_th_roots.append(e)
+        return p_th_roots
+
+    def _compute_root_powers(self):
+        &#34;&#34;&#34;Creates a list of elements j^p where j is the adjunct root and p is an integer
+        in the range `self.dimension..self.order-1`
+        &#34;&#34;&#34;
+        p = self.base_polynomial
+        f = self.prime_field
+        pr = p - p.monic(p.degree)
+        p_neutral = f.polynomial(f.one)
+        r = -pr
+        e = self.dimension
+        self.root_powers[e] = r
+        while r != p_neutral and e &lt; self.order - 1:
+            r *= r.monic(1)
+            e += 1
+            if r.degree == p.degree:
+                r -= p.monic(p.degree)
+                r += -pr
+            self.root_powers[e] = r
+
+    def _safe_convert_vector(self, v: Vector) -&gt; List[PFElement]:
+        &#34;&#34;&#34;Creates an element of the field from a variety of input values
+        &#34;&#34;&#34;
+        if isinstance(v, FFElement):
+            assert v.field == self
+            o = v.vector[:]
+        else:
+            o = []
+            if not isinstance(v, (list, tuple)):
+                v = [v]
+
+            for c in v:
+                if isinstance(c, int):
+                    o.append(self.prime_field(c))
+                else:
+                    assert isinstance(c, PFElement)
+                    o.append(c)
+
+            for _ in range(self.dimension - len(v)):
+                o.append(self.prime_field.zero)
+
+        return o</code></pre>
 </details>
 <h3>Instance variables</h3>
 <dl>
 <dt id="pyimath.finitefield.FiniteField.basis"><code class="name">var <span class="ident">basis</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Returns the basis of field elements for the field seen as a vector space</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def basis(self) -&gt; Iterator[&#39;FFElement&#39;]:
+    &#34;&#34;&#34;Returns the basis of field elements for the field seen as a vector space
+    &#34;&#34;&#34;
     return (self(0, 1) ** e for e in range(0, self.dimension))</code></pre>
 </details>
 </dd>
 <dt id="pyimath.finitefield.FiniteField.characteristic"><code class="name">var <span class="ident">characteristic</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Returns the characteristic of the field</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def characteristic(self) -&gt; int:
+    &#34;&#34;&#34;Returns the characteristic of the field
+    &#34;&#34;&#34;
     return self._prime_field.characteristic</code></pre>
 </details>
 </dd>
 <dt id="pyimath.finitefield.FiniteField.frobenius_map"><code class="name">var <span class="ident">frobenius_map</span></code></dt>
 <dd>
-<section class="desc"><p>It's actually the linear map of the inverse function of Frobenius automorphism (see MISCELLANEOUS.md)</p></section>
+<section class="desc"><p>Returns what is actually the linear map of the inverse function of Frobenius automorphism (see MISCELLANEOUS.md)</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def frobenius_map(self) -&gt; MutableSequence[&#39;FFElement&#39;]:
-    &#34;&#34;&#34;It&#39;s actually the linear map of the inverse function of Frobenius automorphism (see MISCELLANEOUS.md)&#34;&#34;&#34;
+    &#34;&#34;&#34;Returns what is actually the linear map of the inverse function of Frobenius automorphism (see MISCELLANEOUS.md)
+    &#34;&#34;&#34;
     return self._frobenius_map[:]</code></pre>
 </details>
 </dd>
 <dt id="pyimath.finitefield.FiniteField.has_valid_generator"><code class="name">var <span class="ident">has_valid_generator</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Returns True if the field was set with a valid generator i.e. an element whose order is equal
+to the order of the field</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def has_valid_generator(self) -&gt; bool:
+    &#34;&#34;&#34;Returns True if the field was set with a valid generator i.e. an element whose order is equal
+    to the order of the field
+    &#34;&#34;&#34;
     return len(self.generator_powers) &gt; 0 and self.generator is not None</code></pre>
 </details>
 </dd>
 <dt id="pyimath.finitefield.FiniteField.neutral"><code class="name">var <span class="ident">neutral</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Same as <code>self.one</code>, returns the multiplicative neutral element of the field</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def neutral(self) -&gt; &#39;FFElement&#39;:
+    &#34;&#34;&#34;Same as `self.one`, returns the multiplicative neutral element of the field
+    &#34;&#34;&#34;
     return self.one</code></pre>
 </details>
 </dd>
 <dt id="pyimath.finitefield.FiniteField.null"><code class="name">var <span class="ident">null</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Same as <code>self.zero</code>, returns the additive neutral element of the field</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def null(self) -&gt; &#39;FFElement&#39;:
+    &#34;&#34;&#34;Same as `self.zero`, returns the additive neutral element of the field
+    &#34;&#34;&#34;
     return self.zero</code></pre>
 </details>
 </dd>
 <dt id="pyimath.finitefield.FiniteField.one"><code class="name">var <span class="ident">one</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Returns the multiplicative neutral element of the field</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def one(self) -&gt; &#39;FFElement&#39;:
+    &#34;&#34;&#34;Returns the multiplicative neutral element of the field
+    &#34;&#34;&#34;
     return self.element([self.prime_field.one] + [self.prime_field.zero] * (self.dimension - 1))</code></pre>
 </details>
 </dd>
 <dt id="pyimath.finitefield.FiniteField.order"><code class="name">var <span class="ident">order</span></code></dt>
 <dd>
-<section class="desc"><p>:return: The order of the field</p></section>
+<section class="desc"><p>Returns the order of the field</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def order(self) -&gt; int:
-    &#34;&#34;&#34;
-    :return: The order of the field
+    &#34;&#34;&#34;Returns the order of the field
     &#34;&#34;&#34;
     return self.prime_field.characteristic ** self.dimension</code></pre>
 </details>
 </dd>
 <dt id="pyimath.finitefield.FiniteField.prime_field"><code class="name">var <span class="ident">prime_field</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Returns the instance of the base prime field</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def prime_field(self) -&gt; PrimeField:
+    &#34;&#34;&#34;Returns the instance of the base prime field
+    &#34;&#34;&#34;
     return self._prime_field</code></pre>
 </details>
 </dd>
 <dt id="pyimath.finitefield.FiniteField.zero"><code class="name">var <span class="ident">zero</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Returns the additive neutral element of the field</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def zero(self) -&gt; &#39;FFElement&#39;:
+    &#34;&#34;&#34;Returns the additive neutral element of the field
+    &#34;&#34;&#34;
     return self.element([self.prime_field.zero] * self.dimension)</code></pre>
 </details>
 </dd>
@@ -1287,12 +1537,14 @@ def zero(self) -&gt; &#39;FFElement&#39;:
 <span>def <span class="ident">add</span></span>(<span>self, a, b)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Adds two elements</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def add(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+    &#34;&#34;&#34;Adds two elements
+    &#34;&#34;&#34;
     assert a.field == b.field == self
     s = [self.prime_field.zero] * self.dimension
     for i in range(0, self.dimension):
@@ -1304,12 +1556,14 @@ def zero(self) -&gt; &#39;FFElement&#39;:
 <span>def <span class="ident">additive_inverse</span></span>(<span>self, a)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Returns the additive inverse of an element</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def additive_inverse(self, a: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+    &#34;&#34;&#34;Returns the additive inverse of an element
+    &#34;&#34;&#34;
     return self.element([-e for e in a.vector])</code></pre>
 </details>
 </dd>
@@ -1317,12 +1571,14 @@ def zero(self) -&gt; &#39;FFElement&#39;:
 <span>def <span class="ident">check_irreducible_polynomial</span></span>(<span>self, p)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Returns <code>True</code> if the polynomial is irreducible, <code>False</code> otherwise</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def check_irreducible_polynomial(self, p: Polynomial) -&gt; bool:
+    &#34;&#34;&#34;Returns `True` if the polynomial is irreducible, `False` otherwise
+    &#34;&#34;&#34;
     assert p.base_field == self
     return p.is_irreducible</code></pre>
 </details>
@@ -1331,12 +1587,14 @@ def zero(self) -&gt; &#39;FFElement&#39;:
 <span>def <span class="ident">div</span></span>(<span>self, a, b)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Returns the true division of two elements</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def div(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+    &#34;&#34;&#34;Returns the true division of two elements
+    &#34;&#34;&#34;
     if b.null:
         raise ZeroDivisionError
     if a.null:
@@ -1349,12 +1607,14 @@ def zero(self) -&gt; &#39;FFElement&#39;:
 <span>def <span class="ident">divmod</span></span>(<span>self, a, b)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Kept for interface purpose, returns always <code>(a / b, self.zero)</code></p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def divmod(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; Tuple[&#39;FFElement&#39;, &#39;FFElement&#39;]:
+    &#34;&#34;&#34;Kept for interface purpose, returns always `(a / b, self.zero)`
+    &#34;&#34;&#34;
     return self.div(a, b), self.mod(a, b)</code></pre>
 </details>
 </dd>
@@ -1362,12 +1622,14 @@ def zero(self) -&gt; &#39;FFElement&#39;:
 <span>def <span class="ident">element</span></span>(<span>self, v)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Returns an instance of a <a title="pyimath.finitefield.FFElement" href="#pyimath.finitefield.FFElement"><code>FFElement</code></a> from a vector</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def element(self, v: Union[Vector, &#39;FFElement&#39;]) -&gt; &#39;FFElement&#39;:
+    &#34;&#34;&#34;Returns an instance of a `FFElement` from a vector
+    &#34;&#34;&#34;
     return FFElement(self, self._safe_convert_vector(v))</code></pre>
 </details>
 </dd>
@@ -1375,12 +1637,16 @@ def zero(self) -&gt; &#39;FFElement&#39;:
 <span>def <span class="ident">element_from_polynomial</span></span>(<span>self, p)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Return an element whose basis components are the coefficients of a given polynomial over the field
+e.g. The polynomial <code>1 + X + X^2</code> would yield <code>(1+j+j^2)</code></p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def element_from_polynomial(self, p: Polynomial) -&gt; &#39;FFElement&#39;:
+    &#34;&#34;&#34;Return an element whose basis components are the coefficients of a given polynomial over the field
+    e.g. The polynomial `1 + X + X^2` would yield `(1+j+j^2)`
+    &#34;&#34;&#34;
     assert p.base_field == self.prime_field
     assert p.degree &lt;= self.dimension - 1
     v = p.coefficients
@@ -1399,7 +1665,8 @@ def zero(self) -&gt; &#39;FFElement&#39;:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def element_order(self, e: &#39;FFElement&#39;) -&gt; int:
-    &#34;&#34;&#34;Returns the order of an element, that is the minimal integer k such as e^k = 1&#34;&#34;&#34;
+    &#34;&#34;&#34;Returns the order of an element, that is the minimal integer k such as e^k = 1
+    &#34;&#34;&#34;
     if self.has_valid_generator:
         return self.generator_powers[e]
     else:
@@ -1416,12 +1683,14 @@ def zero(self) -&gt; &#39;FFElement&#39;:
 <span>def <span class="ident">ext_mul</span></span>(<span>self, n, a)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Returns the n-th iterated addition of an element with itself</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def ext_mul(self, n: int, a: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+    &#34;&#34;&#34;Returns the n-th iterated addition of an element with itself
+    &#34;&#34;&#34;
     assert a.field == self
     r = self.zero
     for _ in range(0, n):
@@ -1433,13 +1702,14 @@ def zero(self) -&gt; &#39;FFElement&#39;:
 <span>def <span class="ident">find_generator</span></span>(<span>self, set_generator=False)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Returns a valid generator of the multiplicative group of the field</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def find_generator(self, set_generator=False) -&gt; &#39;FFElement&#39;:
-
+    &#34;&#34;&#34;Returns a valid generator of the multiplicative group of the field
+    &#34;&#34;&#34;
     if self.has_valid_generator:
         g = self.generator
     elif maybe_prime(self.order - 1):
@@ -1464,30 +1734,18 @@ def zero(self) -&gt; &#39;FFElement&#39;:
     return g</code></pre>
 </details>
 </dd>
-<dt id="pyimath.finitefield.FiniteField.floor_div"><code class="name flex">
-<span>def <span class="ident">floor_div</span></span>(<span>self, a, b)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def floor_div(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
-    return self.div(a, b)</code></pre>
-</details>
-</dd>
 <dt id="pyimath.finitefield.FiniteField.format_element"><code class="name flex">
 <span>def <span class="ident">format_element</span></span>(<span>self, e, format_spec='')</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Returns a printable representation of an element</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def format_element(self, e: &#39;FFElement&#39;, format_spec: str = &#39;&#39;) -&gt; str:
-
+    &#34;&#34;&#34;Returns a printable representation of an element
+    &#34;&#34;&#34;
     if format_spec == &#39;short&#39;:
         s = &#39;&#39;
         if e.is_scalar:
@@ -1506,13 +1764,16 @@ def zero(self) -&gt; &#39;FFElement&#39;:
 <span>def <span class="ident">frobenius_reciprocal</span></span>(<span>self, a)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Returns the bijective inverse of an element through the Frobenius automorphism. This is
+equivalent of taking the p-th root of an element where p is the field characteristic</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def frobenius_reciprocal(self, a: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
-
+    &#34;&#34;&#34;Returns the bijective inverse of an element through the Frobenius automorphism. This is
+    equivalent of taking the p-th root of an element where p is the field characteristic
+    &#34;&#34;&#34;
     assert isinstance(a, FFElement)
     assert a in self
     r = self.zero
@@ -1526,12 +1787,14 @@ def zero(self) -&gt; &#39;FFElement&#39;:
 <span>def <span class="ident">linear_polynomial</span></span>(<span>self, e)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Returns the polynomial <code>X - e</code></p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def linear_polynomial(self, e: &#39;FFElement&#39;) -&gt; Polynomial:
+    &#34;&#34;&#34;Returns the polynomial `X - e`
+    &#34;&#34;&#34;
     p = self.polynomial(-e)
     p += p.monic(1)
     return p</code></pre>
@@ -1541,12 +1804,14 @@ def zero(self) -&gt; &#39;FFElement&#39;:
 <span>def <span class="ident">mod</span></span>(<span>self, _, b)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Kept for interface purpose, returns always <code>self.zero</code></p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def mod(self, _, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+    &#34;&#34;&#34;Kept for interface purpose, returns always `self.zero`
+    &#34;&#34;&#34;
     if b.null:
         raise ZeroDivisionError
 
@@ -1557,12 +1822,14 @@ def zero(self) -&gt; &#39;FFElement&#39;:
 <span>def <span class="ident">mul</span></span>(<span>self, a, b)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Returns the product of two elements</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def mul(self, a: &#39;FFElement&#39;, b: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
+    &#34;&#34;&#34;Returns the product of two elements
+    &#34;&#34;&#34;
     assert a.field == b.field == self
 
     if self.has_valid_generator:
@@ -1591,13 +1858,14 @@ def zero(self) -&gt; &#39;FFElement&#39;:
 <span>def <span class="ident">multiplicative_inverse</span></span>(<span>self, a)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Returns the multiplicative inverse of an element</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def multiplicative_inverse(self, a: &#39;FFElement&#39;) -&gt; &#39;FFElement&#39;:
-
+    &#34;&#34;&#34;Returns the multiplicative inverse of an element
+    &#34;&#34;&#34;
     if self.has_valid_generator:
         p = self.element_as_powers[a]
         if self.order - 1 - p == 0:
@@ -1637,7 +1905,8 @@ def zero(self) -&gt; &#39;FFElement&#39;:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def parse_poly(self, expr: str) -&gt; Polynomial:
-    &#34;&#34;&#34;Returns a polynomial from its symbolic expression&#34;&#34;&#34;
+    &#34;&#34;&#34;Returns a polynomial from its symbolic expression
+    &#34;&#34;&#34;
     return symbolic_polynomial(expr, self)</code></pre>
 </details>
 </dd>
@@ -1645,12 +1914,14 @@ def zero(self) -&gt; &#39;FFElement&#39;:
 <span>def <span class="ident">polynomial</span></span>(<span>self, *args, indeterminate='X')</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Returns a polynomial from a list of coefficients. The coefficients are converted to <a title="pyimath.finitefield.FFElement" href="#pyimath.finitefield.FFElement"><code>FFElement</code></a></p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def polynomial(self, *args, indeterminate: Optional[str] = &#39;X&#39;) -&gt; Polynomial:
+    &#34;&#34;&#34;Returns a polynomial from a list of coefficients. The coefficients are converted to `FFElement`
+    &#34;&#34;&#34;
     coefficients = []
     for c in args:
         if isinstance(c, (tuple, list)):
@@ -1669,28 +1940,34 @@ def zero(self) -&gt; &#39;FFElement&#39;:
 <span>def <span class="ident">polynomial_from_element</span></span>(<span>self, e)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Returns a polynomial whose coefficients are those of the element
+e.g. <code>(1+j+j^2)</code> would yield <code>1 + X + X^2</code></p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def polynomial_from_element(self, e: &#39;FFElement&#39;) -&gt; Polynomial:
+    &#34;&#34;&#34;Returns a polynomial whose coefficients are those of the element
+    e.g. `(1+j+j^2)` would yield `1 + X + X^2`
+    &#34;&#34;&#34;
     return Polynomial(e.vector, self.prime_field, indeterminate=self.root_symbol)</code></pre>
 </details>
 </dd>
 <dt id="pyimath.finitefield.FiniteField.pow"><code class="name flex">
-<span>def <span class="ident">pow</span></span>(<span>self, a, e)</span>
+<span>def <span class="ident">pow</span></span>(<span>self, a, n)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Returns the n-th power of an element</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def pow(self, a: &#39;FFElement&#39;, e: int) -&gt; &#39;FFElement&#39;:
+<pre><code class="python">def pow(self, a: &#39;FFElement&#39;, n: int) -&gt; &#39;FFElement&#39;:
+    &#34;&#34;&#34;Returns the n-th power of an element
+    &#34;&#34;&#34;
     assert a.field == self
-    assert e &gt;= 0
-    res = power(a, e)
+    assert n &gt;= 0
+    res = power(a, n)
     if not isinstance(res, FFElement):
         return self(res)
     else:
@@ -1742,7 +2019,6 @@ def zero(self) -&gt; &#39;FFElement&#39;:
 <li><code><a title="pyimath.finitefield.FiniteField.element_order" href="#pyimath.finitefield.FiniteField.element_order">element_order</a></code></li>
 <li><code><a title="pyimath.finitefield.FiniteField.ext_mul" href="#pyimath.finitefield.FiniteField.ext_mul">ext_mul</a></code></li>
 <li><code><a title="pyimath.finitefield.FiniteField.find_generator" href="#pyimath.finitefield.FiniteField.find_generator">find_generator</a></code></li>
-<li><code><a title="pyimath.finitefield.FiniteField.floor_div" href="#pyimath.finitefield.FiniteField.floor_div">floor_div</a></code></li>
 <li><code><a title="pyimath.finitefield.FiniteField.format_element" href="#pyimath.finitefield.FiniteField.format_element">format_element</a></code></li>
 <li><code><a title="pyimath.finitefield.FiniteField.frobenius_map" href="#pyimath.finitefield.FiniteField.frobenius_map">frobenius_map</a></code></li>
 <li><code><a title="pyimath.finitefield.FiniteField.frobenius_reciprocal" href="#pyimath.finitefield.FiniteField.frobenius_reciprocal">frobenius_reciprocal</a></code></li>

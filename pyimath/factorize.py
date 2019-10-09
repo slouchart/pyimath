@@ -2,6 +2,7 @@ from collections import namedtuple
 from typing import Collection, Tuple
 
 from pyimath.polynomial import Polynomial
+from pyimath.functions import gcd
 from pyimath.annotations import BaseField, BaseNumber
 
 
@@ -72,7 +73,7 @@ class Factorization:
         factors = []
         # step 2: identify all factors of multiplicity m not divisible by q
         if f.formal_derivative() != f.null:
-            g = f.gcd(f.formal_derivative())
+            g = gcd(f, f.formal_derivative())
             if not g.is_abs_unit:
                 w = f / g
                 i = 1
@@ -118,7 +119,7 @@ class Factorization:
         q = f.base_field.characteristic
         i = 1
         while fp.degree >= 2 * i:
-            g = fp.gcd(f.monic(q ** i) - f.monic(1))
+            g = gcd(fp, f.monic(q ** i) - f.monic(1))
             if not g.make_monic().is_abs_unit:
                 factors.append(Factor(g.make_monic(), 1, i))
             fp /= g
@@ -151,7 +152,7 @@ class Factorization:
         while found_factors < r and nb_retries < max_retries:
             # pick a random polynomial a of degree < r * d
             a = f.base_field.random_polynomial(f.degree - 1)
-            g = f.gcd(a).make_monic()
+            g = gcd(f, a).make_monic()
             if not g.is_unit and g not in factors:
                 factors.append(g)
                 found_factors += 1
@@ -160,7 +161,7 @@ class Factorization:
                 m = (q ** d - 1) // 2
                 a_p = a ** m + a.unit
                 if not a_p.is_null:
-                    g = f.gcd(a_p).make_monic()
+                    g = gcd(f, a_p).make_monic()
                     if not g.is_unit and g != f and g not in factors:
                         factors.append(g)
                         found_factors += 1

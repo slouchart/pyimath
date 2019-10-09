@@ -7,10 +7,10 @@ from pyimath.primefield import PrimeField
 
 class TestAdditiveGroup(TestCase):
     def setUp(self):
-        self.gr2 = PrimeField.additive_group_representation(2)
-        self.gr3 = PrimeField.additive_group_representation(3)
-        self.gr5 = PrimeField.additive_group_representation(5)
-        self.gr7 = PrimeField.additive_group_representation(7)
+        self.gr2 = PrimeField._additive_group_representation(2)
+        self.gr3 = PrimeField._additive_group_representation(3)
+        self.gr5 = PrimeField._additive_group_representation(5)
+        self.gr7 = PrimeField._additive_group_representation(7)
 
     def testGR2(self):
         """Checking low level primitive for addition in F2
@@ -49,15 +49,15 @@ class TestAdditiveGroup(TestCase):
 
 class TestMultiplicativeGroup(TestCase):
     def setUp(self):
-        self.gr2 = PrimeField.additive_group_representation(2)
-        self.gr3 = PrimeField.additive_group_representation(3)
-        self.gr5 = PrimeField.additive_group_representation(5)
-        self.gr7 = PrimeField.additive_group_representation(7)
+        self.gr2 = PrimeField._additive_group_representation(2)
+        self.gr3 = PrimeField._additive_group_representation(3)
+        self.gr5 = PrimeField._additive_group_representation(5)
+        self.gr7 = PrimeField._additive_group_representation(7)
 
-        self.mulgr2 = PrimeField.multiplicative_group_representation(self.gr2)
-        self.mulgr3 = PrimeField.multiplicative_group_representation(self.gr3)
-        self.mulgr5 = PrimeField.multiplicative_group_representation(self.gr5)
-        self.mulgr7 = PrimeField.multiplicative_group_representation(self.gr7)
+        self.mulgr2 = PrimeField._multiplicative_group_representation(self.gr2)
+        self.mulgr3 = PrimeField._multiplicative_group_representation(self.gr3)
+        self.mulgr5 = PrimeField._multiplicative_group_representation(self.gr5)
+        self.mulgr7 = PrimeField._multiplicative_group_representation(self.gr7)
 
     def testMULGR2(self):
         """Checking low level primitive for multiplication in F2
