@@ -35,7 +35,7 @@ setup(
                    'Operating System :: OS Independent',
                    'Topic :: Scientific/Engineering :: Mathematics',
                   ],
-    packages=find_packages(PACKAGE_NAME, exclude=['tests']),
+    packages=find_packages(exclude=['tests']),
     platforms=['any', 'all'],
     python_requires='>=3',
 )

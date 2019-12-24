@@ -2,6 +2,11 @@
 
 This document lists the changes (and individuals who contributed to those changes) for each release of `pyimath`.
 
+## 0.1.1
+
+* `tox`integration
+* Automated documentation
+
 ## 0.0.5
 
 - Fixing a bug in the definition of multiplication and multiplicative inverse operations in `FiniteField` when a generator is defined
