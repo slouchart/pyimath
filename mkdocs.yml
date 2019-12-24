@@ -1,7 +1,9 @@
 site_name: pyimath Documentation Page
 site_description: exposes the documentation of the pyimath Python package
+theme: readthedocs
 nav:
   - Home: index.md
+  - A primer on finite fields theory: MISCELLANEOUS.md
   - API:
     - pyimath/annotations.md
     - pyimath/factorize.md
@@ -12,5 +14,5 @@ nav:
     - pyimath/polynomial.md
     - pyimath/primefield.md
 
-theme: readthedocs
+
 
