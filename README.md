@@ -80,7 +80,7 @@ p1 = PrimeField(3).polynomial(-1, 0, 1, 1)
 
 ```python
 from pyimath.primefield import PrimeField
-from pyimath.polyparse import symbolic_polynomial
+from pyimath.polynomial import symbolic_polynomial
 p0 = symbolic_polynomial('X^3 + X^2 - 1', PrimeField(3))
 
 # or, alternatively:
@@ -117,7 +117,7 @@ A polynomial over a finite field can be factorized into irreducible factors usin
 
 ```python
 from pyimath.finitefield import finite_field
-from pyimath.polyparse import symbolic_polynomial
+from pyimath.polynomial import symbolic_polynomial
 from pyimath.factorize import factorize
 f3 = finite_field(3)
 p = symbolic_polynomial('-X^4 + X - 1', f3)

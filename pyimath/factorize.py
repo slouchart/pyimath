@@ -1,3 +1,10 @@
+__all__ = [
+    'factorize',
+    'Factorization',
+    'Factor',
+]
+
+
 from collections import namedtuple
 from typing import Sequence, Tuple
 
@@ -6,24 +13,30 @@ from pyimath.functions import gcd
 from pyimath.annotations import BaseField, BaseNumber
 
 
-__all__ = ['factorize']
-
-
 def factorize(p: Polynomial) -> 'Factorization':
     """
     Main entry point of the module, provide an instance of the Factorization class as a place holder
-    to call any factorization algorithms : `square_free`, `distinct_degree`, `equal_degree` or `cantor_zassenhaus`
-    :param p: a Polynomial
-    :return: a instance of `Factorization`
+    to call any factorization algorithms : `square_free`, `distinct_degree`, `equal_degree` or `cantor_zassenhaus`.
+
+    Accepts an instance of `Polynomial` (parameter `p`) and returns a instance of `Factorization`
     """
     return Factorization(p.base_field, p)
 
 
 class Factor(namedtuple('Factor', 'value, multiplicity, max_degree', defaults=(0,))):
+    """Defines a `Factor` class that wraps a `Polynomial` along with a `multiplicity`.
+
+    Works a `namedtuple`with the following fields:
+
+    * `value`: an instance of `Polynomial`
+    * `multiplicity`: an integer representing the multiplicity of this factor in a factorization
+    * `max_degree`: for an reducible factor, represents the maximum degree of its irreducible factors
+    """
     __slots__ = ()
 
     @property
     def is_irreducible(self) -> bool:
+        """returns `True` if the `Polynomial` referenced by `value`is irreducible otherwise returns `False`"""
         return self.value.is_irreducible
 
     def __str__(self) -> str:
@@ -38,8 +51,10 @@ class Factor(namedtuple('Factor', 'value, multiplicity, max_degree', defaults=(0
 
 class Factorization:
     """
-    Service provider for polynomial factorization
+    Service provider for polynomial factorization.
+
     The main service is the full factorization by the Cantor-Zassenhaus algorithm
+
     Never use it directly, subclass it if you want but in any case, please use `factorize(poly).<method>()`
     """
 
@@ -49,9 +64,8 @@ class Factorization:
 
     def factors_product(self, factors: Sequence[Factor]) -> Polynomial:
         """
-        Converts a list of factors into a polynomial
-        :param factors: an iterable of `Factor`
-        :return: a Polynomial that is the product of Factors.value along with their multiplicity
+        Converts a list of factors into a polynomial. The `factors` parameter must be an iterable of `Factor` instances.
+        Returns a `Polynomial` that is the product of these factors along with their multiplicity
         """
         bf = self.base_field
         if len(factors) == 0:
@@ -65,7 +79,7 @@ class Factorization:
 
     def square_free(self) -> Tuple[Polynomial, Sequence[Factor]]:
         """Square free factorization of a monic polynomial over a finite field of prime characteristic.
-           Returns the square free part and a partial (or complete factorization)"""
+           Returns the square free part and a partial or complete factorization"""
 
         f = self.poly.copy.make_monic()
         q = f.base_field.characteristic
@@ -174,9 +188,8 @@ class Factorization:
         return [Factor(g, 1, 0) for g in factors]
 
     def cantor_zassenhaus(self) -> Tuple[Sequence[Factor], BaseNumber]:
-        """Full factorisation algorithm
-           input: any polynomial over a finite field
-           output : a constant term and a list of factors with their multiplicity"""
+        """Full factorisation algorithm for any polynomial over a finite field.
+           Returns a tuple containing a constant term and a list of factors with their multiplicity"""
 
         irreducible_factors = []
         factors_to_consider = []

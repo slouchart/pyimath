@@ -14,10 +14,10 @@ __all__ = ['PrimeField', 'PFElement']
 
 
 class PrimeField:
-    """Prime field definition of characteristic P.
+    """Defines a prime field definition of characteristic P.
 
        The field elements are not represented by integer modulo P
-       but rather relative integers in the range `-(P-1)/2..(P-1)/2`
+       but rather by signed integers in the range `-(P-1)/2..(P-1)/2`
        """
     def __init__(self, prime: int):
         self.characteristic = prime
@@ -63,7 +63,7 @@ class PrimeField:
 
     def frobenius_reciprocal(self, a: 'PFElement') -> 'PFElement':
         """Returns the Frobenius reciprocal of an element. As a remainder, the Frobenius automorphism is `a -> a^q`
-        where `q` is the characteristic of the field. In prime fields, it is the identity
+        where `q` is the characteristic of the field. In prime fields, it is the identity.
         """
         assert a in self
         return a
@@ -71,7 +71,7 @@ class PrimeField:
     def generate_irreducible_polynomial(self, degree: int, max_retries: int = 15) -> Polynomial:
         """Returns an irreducible polynomial of a given degree over the base field. This algorithm is not deterministic
         and may raise exceptions. `degree` is the degree of the irreducible polynomial and `max_retries` sets
-        the maximum number of attempts
+        the maximum number of attempts.
         """
         max_retries = max(degree // 2, max_retries)
         tries = 0

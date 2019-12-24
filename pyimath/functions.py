@@ -3,11 +3,21 @@ from functools import reduce
 from math import gcd as __internal_gcd
 from typing import Union, List, Tuple, Iterator
 
-__all__ = ['comb', 'bincoeff', 'primes', 'factor', 'gcd', 'reduce_to_gcd', 'power', 'maybe_prime']
+__all__ = [
+    'comb',
+    'bincoeff',
+    'primes',
+    'factor',
+    'gcd',
+    'reduce_to_gcd',
+    'power',
+    'maybe_prime',
+    'small_primes',
+]
 
 
 def bincoeff(n: int, k: int = None) -> Union[int, List[int]]:
-    """Computes the binomial coefficients of (1 + x)^n or returns the k-th coefficient
+    """Computes the binomial coefficients of `(1 + x)^n` or returns the k-th coefficient
     """
     if k is not None:
         return comb(n, k)
@@ -19,7 +29,7 @@ def bincoeff(n: int, k: int = None) -> Union[int, List[int]]:
 
 
 def comb(n: int, k: int) -> int:
-    """Defines C(n, k) as the number of ways to pick k items among n
+    """Defines `C(n, k)` as the number of ways to pick `k` items among `n`
     """
     if k > n:
         raise ValueError
@@ -66,9 +76,10 @@ def factor(n: int) -> List[Tuple[int, int]]:
 
 
 def gcd(a, b):
-    """Computes the GCD of two operands recursively.
+    """Computes the GCD of two operands recursively where
     `a` and `b` shall be of the same type or of compatible types.
-    Mimic the behavior of `math.gcd` for zero operands.
+
+    Mimics the behavior of `math.gcd` for zero operands.
     """
     if a == 0:
         return b
@@ -127,7 +138,7 @@ def mul_factor(factors: List[Tuple[int, int]]) -> int:
 
 
 def power(a, n: int):
-    """Return a to the n-th power, uses exponentiation by squaring i.e square and multiply
+    """Return `a` to the n-th power, uses exponentiation by squaring i.e square and multiply
     """
     # Shortcuts are evaluated here to avoid code duplication
 
@@ -171,9 +182,10 @@ def primes(n_max: int = 100) -> List[int]:
 
 
 def reduce_to_gcd(it: Iterator):
-    """ Computes the GCD of all the items from an iterable
+    """ Computes the GCD of all items from an `Iterator`
     """
     return reduce(gcd, it, next(it))
 
 
-small_primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43]
+small_primes = (2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43,)
+"""A tuple that defines all primes up to 43"""

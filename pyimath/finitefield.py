@@ -17,7 +17,7 @@ Vector = Union[List[BaseAtom], MutableSequence[BaseAtom], Sequence[BaseAtom], Co
 
 
 class FiniteField:
-    """Represents a non-prime finite field
+    """Represents a non-prime finite field where:
     """
     def __init__(self,
                  prime: int,
@@ -25,11 +25,16 @@ class FiniteField:
                  ideal: Polynomial,
                  generator: Optional[Sequence[int]] = None,
                  root_symbol: Optional[str] = 'j'):
-        """`prime` is the order of the base prime field
-        `dimension` is the dimension of the finite field seen as a vector space over its prime field
-        `ideal` is the minimal polynomial of the adjunct root j, must be irreducible over the prime field
+        """
+        `prime` is the order of the base prime field,
+
+        `dimension` is the dimension of the finite field seen as a vector space over its prime field,
+
+        `ideal` is the minimal polynomial of the adjunct root j, must be irreducible over the prime field,
+
         `generator` must be an element of the field that generates the multiplicative group
-        `root_symbol` a one-character string to represent the adjunct root
+
+        and `root_symbol` is a one-character string to represent the adjunct root
         """
         self._prime_field = PrimeField(prime)
         self.dimension = dimension
@@ -70,7 +75,7 @@ class FiniteField:
 
     @property
     def basis(self) -> Iterator['FFElement']:
-        """Returns the basis of field elements for the field seen as a vector space
+        """Returns a vector-space basis of field elements
         """
         return (self(0, 1) ** e for e in range(0, self.dimension))
 
@@ -184,7 +189,8 @@ class FiniteField:
 
     @property
     def frobenius_map(self) -> MutableSequence['FFElement']:
-        """Returns what is actually the linear map of the inverse function of Frobenius automorphism (see MISCELLANEOUS.md)
+        """Returns what is actually the linear map of the inverse function of Frobenius automorphism
+        (see MISCELLANEOUS.md)
         """
         return self._frobenius_map[:]
 
@@ -209,7 +215,7 @@ class FiniteField:
 
     @property
     def has_valid_generator(self) -> bool:
-        """Returns True if the field was set with a valid generator i.e. an element whose order is equal
+        """Returns `True` if the field was set with a valid generator i.e. an element whose order is equal
         to the order of the field
         """
         return len(self.generator_powers) > 0 and self.generator is not None
@@ -471,7 +477,7 @@ class FiniteField:
 class FFElement:
     def __init__(self, field: FiniteField, v: Vector):
         """Represents an element of a finite field of non-prime order as a vector
-        of element of the base prime field
+        of elements of the base prime field
         """
         self.field = field
         self.vector = v
@@ -652,10 +658,11 @@ FINITE_FIELD = {
 
 
 def finite_field(order):
-    """Returns the finite field of the given order. Fields that may be instantiated this way:
+    """Returns the finite field of the given order.
+    Fields that may be instantiated this way are:
 
-    - prime fields of order less then 23
-    - finite fields of non-prime order up to order 27. These finite fields have all a valid generator.
+    * all prime fields of order less then 23
+    * finite fields of non-prime order up to order 27. These finite fields have all a valid generator.
 
     """
     if f'F{order}' in FINITE_FIELD:

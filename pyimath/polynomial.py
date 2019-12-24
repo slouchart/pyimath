@@ -16,7 +16,7 @@ class Polynomial:
     """Represents a polynomial over a finite field or over the integers
 
     More generally, definition of polynomials over a ring is possible
-    but not recommended
+    but not really recommended
 
     The internal representation of the coefficients uses a `dict` that
     indexes the coefficients by their degree. The usual definition of a polynomial as a sequence of numbers
@@ -45,7 +45,7 @@ class Polynomial:
         self.indeterminate = indeterminate
 
     def add(self, poly: 'Polynomial') -> 'Polynomial':
-        """Addition in a ring of polynomials"""
+        """Returns the sum of two polynomials"""
         a = self._coefficients
         s = poly.copy
         for deg_a, c_a in a.items():
@@ -74,6 +74,7 @@ class Polynomial:
 
     def check_irreducibility(self) -> bool:
         """Returns True if the polynomial is irreducible
+
         Inspired by https://jeremykun.com/2014/03/13/programming-with-finite-fields/"""
         p = self.copy
         q = p.base_field.characteristic
@@ -150,9 +151,12 @@ class Polynomial:
         return gcd(self, p)
 
     def frobenius_reciprocal(self) -> 'Polynomial':
-        """If this polynomial can be written as R^(p*m)
-        where R is a polynomial, p the field characteristic and m an integer
-        then taking the p-th root <=> returning R^m"""
+        """Returns a polynomial `R` if and only if  this polynomial can be written as `R^(p*m)`
+        where `R` is a polynomial, `p` the field characteristic and `m` an integer.
+
+        Equivalent of taking the p-th root of a polynomial over a finite field
+
+        Do not use this method if the base field/ring has a characteristic of zero"""
         assert self.base_field.characteristic > 0
         if self.base_field.characteristic > 0:
             """if p is a power of a multiple of the field characteristic
@@ -183,38 +187,39 @@ class Polynomial:
 
     @property
     def internal(self) -> Dict[int, BaseNumber]:
-        """Returns the coefficients as a dict indexed by their degree
+        """Returns the coefficients as a `dict` indexed by their degree.
+
         Eschews null terms"""
         return dict({deg: c for deg, c in self._coefficients.items()})
 
     @property
     def is_abs_unit(self) -> bool:
-        """Returns True if the polynomial is contant of constant term 1 or -1"""
+        """Returns `True` if the polynomial is a constant of constant term 1 or -1"""
         return self in (self.monic(0), -self.monic(0))
 
     @property
     def is_constant(self) -> bool:
-        """Returns True if the polynomial is of degree zero and is not null"""
+        """Returns `True` if the polynomial is of degree zero and is not null"""
         return self.degree == 0 and not self.is_null
 
     @property
     def is_irreducible(self) -> bool:
-        """Returns True if the polynomial is irreducible"""
+        """Returns `True` if the polynomial is irreducible"""
         return self.check_irreducibility()
 
     @property
     def is_monic(self) -> bool:
-        """Returns True if the leading coefficient is one"""
+        """Returns `True` if the leading coefficient is one"""
         return self._coefficients[self.degree] == self.base_field.one
 
     @property
     def is_null(self) -> bool:
-        """Returns True if all coefficients are zero"""
+        """Returns `True` if all coefficients are zero"""
         return len(self._coefficients.keys()) == 0
 
     @property
     def is_unit(self) -> bool:
-        """Returns True if the polynomial is constant of constant term 1"""
+        """Returns `True` if the polynomial is a constant of constant term 1"""
         return self == self.unit
 
     @property
@@ -227,6 +232,7 @@ class Polynomial:
 
     def long_division(self, divisor: 'Polynomial') -> Tuple['Polynomial', 'Polynomial']:
         """Defines the long division according to decreasing degrees
+
         Be careful if the coefficients are from a ring"""
 
         quotient = self.null
@@ -272,7 +278,8 @@ class Polynomial:
         """
         Attempts to divide the polynomial by its leading coefficient (for a field) or by the gcd of its
         coefficients (for a ring)
-        :return: a monic polynomial or raises an error if the polynomial cannot be made monic
+
+        Returns a monic polynomial or raises an error if the polynomial cannot be made monic
         """
         if not self.is_monic:
             if self.base_field.characteristic != 0:
@@ -311,7 +318,7 @@ class Polynomial:
         return res
 
     def mul_constant(self, k: BaseNumber) -> 'Polynomial':
-        """External multiplication (vector space external product)"""
+        """External multiplication (vector space external product) of a polynomial and a constant"""
         s = self.null
         if k != self.base_field.zero:
             for deg, c in self._coefficients.items():
@@ -347,8 +354,9 @@ class Polynomial:
         return power(self.copy, n)
 
     def sub(self, poly: 'Polynomial') -> 'Polynomial':
-        """Subtraction is indeed just an addition of an inverse"""
+        """Returns the difference between two polynomials"""
         assert isinstance(poly, Polynomial)
+        # Subtraction is indeed just an addition of an inverse
         return self.add(-poly)
 
     @property
@@ -361,7 +369,7 @@ class Polynomial:
 
     @property
     def unit(self) -> 'Polynomial':
-        """Return 1 as a polynomial of degree 0"""
+        """Returns 1 as a polynomial of degree 0"""
         return self.monic(0)
 
     @property
@@ -566,11 +574,13 @@ class Polynomial:
 
 
 def symbolic_polynomial(expression: str, base_field: BaseField, indeterminate: Optional[str] = 'X'):
-    """Returns a polynomial from its algebraic expression
-    :param expression: an algebraic expression in the indeterminate
-    :param base_field: the field (or the ring) that coefficients are to be drawn from
-    :param indeterminate: a single digit string in the range [a-zA-Z]
-    :return: a polynomial"""
+    """Returns a polynomial from its algebraic expression where:
+
+     * `expression`is an algebraic expression in the `indeterminate`,
+     * `base_field` is the field (or the ring) that coefficients are to be drawn from,
+     * and `indeterminate` is a single digit string in the range [a-zA-Z], usually `'X'`.
+
+    Returns an instance of `Polynomial`"""
     return PolynomialParser.parse(expression, base_field, indeterminate=indeterminate)
 
 

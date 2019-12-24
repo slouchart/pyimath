@@ -173,7 +173,7 @@ class GaussInt:
 
     @property
     def x(self) -> int:
-        """Return the integer component of a gaussian integer
+        """Returns the integer component of a gaussian integer
         """
         return self.vector[0]
 
@@ -274,7 +274,7 @@ class GaussInt:
             raise TypeError
 
     def __invert__(self) -> 'GaussInt':
-        """Defined the complex conjugate"""
+        """Defines the complex conjugate"""
         return self.conjugate
 
     def __abs__(self) -> int:
