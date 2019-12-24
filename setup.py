@@ -5,7 +5,7 @@ import re
 from setuptools import setup, find_packages
 
 PACKAGE_NAME = 'pyimath'
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 __author__ = 'Sébastien Louchart:sebastien.louchart@gmail.com'
 
 
