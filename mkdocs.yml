@@ -1,0 +1,16 @@
+site_name: pyimath Documentation Page
+site_description: exposes the documentation of the pyimath Python package
+nav:
+  - Home: index.md
+  - API:
+    - pyimath/annotations.md
+    - pyimath/factorize.md
+    - pyimath/finitefield.md
+    - pyimath/functions.md
+    - pyimath/gaussint.md
+    - pyimath/integer.md
+    - pyimath/polynomial.md
+    - pyimath/primefield.md
+
+theme: readthedocs
+

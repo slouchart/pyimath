@@ -2,8 +2,8 @@ venv*/
 .idea/
 __pycache__/
 */__pycache__/
-docs/
 dist/
 build/
 *.egg-info/
 .tox/
+site/
