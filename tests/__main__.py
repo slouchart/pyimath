@@ -19,6 +19,7 @@ TEST_CASES = [
     'factorize',
     'ff_factorize',
     'gaussint',
+    'functions',
 ]
 
 

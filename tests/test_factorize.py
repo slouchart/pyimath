@@ -386,5 +386,12 @@ class TestFullFactorization(TestCase):
         self.assertTrue(factorize(p).factors_product(factors) * c == p)
 
 
+class TestFactor(TestCase):
+    def test1(self):
+        f7 = PrimeField(7)
+        f = factorize(f7.polynomial(0))
+        self.assertEqual(f.factors_product([]), f7.zero)
+
+
 if __name__ == '__main__':
     run_tests()

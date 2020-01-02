@@ -9,6 +9,7 @@ __all__ = [
     'primes',
     'factor',
     'gcd',
+    'mul_factor',
     'reduce_to_gcd',
     'power',
     'maybe_prime',
@@ -32,7 +33,7 @@ def comb(n: int, k: int) -> int:
     """Defines `C(n, k)` as the number of ways to pick `k` items among `n`
     """
     if k > n:
-        raise ValueError
+        raise ValueErrorgit status
 
     result = 1
     for i in range(n - k + 1, n + 1):
