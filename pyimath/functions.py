@@ -33,7 +33,7 @@ def comb(n: int, k: int) -> int:
     """Defines `C(n, k)` as the number of ways to pick `k` items among `n`
     """
     if k > n:
-        raise ValueErrorgit status
+        raise ValueError
 
     result = 1
     for i in range(n - k + 1, n + 1):
